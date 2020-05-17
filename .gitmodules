@@ -1,0 +1,3 @@
+[submodule "src/LaTeXML"]
+	path = src/LaTeXML
+	url = https://github.com/brucemiller/LaTeXML.git
