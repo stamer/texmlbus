@@ -10,8 +10,8 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Ma
 
 ```
 1. git clone --recursive https://github.com/stamer/texmlbus.git
-2. git submodule update --init --recursive
-3. cd texmlbus
+2. cd texmlbus
+3. git submodule update --init --recursive
 4. docker-compose up
 5. # Please be patient when the system is installed the very first time, as a full 
    # TeXLive system will be installed. Later the system will startup much faster.
