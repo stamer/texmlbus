@@ -1,0 +1,15 @@
+package LaTeXML::Package::Pool;
+use strict;
+use warnings;
+use LaTeXML::Package;
+
+DefMacro('\strictpagecheck', '');
+DefMacro('\easypagecheck', '');
+DefMacro('\adjustwidth{}{}', '');
+DefMacro('\endadjustwidth', '');
+DefMacro('\changetext{}{}{}{}{}', '');
+DefMacro('\endchangetext', '');
+DefMacro('\changepage{}{}{}{}{}{}{}{}{}', '');
+DefMacro('\endchangepage', '');
+
+1;

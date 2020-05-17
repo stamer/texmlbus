@@ -1,0 +1,7 @@
+package LaTeXML::Package::Pool;
+use strict;
+use LaTeXML::Package;
+
+DefMacro('\hdashline', '\hline');
+1;
+

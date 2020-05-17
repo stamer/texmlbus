@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# Heinrich Stamerjohanns, 2020
+#
+if [[ $OS = "Windows_NT" ]]
+then
+    WINPTY="winpty"
+else
+    WINPTY=""
+fi
+#
+# use double slashes so winpty does not convert paths
+#
+$WINPTY docker exec -it texmlbus_texmlbus_1 //usr/bin/tail -f //var/log/apache2/ssl_error.log

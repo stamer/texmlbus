@@ -1,0 +1,12 @@
+[Unit]
+Description=Texmlbus Build System
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/php /srv/texmlbus/build/dmake/texmlbus.php
+WorkingDirectory=/srv/texmlbus/build/dmake
+User=dmake
+Group=users
+
+[Install]
+WantedBy=multi-user.target

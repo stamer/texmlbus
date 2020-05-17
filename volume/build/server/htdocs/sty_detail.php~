@@ -1,0 +1,127 @@
+<?
+
+require_once "config.php";
+require_once "util.php";
+require_once "include/header.php";
+
+display_header();
+
+$dbh = db_connect();
+
+if (!isset($_GET['macro'])) {
+	$macro = '';
+} else {
+	$macro = $_GET['macro'];
+}
+
+if (!isset($_GET['styfilename'])) {
+	$sty = '';
+} else {
+	$sty = $_GET['styfilename'];
+}
+
+?>
+<h2>Detailed info</h2>
+
+<h3><a href="/">Back to Homepage</a></h3>
+<?
+
+if (isset($_GET['min'])) {
+    $min = (int) $_GET['min'];
+} else {
+    // make sure no negatives
+    $min = max(0, (int) $_GET['min']);
+}
+
+$column = array();
+
+
+$query = "
+	SELECT 
+		count(*) as numrows
+	FROM 
+		mmfile 
+	WHERE
+		styfilename = '".mysql_real_escape_string($sty)."'";
+
+$ext_query = '';
+	
+$query .= $ext_query;
+
+$sth = mysql_query($query, $dbh);
+
+if (!$sth) {
+    echo __FILE__.', Line '. __LINE__  .': ';
+    echo mysql_error()."\n";
+    echo 'Query: '. $query."\n";
+}
+
+$row = mysql_fetch_assoc($sth);
+$numrows = $row['numrows'];
+
+$sqlstr = '';
+foreach ($column as $field) {
+	$sqlstr .= $field['sql'].",\n";
+}
+
+$query = "
+	SELECT 
+		filename
+	FROM 
+		mmfile 
+	WHERE
+		styfilename = '".mysql_real_escape_string($sty)."'
+	ORDER BY
+		filename
+	LIMIT
+		$min, $max_pp";
+
+$sth = mysql_query($query, $dbh);
+
+if (!$sth) {
+    echo __FILE__.', Line '. __LINE__  .': ';
+    echo mysql_error()."\n";
+    echo 'Query: '. $query."\n";
+}
+?>
+
+<h3>List of <em><?=$retval ?></em></h3>
+<table border="1">
+<tr>
+	<th>No.</th>
+	<th>Filename</th>
+
+</tr>
+<?
+$count = 0;
+while ($row = mysql_fetch_assoc($sth)) {
+
+	echo "<tr>\n";
+	$count++;
+	$no = $count + $min;
+	echo '<td align="right">'.$no."</td>\n";
+	$filename = str_replace('/arXMLiv/tars_untarred', '', $row['filename']);
+	// fix for old and new entries
+	if (preg_match('/^\/\d/', $filename)) {
+		$directory = 'files'.$filename.'/';
+	} else {
+		$directory = 'oldfiles'.$filename.'/';	
+	}	
+
+	if (!$IS_CRAWLER) {
+		echo '<td><a href="'.$directory.'">'.$filename."</a></td>\n";
+	} else {
+		echo '<td>'.$filename."</td>\n";
+	}
+
+	foreach ($column as $field) {
+		echo '<td align="'.$field['align'].'">'.$row[$field['sql']].'</td>';
+	}
+	echo "</tr>\n";
+}
+
+echo "</table>";
+
+navigator($min, $min, $max_pp, $numrows);
+
+require_once("include/footer.php");

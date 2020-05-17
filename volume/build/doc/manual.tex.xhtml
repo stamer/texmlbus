@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1 plus MathML 2.0//EN" "http://www.w3.org/Math/DTD/mathml2/xhtml-math11-f.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+<title>texmlbus</title>
+<!--Generated on Sun May 17 18:19:04 2020 by LaTeXML (version 0.8.4) http://dlmf.nist.gov/LaTeXML/.-->
+<!--Document created on 2020-05-17.-->
+
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
+<link rel="stylesheet" href="LaTeXML.css" type="text/css"/>
+<link rel="stylesheet" href="ltx-article.css" type="text/css"/>
+<link rel="stylesheet" href="ltx-listings.css" type="text/css"/>
+<script src="LaTeXML-maybeMathjax.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="ltx_page_main">
+<div class="ltx_page_content">
+<div class="ltx_document ltx_authors_1line" lang="en">
+<h1 class="ltx_title ltx_title_document">texmlbus</h1>
+<div class="ltx_authors">
+<span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">Heinrich Stamerjohanns
+</span></span></div>
+<div class="ltx_date ltx_role_creation">2020-05-17</div>
+
+<div id="S1" class="ltx_section">
+<h2 class="ltx_title ltx_title_section"><span class="ltx_tag ltx_tag_section">1 </span>TeX BUild System for Markup Languages</h2>
+
+<div id="S1.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.1 </span>Overview</h3>
+
+<div id="S1.SS1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Texmlbus supports the conversion process of documents written in LaTeX.
+Documents can not only converted to pdf, but also to other output formats – in particular markup languages such as html. In particular, conversion to XML and MathML is supported via [LaTeXML](https://dlmf.nist.gov/LaTeXML/). Texmlbus can schedule jobs among several workers (possibly on different hosts), extract and analyze the conversion process of each document and store results in its own database. Result documents as well as statistics about the results of the build process can be easily retrieved using a web browser.</p>
+</div>
+<div id="S1.SS1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">The system runs inside several docker containers and consists of a webserver, a build system and a database that is by default <span class="ltx_text ltx_font_bold">only accessible to the local machine</span>, where it is started on. One or more workers convert the documents. It is supposed to run on your local machine and is by default not accessible from other machines.</p>
+</div>
+<div id="S1.SS1.p3" class="ltx_para">
+</div>
+</div>
+<div id="S1.SSx1" class="ltx_subsection" style="background-color:#FFCC4D;">
+<h3 class="ltx_title ltx_title_subsection">Caution</h3>
+
+<div id="S1.SSx1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">Please do not change the default configuration and expose the system publicly without further access control, as it enables users to add, modify and delete files on the file system, where the webserver is running.</span>
+<span class="ltx_text" style="background-color:white;"/></p>
+</div>
+</div>
+<div id="S1.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.2 </span>Quick start for <span class="ltx_text ltx_font_typewriter">texmlbus</span></h3>
+
+<div id="S1.SS2.p1" class="ltx_para ltx_noindent">
+<ol id="S1.I1" class="ltx_enumerate">
+<li id="S1.I1.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S1.I1.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Install docker and docker-compose on your computer</p>
+<ul id="S1.I2" class="ltx_itemize">
+<li id="S1.I2.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I2.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">see instructions for
+<a href="https://docs.docker.com/docker-for-windows/install/" title="" class="ltx_ref ltx_href">windows</a> or <a href="https://docs.docker.com/docker-for-mac/install/" title="" class="ltx_ref ltx_href">mac</a>. On linux docker and docker-compose should come with your distribution, or see these links <a href="https://docs.docker.com/install/#server" title="" class="ltx_ref ltx_href">for docker</a> and <a href="https://docs.docker.com/compose/install" title="" class="ltx_ref ltx_href">for <span class="ltx_text ltx_font_typewriter">docker-compose</span></a>.</p>
+</div></li>
+</ul>
+</div></li>
+<li id="S1.I2.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S1.I2.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">On windows install <a href="https://gitforwindows.org/" title="" class="ltx_ref ltx_href">git-bash for windows</a>.</p>
+</div></li>
+<li id="S1.I2.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S1.I2.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">As a full TeX system is installed, you will need approx. 4 Gb of storage space.</p>
+</div></li>
+</ol>
+</div>
+<div id="S1.SS2.SSS1" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">1.2.1 </span>Install via git</h4>
+
+<div id="S1.SS2.SSS1.p1" class="ltx_para ltx_noindent">
+<ol id="S1.I3" class="ltx_enumerate">
+<li id="S1.I3.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S1.I3.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_typewriter">git clone --recursive https://github.com/stamer/texmlbus.git</span></p>
+</div></li>
+<li id="S1.I3.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S1.I3.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_typewriter">cd texmlbus</span></p>
+</div></li>
+<li id="S1.I3.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S1.I3.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_typewriter">git submodule update --init --recursive</span>
+</p>
+</div></li>
+<li id="S1.I3.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">4.</span> 
+<div id="S1.I3.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_typewriter">docker-compose up</span></p>
+</div></li>
+<li id="S1.I3.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">5.</span> 
+<div id="S1.I3.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">On Windows, you will be asked whether to share a drive, answer <span class="ltx_text ltx_font_bold">yes</span>.</p>
+</div></li>
+<li id="S1.I3.i6" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">6.</span> 
+<div id="S1.I3.i6.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">On Windows, Defender might ask you whether to allow access, answer <span class="ltx_text ltx_font_bold">allow</span>.</p>
+</div></li>
+<li id="S1.I3.i7" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">7.</span> 
+<div id="S1.I3.i7.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Please be patient when the system is installed the very first time, later the system will startup much faster.</p>
+</div></li>
+<li id="S1.I3.i8" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">8.</span> 
+<div id="S1.I3.i8.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">The system will continue after displaying <span class="ltx_text ltx_font_typewriter">OK: 3xxx MiB in 1xx packages</span>. Please be patient when the system is installed the very first time, later the system will startup much faster.</p>
+</div></li>
+<li id="S1.I3.i9" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">9.</span> 
+<div id="S1.I3.i9.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Go to <span class="ltx_text ltx_font_typewriter">http://localhost:8080</span></p>
+</div></li>
+<li id="S1.I3.i10" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">10.</span> 
+<div id="S1.I3.i10.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">press <span class="ltx_text ltx_font_typewriter">Ctrl-C</span> to stop the system.</p>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="S1.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.3 </span>First steps</h3>
+
+<div id="S1.SS3.p1" class="ltx_para ltx_noindent">
+<ol id="S1.I4" class="ltx_enumerate">
+<li id="S1.I4.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S1.I4.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Point your browser to <span class="ltx_text ltx_font_typewriter">http://localhost:8080</span></p>
+</div></li>
+<li id="S1.I4.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S1.I4.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#B3B3B3;background-color:#F9E158;border-color: #F9E158;">Create sample set</span> in the top menu.</p>
+</div></li>
+<li id="S1.I4.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S1.I4.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Create samples</span>.</p>
+</div></li>
+<li id="S1.I4.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">4.</span> 
+<div id="S1.I4.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Scan samples directory</span>.</p>
+</div></li>
+<li id="S1.I4.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">5.</span> 
+<div id="S1.I4.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click <span class="ltx_text ltx_font_bold">Documents alphabetically</span> on the left menu.</p>
+</div></li>
+<li id="S1.I4.i6" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">6.</span> 
+<div id="S1.I4.i6.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click <span class="ltx_text ltx_font_bold">Samples</span> on the left menu.</p>
+</div></li>
+<li id="S1.I4.i7" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">7.</span> 
+<div id="S1.I4.i7.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">In the <span class="ltx_text ltx_font_italic">xhtml</span> column of the first document click on <span class="ltx_text ltx_font_bold">queue</span>.</p>
+</div></li>
+<li id="S1.I4.i8" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">8.</span> 
+<div id="S1.I4.i8.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">In the <span class="ltx_text ltx_font_italic">xhtml</span> column of the first document click on <span class="ltx_text ltx_font_bold">Destfile</span>.</p>
+</div></li>
+<li id="S1.I4.i9" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">9.</span> 
+<div id="S1.I4.i9.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">The rendered xhtml document should appear in the browser.</p>
+</div></li>
+</ol>
+</div>
+</div>
+<div id="S1.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.4 </span>Using <span class="ltx_text ltx_font_typewriter">texmlbus</span></h3>
+
+<div id="S1.SS4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">In order to convert documents you will need to import further documents first.
+There are two ways to import documents:</p>
+<ul id="S1.I5" class="ltx_itemize">
+<li id="S1.I5.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I5.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">upload files via web interface</p>
+<ol id="S1.I6" class="ltx_enumerate">
+<li id="S1.I6.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S1.I6.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_font_bold">Import / Manage</span> on the left menu.</p>
+</div></li>
+<li id="S1.I6.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S1.I6.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Move a file onto the drop zone, or add a file via <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Add files</span>.</p>
+</div></li>
+<li id="S1.I6.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S1.I6.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Start upload</span>.</p>
+</div></li>
+<li id="S1.I6.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">4.</span> 
+<div id="S1.I6.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Choose a destination set or type in a new set into the box</p>
+</div></li>
+<li id="S1.I6.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">5.</span> 
+<div id="S1.I6.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Import</span></p>
+</div></li>
+<li id="S1.I6.i6" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">6.</span> 
+<div id="S1.I6.i6.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click <span class="ltx_text ltx_font_bold">Documents alphabetically</span> on the left menu.</p>
+</div></li>
+<li id="S1.I6.i7" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">7.</span> 
+<div id="S1.I6.i7.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Choose the set, you have uploaded the files to.</p>
+</div></li>
+<li id="S1.I6.i8" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">8.</span> 
+<div id="S1.I6.i8.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Convert the files by pressing on <span class="ltx_text ltx_font_bold">queue</span>.</p>
+</div></li>
+</ol>
+</div></li>
+<li id="S1.I6.i2a" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I6.i2a.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">move files to articles directory</p>
+<ol id="S1.I7" class="ltx_enumerate">
+<li id="S1.I7.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S1.I7.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">create a subdirectory below <span class="ltx_text ltx_font_typewriter">articles</span></p>
+</div></li>
+<li id="S1.I7.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S1.I7.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_font_bold">Import / Manage</span> on the left menu.</p>
+</div></li>
+<li id="S1.I7.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S1.I7.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_font_bold">Scan directory for documents</span>.</p>
+</div></li>
+<li id="S1.I7.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">4.</span> 
+<div id="S1.I7.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Choose a set.</p>
+</div></li>
+<li id="S1.I7.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">5.</span> 
+<div id="S1.I7.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Click on <span class="ltx_text ltx_framed_rectangle" style="color:#FFFFFF;background-color:#007BFF;border-color: #007BFF;">Scan</span>.</p>
+</div></li>
+</ol>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="S1.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.5 </span>Typical issues using docker</h3>
+
+<div id="S1.SS5.SSS1" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">1.5.1 </span>Avoid share drive questions</h4>
+
+<div id="S1.SS5.SSS1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Docker <math xmlns="http://www.w3.org/1998/Math/MathML" id="S1.SS5.SSS1.p1.m1" class="ltx_Math" alttext="\rightarrow" display="inline"><semantics><mo id="S1.SS5.SSS1.p1.m1.1" xref="S1.SS5.SSS1.p1.m1.1.cmml">→</mo><annotation-xml encoding="MathML-Content"><ci id="S1.SS5.SSS1.p1.m1.1.cmml" xref="S1.SS5.SSS1.p1.m1.1">→</ci></annotation-xml></semantics></math> Settings <math xmlns="http://www.w3.org/1998/Math/MathML" id="S1.SS5.SSS1.p1.m2" class="ltx_Math" alttext="\rightarrow" display="inline"><semantics><mo id="S1.SS5.SSS1.p1.m2.1" xref="S1.SS5.SSS1.p1.m2.1.cmml">→</mo><annotation-xml encoding="MathML-Content"><ci id="S1.SS5.SSS1.p1.m2.1.cmml" xref="S1.SS5.SSS1.p1.m2.1">→</ci></annotation-xml></semantics></math> Resources <math xmlns="http://www.w3.org/1998/Math/MathML" id="S1.SS5.SSS1.p1.m3" class="ltx_Math" alttext="\rightarrow" display="inline"><semantics><mo id="S1.SS5.SSS1.p1.m3.1" xref="S1.SS5.SSS1.p1.m3.1.cmml">→</mo><annotation-xml encoding="MathML-Content"><ci id="S1.SS5.SSS1.p1.m3.1.cmml" xref="S1.SS5.SSS1.p1.m3.1">→</ci></annotation-xml></semantics></math> File Sharing</p>
+</div>
+<div id="S1.SS5.SSS1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Add the folder <span class="ltx_text ltx_font_bold">texmlbus</span>.</p>
+</div>
+</div>
+<div id="S1.SS5.SSS2" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">1.5.2 </span>Unable to share drive</h4>
+
+<div id="S1.SS5.SSS2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">On windows you will be asked to share a drive. Please click ”Share it”. Also the windows firewall might ask you to allow a connection.</p>
+</div>
+<div id="S1.SS5.SSS2.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">If you still receive error messages like <span class="ltx_text ltx_font_slanted">unable to share drive</span>, then a problem might be, that SMB is not enabled on your machine. 
+<br class="ltx_break"/>To enable SMB2 on Windows 10, you need to press the Windows Key + S and start typing and click on <span class="ltx_text ltx_font_italic">Turn Windows features on or off</span>. You can also search the same phrase in Start, Settings. Scroll down to <span class="ltx_text ltx_font_italic">SMB 1.0/CIFS File Sharing Support</span> and check that top box.</p>
+</div>
+</div>
+<div id="S1.SS5.SSS3" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">1.5.3 </span>Need more memory</h4>
+
+<div id="S1.SS5.SSS3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Docker <math xmlns="http://www.w3.org/1998/Math/MathML" id="S1.SS5.SSS3.p1.m1" class="ltx_Math" alttext="\rightarrow" display="inline"><semantics><mo id="S1.SS5.SSS3.p1.m1.1" xref="S1.SS5.SSS3.p1.m1.1.cmml">→</mo><annotation-xml encoding="MathML-Content"><ci id="S1.SS5.SSS3.p1.m1.1.cmml" xref="S1.SS5.SSS3.p1.m1.1">→</ci></annotation-xml></semantics></math> Settings <math xmlns="http://www.w3.org/1998/Math/MathML" id="S1.SS5.SSS3.p1.m2" class="ltx_Math" alttext="\rightarrow" display="inline"><semantics><mo id="S1.SS5.SSS3.p1.m2.1" xref="S1.SS5.SSS3.p1.m2.1.cmml">→</mo><annotation-xml encoding="MathML-Content"><ci id="S1.SS5.SSS3.p1.m2.1.cmml" xref="S1.SS5.SSS3.p1.m2.1">→</ci></annotation-xml></semantics></math> Resources</p>
+</div>
+<div id="S1.SS5.SSS3.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Increase Memory on the right side. It is worth it.</p>
+</div>
+</div>
+</div>
+<div id="S1.SS6" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.6 </span>Helper scripts</h3>
+
+<div id="S1.SS6.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">There are some helper scripts in the <span class="ltx_text ltx_font_typewriter">tools</span> directory. Windows users should use <span class="ltx_text ltx_font_italic">git-bash</span> to be able to use these scripts.</p>
+<ul id="S1.I8" class="ltx_itemize">
+<li id="S1.I8.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">docker-cleanup-texmlbus.sh
+<br class="ltx_break"/></span>Removes all images, containers and volumes that belong to this texmlbus system.</p>
+</div></li>
+<li id="S1.I8.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">docker-cleanZZZ-ALL.sh
+<br class="ltx_break"/></span>Removes ALL images, containers and volumes. As mentioned, it reinitializes docker. <span class="ltx_text ltx_font_bold">ALL volumes will be gone</span>. You have been warned.</p>
+</div></li>
+<li id="S1.I8.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">mysql-bash
+<br class="ltx_break"/></span>Bash access on the mysql-container.</p>
+</div></li>
+<li id="S1.I8.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">reset-mysql-db.sh
+<br class="ltx_break"/></span>Reinitializes the mysql-data volume of the texmlbus database container.</p>
+</div></li>
+<li id="S1.I8.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">webserver-bash
+<br class="ltx_break"/></span>Bash access to the webserver container.</p>
+</div></li>
+<li id="S1.I8.i6" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i6.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">webserver-log
+<br class="ltx_break"/></span>Shows the logs of the webserver at port 8080.</p>
+</div></li>
+<li id="S1.I8.i7" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i7.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">webserver-ssl-log
+<br class="ltx_break"/></span>Shows the logs of the webserver at port 8443.</p>
+</div></li>
+<li id="S1.I8.i8" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I8.i8.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_bold">worker-bash
+<br class="ltx_break"/></span>Bash access to the worker container.</p>
+</div></li>
+</ul>
+</div>
+</div>
+<div id="S1.SS7" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">1.7 </span>File locations</h3>
+
+<div id="S1.SS7.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">The system consists of three docker containers.
+</p>
+</div>
+<div id="S1.SS7.tab1" class="ltx_table">
+<table class="ltx_tabular ltx_centering ltx_guessed_headers ltx_align_middle">
+<thead class="ltx_thead">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_justify ltx_th ltx_th_column ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;"><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/docker-compose.yml</span></th>
+<th class="ltx_td ltx_align_justify ltx_th ltx_th_column ltx_border_r ltx_border_t" style="width:184.9pt;">Configuration file for docker compose.</th></tr>
+</thead>
+<tbody class="ltx_tbody">
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;"><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/src</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Configuration files for docker containers.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;"><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/src/LaTeXML</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">git repository for LaTeXML. It is used as parent configuration for the worker.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/src/latexml_dmake</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Worker configuration using LaTeXML.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/src/texmlbus</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Configuration file for the texmlbus build system.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/tools</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Directory that contains helper scripts to access the individual containers.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Directory that is shared between host and the guest containers.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume/articles</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Article directory. Articles are organized in sets. Each subdirectory is another set there.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume/articles/samples</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Sample articles.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume/build</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Source code of the build system.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;">
+<br class="ltx_break"/><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume/build/server/htdocs</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_r ltx_border_t" style="width:184.9pt;">Directory that is served by the web server.</td></tr>
+<tr class="ltx_tr">
+<td class="ltx_td ltx_align_justify ltx_border_b ltx_border_l ltx_border_r ltx_border_t" style="width:170.7pt;"><span class="ltx_text ltx_wrap ltx_font_typewriter">texmlbus/volume/db/mysql</span></td>
+<td class="ltx_td ltx_align_justify ltx_border_b ltx_border_r ltx_border_t" style="width:184.9pt;">Database directory of the mysql database.</td></tr>
+</tbody>
+</table>
+</div>
+<div id="S1.SS7.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Additional Latexml binding files are located at <span class="ltx_text ltx_font_typewriter">texmlbus/build/sty</span>.</p>
+</div>
+</div>
+</div>
+<div id="S2" class="ltx_section">
+<h2 class="ltx_title ltx_title_section"><span class="ltx_tag ltx_tag_section">2 </span>Extending the Build system</h2>
+
+<div id="S2.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">2.1 </span>How to create a stage</h3>
+
+<div id="S2.SS1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">A stage basically describes a conversion from TeX to some other document format.
+Texmlbus provides stages where documents can be converted to pdf or xhtml. But stages are not limited to conversion, you can also apply any other process such as document validation. The <span class="ltx_text ltx_font_slanted">pagelimit</span> stage demonstrates this. It finds typical commands that are known to tweak pagelimit in articles submissions and colors the tex source as html.</p>
+</div>
+<div id="S2.SS1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Additional stages can be added to the build system. You will need to add an additional subdirectory to <span class="ltx_text ltx_font_typewriter">texmlbus/volume/build/stage</span> and create another <span class="ltx_text ltx_font_slanted">retval_stagename</span> table.</p>
+</div>
+<div id="S2.SS1.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">Take a look at the <span class="ltx_text ltx_font_slanted">pagelimit</span> or <span class="ltx_text ltx_font_slanted">pdf</span> to get an idea.</p>
+</div>
+<div id="S2.SS1.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">A stage needs the following components (all file locations are relative to <span class="ltx_text ltx_font_typewriter">texmlbus/volume/build/stage</span>.</p>
+</div>
+<div id="S2.SS1.p5" class="ltx_para ltx_noindent">
+<ol id="S2.I1" class="ltx_enumerate">
+<li id="S2.I1.i1" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S2.I1.i1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Some variables need to be defined for make.
+<br class="ltx_break"/>Create <span class="ltx_text ltx_font_typewriter">stagename/make/Makefile.rule</span> and define the name of the directory and the name of the target.</p>
+</div></li>
+<li id="S2.I1.i2" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">2.</span> 
+<div id="S2.I1.i2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">A rule for a makefile. Create <span class="ltx_text ltx_font_typewriter">stagename/make/Makefile.rule</span>. There you also specify what command should be run when a document is being processed in this stage.</p>
+</div></li>
+<li id="S2.I1.i3" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">3.</span> 
+<div id="S2.I1.i3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">A SQL table that stores the results of this stage. The table should be named <span class="ltx_text ltx_font_slanted">retval_stagename</span> and should have columns similar to <span class="ltx_text ltx_font_slanted">retval_pdf</span>. Therefore <span class="ltx_text ltx_font_typewriter">build/dmake/sql/retval_pdf.sql</span> can just be copied and the name of the table be replaced.</p>
+</div></li>
+<li id="S2.I1.i4" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">4.</span> 
+<div id="S2.I1.i4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">A class that configures the stage and that contains a method to parse the log files. <span class="ltx_text ltx_font_typewriter">build/dmake/RetvalPdf.php</span> can be used to start from. You need to make sure that the targetname exactly matches the target in RetvalStageName.php.</p>
+</div></li>
+<li id="S2.I1.i5" class="ltx_item" style="list-style-type:none;"><span class="ltx_tag ltx_tag_item">5.</span> 
+<div id="S2.I1.i5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Finally this class needs to be added to
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">texmlbus/volume/build/config/registerTargets.php</span>.</p>
+</div></li>
+</ol>
+</div>
+</div>
+</div>
+<div id="S3" class="ltx_section">
+<h2 class="ltx_title ltx_title_section"><span class="ltx_tag ltx_tag_section">3 </span>Controlling the build system</h2>
+
+<div id="S3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">The easiest way to interact with the build system is to use the web interface. There you can easily add and delete documents and invoke documents conversions.
+However there is a simple API and an external program <span class="ltx_text ltx_font_typewriter">workqueue</span> that can control the build system.</p>
+</div>
+<div id="S3.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">3.1 </span>API</h3>
+
+<div id="S3.SS1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">The Build System can be controlled by a simple API to add, remove and schedule articles. Currently no authentication takes place, as the whole website and the API can only be accessed locally.</p>
+</div>
+<div id="S3.SS1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Requests are being sent via GET or POST HTTP requests, the answer format is plain text for browsers or json for ajax requests. Json format can be forced by adding a <span class="ltx_text ltx_font_typewriter">format=json</span> parameter.</p>
+</div>
+<div id="S3.SS1.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">Parameters are URL encoded, escpecially the <span class="ltx_text ltx_font_typewriter">/</span> is encoded as <span class="ltx_text ltx_font_typewriter">%2f</span>.</p>
+</div>
+<div id="S3.SS1.SSS1" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">3.1.1 </span>Add an article</h4>
+
+<div id="S3.SS1.SSS1.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Add an article to the build system. The article needs to be copied to the specified location. The API is only reponsible for database interaction.
+<br class="ltx_break"/></p>
+</div>
+<div id="S3.SS1.SSS1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Required parameters:
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">dir=DIRECTORY</span>, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">AND
+<br class="ltx_break"/>sourcefile=SOURCEFILE</span>, the name of the main source TeXfile.</p>
+</div>
+<div id="S3.SS1.SSS1.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+POST /api/add?dir=samples-gallery%2f1030084%2f478&amp;sourcefile=main.tex
+</pre>
+</div>
+</div>
+<div id="S3.SS1.SSS2" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">3.1.2 </span>Delete an article</h4>
+
+<div id="S3.SS1.SSS2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Delete an article from the Build System. The article is just removed from the database, The specified directory still needs to be removed from the file location.</p>
+</div>
+<div id="S3.SS1.SSS2.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Required parameters:
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">id=ID</span>, where ID is the internal ID of the article.
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">OR
+<br class="ltx_break"/>dir=DIRECTORY</span>, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)
+<br class="ltx_break"/></p>
+</div>
+<div id="S3.SS1.SSS2.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+GET /api/del?id=3034
+GET /api/del?dir=samples-gallery%2f1030084%2f478
+</pre>
+</div>
+</div>
+<div id="S3.SS1.SSS3" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">3.1.3 </span>Clean up article conversion</h4>
+
+<div id="S3.SS1.SSS3.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Clean up article conversion, remove all files that are automatically created for article conversion.
+<br class="ltx_break"/></p>
+</div>
+<div id="S3.SS1.SSS3.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Required parameters:
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">id=ID</span>, where ID is the internal ID for the article
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">OR
+<br class="ltx_break"/>dir=DIRECTORY</span>, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">AND
+<br class="ltx_break"/>target=TARGET</span>, where TARGET is the document conversion target like xml or pdf.</p>
+</div>
+<div id="S3.SS1.SSS3.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+GET /api/clean?id=3034&amp;target=pdfclean
+GET /api/clean?dir=samples-gallery%2f1030084%2f478&amp;target=xhtmlclean
+</pre>
+</div>
+</div>
+<div id="S3.SS1.SSS4" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">3.1.4 </span>Queue an article for conversion</h4>
+
+<div id="S3.SS1.SSS4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Queues an article for document conversion. Previous scheduled targets might be overwritten.
+If the article has already been created, it will not be recreated. For example an article might have been scheduled for xhtml conversion. xhtml conversion depends on xml, so the article is converted to xml as well. If the article is now queued for xml conversion it will not be recreated.
+<br class="ltx_break"/></p>
+</div>
+<div id="S3.SS1.SSS4.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Required parameters:
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">id=ID</span>, where ID is the internal ID for the article
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">OR
+<br class="ltx_break"/>dir=DIRECTORY</span>, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">AND
+<br class="ltx_break"/>target=TARGET</span>, where TARGET is the document conversion target like xml or pdf.</p>
+</div>
+<div id="S3.SS1.SSS4.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+GET /api/queue?id=3034&amp;target=pdf
+GET /api/queue?dir=samples-gallery%2f1030084%2f478&amp;target=xml
+</pre>
+</div>
+</div>
+<div id="S3.SS1.SSS5" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection"><span class="ltx_tag ltx_tag_subsubsection">3.1.5 </span>Rerun an article conversion</h4>
+
+<div id="S3.SS1.SSS5.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">Queues an article for document conversion. Previous scheduled targets might be overwritten.
+If the article has already been created, it will be recreated. 
+<br class="ltx_break"/></p>
+</div>
+<div id="S3.SS1.SSS5.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Required parameters:
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">id=ID</span>, where ID is the internal ID for the article
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">OR
+<br class="ltx_break"/>dir=DIRECTORY</span>, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)
+<br class="ltx_break"/><span class="ltx_text ltx_font_typewriter">AND
+<br class="ltx_break"/>target=TARGET</span>, where TARGET is the document conversion target like xml or pdf.</p>
+</div>
+<div id="S3.SS1.SSS5.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+GET /api/rerun?id=3034&amp;target=pdf
+GET /api/rerun?dir=samples-gallery%2f1030084%2f478&amp;target=xml
+</pre>
+</div>
+</div>
+</div>
+<div id="S3.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">3.2 </span>Workqueue</h3>
+
+<div id="S3.SS2.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">This part is <span class="ltx_text ltx_font_italic">deprecated</span>. It is far easier to control the conversion via the browser.
+The program is still there, but currently not tested at all.</p>
+</div>
+<div id="S3.SS2.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">Jobs can also be scheduled via the program <span class="ltx_text ltx_font_typewriter">workqueue</span>, which can be executed on the command line. (To access the command line of the webserver just start <span class="ltx_text ltx_font_typewriter">texmlbus/tools/webserver-bash</span>). You have then a terminal console on the webserver.</p>
+</div>
+<div id="S3.SS2.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p"><span class="ltx_text ltx_font_typewriter">workqueue</span> should be in your path, it can also be called as <span class="ltx_text ltx_font_typewriter">/usr/local/bin/workqueue</span>.</p>
+</div>
+<div id="S3.SS2.p4" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+Usage:
+workqueue &lt;command&gt; [-d directory]
+                    [-id \d\d\d\d\d\d\d]
+                    [-v retval retval_target]
+                    [-m macro] [-s stylefile] [-p priority]
+
+command action to be taken (pdf, xml, xhtml, jats, pdfclean, xmlclean, xhtmlclean, jatsclean)
+
+-d    path/file restriction, select subpath/package like samples-working or samples-batch2, you can also use a longer path to select specific articles.
+
+-id   restrict selection to file with given 7-digit id
+
+-v    restrict selection to retval of retval_target
+
+-m    restrict selection to files with this macro (not yet tested again).
+
+-s    restrict selection to files that use this stylefile (not yet tested again).
+
+-p    set priority, higher priorities will scheduled first.
+</pre>
+</div>
+</div>
+<div id="S3.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">3.3 </span>Examples</h3>
+
+<div id="S3.SS3.p1" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+workqueue xmlclean -d samples-working
+</pre>
+<p class="ltx_p">removes all xml targets in the set samples-working, the xml files must be recreated when you later build the xml target, or a target further down the conversion pipeline.</p>
+</div>
+<div id="S3.SS3.p2" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+workqueue xhtmlclean -id 2467208
+</pre>
+<p class="ltx_p">removes thel xhtml target and possibly files that are also created at this stage for document with id 2467208.</p>
+</div>
+<div id="S3.SS3.p3" class="ltx_para ltx_noindent"><pre class="ltx_verbatim ltx_font_typewriter">
+workqueue xmlclean -v error jats
+workqueue xhtml -v error jats
+</pre>
+<p class="ltx_p">First remove all xml targets of articles that resulted in error in the jats stage.
+<br class="ltx_break"/>Then select these articles for to build the xhtml target.</p>
+</div>
+</div>
+<div id="S3.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection"><span class="ltx_tag ltx_tag_subsection">3.4 </span>History</h3>
+
+<div id="S3.SS4.p1" class="ltx_para ltx_noindent">
+<p class="ltx_p">This build system is based on the <span class="ltx_text ltx_font_italic">arxiv build system</span>, which I have written
+as a member of the arxivml group at Jacobs University Bremen.</p>
+</div>
+<div id="S3.SS4.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">H. Stamerjohanns, M. Kohlhase , D. Ginev , C. David, and B. Miller. Transforming large collections of scientific publications to XML. Mathematics in Computer Science 3, 299 (2010).</p>
+</div>
+<div id="S3.SS4.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">H. Stamerjohanns and M. Kohlhase. Transforming the arχiv to XML.
+In Serge Autexier, John Campbell, J. Rubio, Volker Sorge, Masakasu
+Suzuki, and Freek Wiedijk, editors, 9th International Conference,
+AISC 2008 15th Symposium, Calculemus 2008 7th International Con-
+ference, MKM 2008 Birmingham, UK, July 28 - August 1, 2008, Intelligent Computer Mathematics, 574–582. Springer Verlag (2008).</p>
+</div>
+<div id="S3.SS4.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">This open source version has been sponsored by
+<a href="https://www.overleaf.com" title="" class="ltx_ref ltx_href">Overleaf</a>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="ltx_page_footer">
+<div class="ltx_page_logo">Generated  on Sun May 17 18:19:04 2020 by <a href="http://dlmf.nist.gov/LaTeXML/">LaTeXML <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==" alt="[LOGO]"/></a></div></div>
+</div>
+</body>
+</html>

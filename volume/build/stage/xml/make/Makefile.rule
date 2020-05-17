@@ -1,0 +1,12 @@
+# Makefile.rule
+# defines the rule, which consists of target, prerequisite and recipe.
+$(TARGET.tex.xml): %.tex.xml: %.tex $(LTXML.dep)
+	$(LATEXML)  --destination='$@' '$(firstword $<)' 2>stderr.log >stdout.log
+
+xmlclean: backup
+	rm -f '$(TARGET.base).tex.xml'
+	rm -f stdout.log stderr.log
+
+CLEAN += xmlclean
+ALLCLEAN += xmlclean
+

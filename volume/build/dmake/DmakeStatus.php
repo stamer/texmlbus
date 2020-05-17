@@ -1,0 +1,85 @@
+<?php
+/**
+ * MIT License
+ * (c) 2007 - 2019 Heinrich Stamerjohanns
+ *
+ * DmakeStatus
+ *
+ */
+
+namespace Dmake;
+
+class DmakeStatus
+{
+    public $id = 0;
+	public $started = '';
+	public $directory = '';
+	public $num_files = '';
+	public $num_hosts = '';
+	public $hostnames = '';
+	public $timeout = -1;
+	public $errmsg = '';
+
+    /**
+     * saves the current status
+     *
+     * @param bool $updateStarted
+     */
+	public function save($updateStarted = TRUE)
+	{
+		$dao = Dao::getInstance();
+
+		$this->started = date("Y-m-d H:i:s", time());
+
+		$query = "
+			INSERT INTO
+				dmake_status
+                (id, started, directory, num_files, num_hosts, hostnames, timeout, errmsg)
+			VALUES(0, :started, :directory, :num_files, :num_hosts, :hostnames, :timeout, :errmsg)
+			ON DUPLICATE KEY
+			UPDATE ";
+			if ($updateStarted) {
+				$query .= "started = VALUES(started), ";
+			}
+			$query .= "
+				directory = VALUES(directory),
+				num_files = VALUES(num_files),
+				num_hosts = VALUES(num_hosts),
+				hostnames = VALUES(hostnames),
+				timeout = VALUES(timeout),
+				errmsg = VALUES(errmsg)";
+
+		$stmt = $dao->prepare($query);
+        $stmt->bindValue(':started', $this->started);
+        $stmt->bindValue(':directory', $this->directory);
+        $stmt->bindValue(':num_files', $this->num_files);
+        $stmt->bindValue(':num_hosts', $this->num_hosts);
+        $stmt->bindValue(':hostnames', $this->hostnames);
+        $stmt->bindValue(':timeout', $this->timeout);
+        $stmt->bindValue(':errmsg', $this->errmsg);
+
+        $stmt->execute();
+	}
+
+    /**
+     * sets the current status
+     */
+	public function get()
+	{
+        $dao = Dao::getInstance();
+
+		$query = "
+			SELECT
+				*
+			FROM
+				dmake_status";
+
+		$stmt = $dao->prepare($query);
+        $stmt->execute();
+
+		$row = $stmt->fetch();
+		foreach ($row as $key => $val) {
+			$this->$key = $val;
+		}
+	}
+}

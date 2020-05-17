@@ -1,0 +1,7 @@
+# Makefile.stage 
+# names the target and prerequisites
+JATS_STAGEDIR = $(PREFIX)/stage/jats
+TARGET.jats.xml = $(TARGET.base:%=%.jats.xml)
+jats:		$(TARGET.jats.xml)
+jats.xml:	$(TARGET.jats.xml)
+

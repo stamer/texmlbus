@@ -1,0 +1,7 @@
+# Makefile.stage
+# names the target and prerequisites
+XML_STAGEDIR = $(PREFIX)/stage/xml
+TARGET.tex.xml  = $(TARGET.base:%=%.tex.xml)
+tex.xml:	$(TARGET.tex.xml)
+xml:		$(TARGET.tex.xml)
+

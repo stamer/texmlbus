@@ -1,0 +1,6 @@
+# Makefile.stage
+# names the target and prerequisites
+PAGELIMIT_STAGEDIR = $(PREFIX)/stage/pagelimit
+TARGET.pagelimit.html = $(TARGET.base:%=%.pagelimit.html)
+pagelimit:		$(TARGET.pagelimit.html)
+

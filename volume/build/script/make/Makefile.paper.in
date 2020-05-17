@@ -1,0 +1,37 @@
+#
+# Makefile for each included stage`
+#
+
+# include targets for each stage
+include ${PREFIX}/stage/*/make/Makefile.stage
+
+all:		tex.xml 
+
+full:		html
+
+.PHONY: echo
+echo:
+	echo $(MAKEFILES)
+
+# include the rules for each stage
+include ${PREFIX}/stage/*/make/Makefile.rule
+
+.PHONY: backup
+backup:
+	rm -f *~
+
+.PHONY: clean
+clean: $(CLEAN) backup
+
+# clean up all files created by latexml
+.PHONY: latexmlclean
+latexmlclean: backup
+	rm -f LaTeXML.cache
+	rm -f LaTeXML.css
+	rm -f LaTeXML-maybeMathjax.js
+	rm -f ltx-article.css
+
+.PHONY: allclean
+allclean: $(ALLCLEAN)
+	rm -rf *~
+

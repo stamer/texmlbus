@@ -1,0 +1,7 @@
+# Makefile.stage
+# names the target and prerequisites
+XHTML_STAGEDIR = $(PREFIX)/stage/xhtml
+TARGET.xhtml    = $(TARGET.base:%=%.xhtml)
+html:		$(TARGET.xhtml)
+xhtml:		$(TARGET.xhtml)
+

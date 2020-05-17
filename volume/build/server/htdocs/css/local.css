@@ -1,0 +1,74 @@
+/*
+ * Local addititons to bootstrap
+ */
+.navbar-brand {
+    line-height:12px;
+    padding-top:20px;
+    padding-bottom:5px;
+}
+
+.navbar-brand small {
+    display:block;
+    font-size:10px;
+    padding-top: 10px;
+}
+
+table, th, td {
+    position: relative;
+}
+
+/* fix offset for fixed header */
+:target {
+    display: block;
+    position: relative;
+    top: -100px;
+    visibility: hidden;
+}
+
+/* delete button on retval_abc */
+.abc_delete {
+    background-color: rgba(220, 53, 69, 0.3);
+    border-color: rgba(220, 53, 69, 0.3);
+    padding: 0.2rem 0.5rem;
+    position: absolute; bottom: 0.2rem; left: 0.5rem;
+    font-size: 0.6rem;
+}
+
+/* cancel button on retval_abc */
+.queue_warning {
+    background-color: rgba(255, 193, 7, 0.3);
+    border-color: rgba(255, 193, 7, 0.3);
+    padding: 0.2rem 0.5rem;
+    position: absolute; bottom: 0.2rem; left: 0.5rem;
+    font-size: 0.6rem;
+}
+
+/* for showMessage */
+.bg-primary-t {
+    background-color: rgba(0, 123, 255, 0.5) !important;
+}
+.bg-secondary-t {
+    background-color: rgba(108, 117, 125, 0.5) !important;
+}
+.bg-success-t {
+    background-color: rgba(40, 167, 69, 0.5) !important;
+}
+.bg-info-t {
+    background-color: rgba(23, 162, 184, 0.3) !important;
+}
+.bg-warning-t {
+    background-color: rgba(255, 193, 7, 0.5) !important;
+}
+.bg-danger-t {
+    background-color: rgba(220, 53, 69, 0.5) !important;
+}
+.bg-light-t {
+    background-color: rgba(248, 249, 250, 0.5) !important;
+}
+.bg-dark-t {
+    background-color: rgba(52, 58, 64, 0.5) !important;
+}
+.bg-white-t {
+    background-color: rgba(255, 255, 255, 0.5) !important;
+}
+

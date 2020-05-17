@@ -1,0 +1,12 @@
+Options -Indexes
+RewriteEngine On
+
+# restrict access to local machine
+<Files edithelp.php>
+    # Apache 2.4+
+    <IfModule authz_core_module>
+        <RequireAll>
+            Require ip 127.0.0.1 172.16.0.0/12 192.168.0.0/16
+        </RequireAll>
+    </IfModule>
+</Files>

@@ -1,0 +1,12 @@
+package LaTeXML::Package::Pool;
+use strict;
+use warnings;
+use LaTeXML::Package;
+
+RequirePackage('graphicx');
+
+DefMacro('\overpic[]{}', '\includegraphics[#1]{#2}');
+
+# DefMacro('\overpic[]{}', '\begin{picture}(\textwidth,\textheight)\includegraphics[#1]{#2}');
+# DefMacro('\endoverpic', '\end{picture}');
+1;

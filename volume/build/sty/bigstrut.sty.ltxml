@@ -1,0 +1,8 @@
+package LaTeXML::Package::Pool;
+use strict;
+use warnings;
+use LaTeXML::Package;
+
+DefMacro('\bigstrut', '');
+
+1;

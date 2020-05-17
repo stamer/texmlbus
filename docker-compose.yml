@@ -1,0 +1,112 @@
+# docker-compose.yml
+version: '3.4'
+services:
+    mariadb:
+        image: mariadb:10.5
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: buildsysdb
+            MYSQL_USER: webuser
+            MYSQL_PASSWORD: websecret
+        networks:
+            texmlbus_net:
+                aliases:
+                    - dbserver
+        volumes:
+            - ./volume/db/init:/docker-entrypoint-initdb.d
+            # shared data volumes for mysql does still not work reliably
+            # on windows, must be volume that is managed by docker
+            - data-mysql:/var/lib/mysql
+
+        # work around innodb problem under windows
+        command: 'mysqld --innodb-flush-method=fsync'
+
+    latexml:
+        build:
+            context: src/LaTeXML
+            dockerfile: ../LaTeXML-Dockerfile
+            #dockerfile: release/docker/Dockerfile
+            target: latexml_base
+            args:
+                - WITH_TEXLIVE=yes
+                - WITH_TESTS=no
+        command: 'echo "OK, that this container exits."'
+
+    latexml_dmake:
+        build:
+            context: src/latexml_dmake
+            dockerfile: Dockerfile
+            target: latexml_dmake
+        environment:
+            DOCKERIZED: 1
+        networks:
+            texmlbus_net:
+                aliases:
+                    - worker
+        volumes:
+            - ./volume/articles:/srv/texmlbus/articles
+            - ./volume/build:/srv/texmlbus/build
+            - optdata:/opt
+        
+    texmlbus:
+        build:
+            context: src/texmlbus
+            dockerfile: Dockerfile
+        depends_on:
+            - mariadb
+            - latexml_dmake
+
+        environment:
+            DOCKERIZED: 1
+            CONTAINER_TIMEZONE: Europe/Berlin
+            MYSQL_USER: webuser
+            MYSQL_PASSWORD: websecret
+            MYSQL_HOST: dbserver
+            MYSQL_DATABASE: buildsysdb
+            PHP_UPLOAD_MAX_FILESIZE: 256M
+            PHP_POST_MAX_SIZE: 256M
+
+            # Sometimes a job (e.g. latexml) may run endlessly, limit
+            # the amount of time a job can run.
+            TIMEOUT_SECONDS: 1200
+            # Memory limits
+            # Version 3 of docker does not easily allow to set ulimits 
+            # any more. But we also want to set limits regarding the real
+            # available memory, therefore only a percentage of can be set. 
+            # It is still possible to set a fixed absolute limit though. 
+            # The smaller result value will be set.
+            # 
+            # Sometimes a job (e.g. latexml) may start to use huge amounts
+            # of memory. Here you can limit the amount, so the docker host
+            # does not become unresponsive.
+            # The percentage of available memory a worker may use.
+            # If you use several workers on the same host, you might 
+            # want to decrease this value.
+            MEMLIMIT_PERCENT: 50
+            #MEMLIMIT_ABSOLUTE: 8G
+
+        networks:
+            texmlbus_net:
+                aliases:
+                    - webserver
+                    - dmake
+                    - texmlbus
+        ports:
+            - "${TEXMLBUS_HTTP:-8080}:80"
+            - "${TEXMLBUS_HTTPS:-8443}:443"
+        volumes:
+            - ./volume/articles:/srv/texmlbus/articles
+            - ./volume/build:/srv/texmlbus/build
+            # have access to latexmls style files
+            - optdata:/opt
+        command: '/bin/bash'
+
+networks:
+    texmlbus_net:
+volumes:
+    # shared by latexml-dmake and temlbus
+    optdata:
+    # mysql database
+    data-mysql:
+

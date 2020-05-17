@@ -1,0 +1,2 @@
+latexpand version v1.6 (ce086093a2413c99af11cc08aceab8e5483d65ff).
+Committed on Thu Dec 12 09:37:27 2019 +0000.

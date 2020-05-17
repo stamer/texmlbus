@@ -1,0 +1,6 @@
+# Makefile.stage
+# names the target and prerequisites
+TARGET.pdf  = $(TARGET.base:%=%.pdf)
+PDF_STAGEDIR = $(PREFIX)/stage/pdf
+pdf:		$(TARGET.pdf)
+

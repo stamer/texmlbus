@@ -1,0 +1,17 @@
+Options -Indexes
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /api/api.php [L,QSA]
+
+# restrict access to local machine
+# change as needed, bit then the X-API key in needs to be adjusted.
+<Files api.php>
+    # Apache 2.4+
+    <IfModule authz_core_module>
+        <RequireAll>
+            Require ip 127.0.0.1 172.16.0.0/12 192.168.0.0/16
+        </RequireAll>
+    </IfModule>
+</Files>

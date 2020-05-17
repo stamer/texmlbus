@@ -1,0 +1,10 @@
+# Makefile.rule
+# defines the rule, which consists of target, prerequisite and recipe.
+$(TARGET.xhtml): %.xhtml: %.tex.xml
+	$(LATEXMLPOST) --format=xhtml --css=/css/latexml-local.css --pmml --cmml --javascript=LaTeXML-maybeMathjax.js --novalid --destination='$@' '$(firstword $<)' 2> xhtml.stderr.log > xhtml.stdout.log
+
+xhtmlclean: backup
+	rm -f '$(TARGET.xhtml)'
+	rm -f xhtml.stdout.log xhtml.stderr.log
+#	rm -f LaTeXML-maybeMathjax.js LaTeXML.css LaTeXML.cache latexml-local.css ltx-article.css
+ALLCLEAN += xhtmlclean

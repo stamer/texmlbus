@@ -1,0 +1,26 @@
+{
+    "name": "stamer/texmlbus",
+    "description": "texmlbus",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Heinrich Stamerjohanns",
+            "email": "heinrich@stamerjohanns.de"
+        }
+    ],
+    "require": {
+        "nyholm/psr7-server": "^0.4.1",
+        "nyholm/psr7": "^1.2",
+        "laminas/laminas-httphandlerrunner": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Server\\": "server/include",
+            "Server\\Upload\\": "server/upload",
+            "Dmake\\": "dmake"
+        }
+    }
+
+
+}

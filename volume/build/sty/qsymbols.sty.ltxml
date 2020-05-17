@@ -1,0 +1,10 @@
+package LaTeXML::Package::Pool;
+use strict;
+use warnings;
+use LaTeXML::Package;
+
+RequirePackage('amssymb');
+RequirePackage('stmaryrd');
+InputDefinitions('qsymbols', type => 'sty', noltxml => 1);
+
+1;

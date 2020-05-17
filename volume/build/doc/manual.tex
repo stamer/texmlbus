@@ -1,0 +1,461 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage[english]{babel}
+
+\newcommand{\vtitle}[0]{texmlbus}
+\newcommand{\vauthor}[0]{}
+\usepackage{framed}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\definecolor{shadecolor}{rgb}{1.0,0.8,0.3}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.55}
+\definecolor{grey}{rgb}{0.7,0.7,0.7}
+\definecolor{busyellow}{RGB}{249, 225, 88}
+\definecolor{busblue}{RGB}{0,123,255}
+
+\usepackage{array, hhline}
+
+%\usepackage{anysize}
+
+\sloppy
+
+\title{\vtitle}
+
+\author{Heinrich Stamerjohanns}
+
+\date{2020-05-17}
+
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+
+\fancypagestyle{plain}{
+
+\fancyhf{}
+
+\fancyhead[L]{\vtitle}
+
+\fancyfoot[L]{\vauthor}
+
+\fancyfoot[R]{\thepage}
+
+\renewcommand{\headrulewidth}{0.4pt}
+
+\renewcommand{\footrulewidth}{0.4pt}
+
+}
+
+\pagestyle{plain}
+
+\usepackage{listings}
+\usepackage[urlcolor=blue,urlbordercolor=blue]{hyperref}
+
+
+\newcommand{\code}[2]{
+\lstset{language=C, caption=#2, label=#1, numbers=left, breakatwhitespace=true, showstringspaces=false, breaklines=true, frame=single}
+\lstinputlisting{../demo/#1.nls}
+}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\newcommand{\todo}{
+  \textcolor{red}{\textbf{TODO}}
+}
+
+\newcommand{\texmlbus}{\texttt{texmlbus}}
+\newcommand{\latex}{\LaTeX{}}
+
+\newenvironment{dtlist}[1]
+{\begin{list}{}
+  {\settowidth{\labelwidth}{#1}
+   \setlength{\leftmargin}{\labelwidth}
+   \addtolength{\leftmargin}{\labelsep}
+   \let\makelabel\dtlistlabel}}
+{\end{list}}
+
+\newcommand*\dtlistlabel[1]{%
+\raisebox{0pt}[1ex][0pt]%
+{\makebox[\labelwidth][l]%
+{\parbox[t]{\labelwidth}%
+{\hspace{0pt}{#1 \hspace{10pt}}}}}}
+
+
+% \usepackage{bnf}
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\maketitle
+
+\section{TeX BUild System for Markup Languages}
+
+\subsection{Overview}
+Texmlbus supports the conversion process of documents written in \latex .
+Documents can not only converted to pdf, but also to other output formats -- in particular markup languages such as html. In particular, conversion to XML and MathML is supported via [LaTeXML](https://dlmf.nist.gov/LaTeXML/). Texmlbus can schedule jobs among several workers (possibly on different hosts), extract and analyze the conversion process of each document and store results in its own database. Result documents as well as statistics about the results of the build process can be easily retrieved using a web browser.
+
+ The system runs inside several docker containers and consists of a webserver, a build system and a database that is by default \textbf{only accessible to the local machine}, where it is started on. One or more workers convert the documents. It is supposed to run on your local machine and is by default not accessible from other machines.
+
+\begin{shaded}
+\subsection*{Caution}
+\textbf{Please do not change the default configuration and expose the system publicly without further access control, as it enables users to add, modify and delete files on the file system, where the webserver is running.} 
+\end{shaded}
+
+\subsection{Quick start for \texmlbus}
+
+\begin{enumerate}
+\item Install docker and docker-compose on your computer
+	\begin{itemize}
+	\item see instructions for 
+	\href{https://docs.docker.com/docker-for-windows/install/}{windows} or \href{https://docs.docker.com/docker-for-mac/install/}{mac}. On linux docker and docker-compose should come with your distribution, or see these links  \href{https://docs.docker.com/install/#server}{for docker} and \href{https://docs.docker.com/compose/install}{for \texttt{docker-compose}}.
+	\end{itemize}
+	
+\item On windows install \href{https://gitforwindows.org/}{git-bash for windows}.
+
+\item As a full \TeX{} system is installed, you will need approx. 4 Gb of storage space.
+
+\end{enumerate}
+
+\subsubsection{Install via git}
+\begin{enumerate}
+\item \texttt{git clone --recursive https://github.com/stamer/texmlbus.git}
+\item \texttt{cd texmlbus}
+\item \texttt{git submodule update --init --recursive}
+\item \texttt{docker-compose up}
+\item On Windows,  you will be asked whether to share a drive, answer \textbf{yes}. 
+\item On Windows, Defender might ask you whether to allow access, answer \textbf{allow}.
+\item Please be patient when the system is installed the very first time, later the system will startup much faster. 
+\item The system will continue after displaying \texttt{OK: 3xxx MiB in 1xx packages}. Please be patient when the system is installed the very first time, later the system will startup much faster.
+\item Go to \texttt{http://localhost:8080}
+\item press \texttt{Ctrl-C} to stop the system.
+\end{enumerate}
+
+\subsection{First steps}
+\begin{enumerate}
+\item Point your browser to \texttt{http://localhost:8080}
+\item Click on \fcolorbox{busyellow}{busyellow}{\textcolor{grey}{Create sample set}} in the top menu.
+\item Click on \fcolorbox{busblue}{busblue}{\textcolor{white}{Create samples}}.
+\item Click on \fcolorbox{busblue}{busblue}{\textcolor{white}{Scan samples directory}}.
+\item Click \textbf{Documents alphabetically} on the left menu. 
+\item Click \textbf{Samples} on the left menu. 
+\item In the \textit{xhtml} column of the first document click on \textbf{queue}.
+\item In the \textit{xhtml} column of the first document click on \textbf{Destfile}.
+\item The rendered xhtml document should appear in the browser.
+\end{enumerate}
+
+\subsection{Using \texmlbus}
+
+In order to convert documents you will need to import further documents first.
+There are two ways to import documents:
+\begin{itemize}
+\item{upload files via web interface}
+\begin{enumerate}
+	\item Click on \textbf{Import / Manage} on the left menu.
+	\item Move a file onto the drop zone, or add a file via \fcolorbox{busblue}{busblue}{\textcolor{white}{Add files}}.
+	\item Click on \fcolorbox{busblue}{busblue}{\textcolor{white}{Start upload}}.
+	\item Choose a destination set or type in a new set into the box
+	\item Click on \fcolorbox{busblue}{busblue}{\textcolor{white}{Import}}
+	\item Click \textbf{Documents alphabetically} on the left menu. 
+	\item Choose the set, you have uploaded the files to. 
+	\item Convert the files by pressing on \textbf{queue}.
+\end{enumerate}	 
+	
+\item{move files to articles directory}
+\begin{enumerate}
+   \item create a subdirectory below \texttt{articles}
+   \item Click on \textbf{Import / Manage} on the left menu.
+   \item Click on \textbf{Scan directory for documents}.
+   \item Choose a set.
+	\item Click on \fcolorbox{busblue}{busblue}{\textcolor{white}{Scan}}.
+\end{enumerate}	 
+   
+\end{itemize}
+
+\subsection{Typical issues using docker}
+
+\subsubsection{Avoid share drive questions}
+Docker $\rightarrow$ Settings $\rightarrow$ Resources $\rightarrow$ File Sharing
+
+Add the folder \textbf{texmlbus}.
+
+\subsubsection{Unable to share drive}
+On windows you will be asked to share a drive. Please click "Share it". Also the windows firewall might ask you to allow a connection.
+
+If you still receive error messages like \textsl{unable to share drive}, then a problem might be, that SMB is not enabled on your machine. \\
+To enable SMB2 on Windows 10, you need to press the Windows Key + S and start typing and click on \textit{Turn Windows features on or off}. You can also search the same phrase in Start, Settings. Scroll down to \textit{SMB 1.0/CIFS File Sharing Support} and check that top box.
+
+\subsubsection{Need more memory}
+Docker $\rightarrow$ Settings $\rightarrow$ Resources 
+
+Increase Memory on the right side. It is worth it.
+
+\subsection{Helper scripts}
+There are some helper scripts in the \texttt{tools} directory. Windows users should use \textit{git-bash} to be able to use these scripts.
+\begin{itemize}
+\item \textbf{docker-cleanup-texmlbus.sh}\\
+Removes all images, containers and volumes that belong to this texmlbus system.
+
+\item \textbf{docker-cleanZZZ-ALL.sh}\\
+Removes ALL images, containers and volumes. As mentioned, it reinitializes docker. \textbf{ALL volumes will be gone}. You have been warned.
+
+\item \textbf{mysql-bash}\\
+Bash access on the mysql-container.
+
+\item \textbf{reset-mysql-db.sh}\\
+Reinitializes the mysql-data volume of the texmlbus database container.
+
+\item \textbf{webserver-bash}\\
+Bash access to the webserver container.
+
+\item \textbf{webserver-log}\\
+Shows the logs of the webserver at port 8080.
+
+\item \textbf{webserver-ssl-log}\\
+Shows the logs of the webserver at port 8443.
+
+\item \textbf{worker-bash}\\
+Bash access to the worker container.
+
+\end{itemize}
+
+\subsection{File locations}
+
+The system consists of three docker containers.
+
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{|p{6cm}|p{6.5cm}|}
+\hline
+\texttt{texmlbus/docker-compose.yml} & Configuration file for docker compose.\\
+\hline
+\texttt{texmlbus/src} & Configuration files for docker containers.\\
+\hline
+\texttt{texmlbus/src/LaTeXML} &
+	git repository for \LaTeX ML. It is used as parent configuration for the worker.\\
+\hline
+
+\texttt{texmlbus/src/latexml\_dmake} &
+	Worker configuration using \LaTeX ML.\\
+\hline
+
+\texttt{texmlbus/src/texmlbus} &
+	Configuration file for the texmlbus build system.\\
+\hline
+
+\texttt{texmlbus/tools} &
+	 Directory that contains helper scripts to access the individual containers.\\
+\hline
+
+\texttt{texmlbus/volume} &
+	Directory that is shared between host and the guest containers.\\
+\hline
+
+\texttt{texmlbus/volume/articles} &
+	Article directory. Articles are organized in sets. Each subdirectory is another set there.\\ 
+\hline
+
+\texttt{texmlbus/volume/articles/samples} &
+	Sample articles.\\
+\hline
+
+\texttt{texmlbus/volume/build} &
+	Source code of the build system.\\ 
+\hline
+
+\texttt{texmlbus/volume/build/server/htdocs} &
+	Directory that is served by the web server.\\
+\hline
+\texttt{texmlbus/volume/db/mysql} &
+	Database directory of the mysql database.\\ 
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Additional Latexml binding files are located at \texttt{texmlbus/build/sty}.
+
+
+
+\section{Extending the Build system}
+
+\subsection{How to create a stage}
+
+A stage basically describes a conversion from \TeX{} to some other document format. 
+Texmlbus provides stages where documents can be converted to pdf or xhtml.  But stages are not limited to conversion, you can also apply any other process such as  document validation. The \textsl{pagelimit} stage demonstrates this. It finds typical commands that are known to tweak pagelimit in articles submissions and colors the tex source as html.
+
+Additional stages can be added to the build system. You will need to add an additional subdirectory to \texttt{texmlbus/volume/build/stage} and create another \textsl{retval\_stagename} table.
+
+Take a look at the \textsl{pagelimit} or \textsl{pdf} to get an idea.
+
+A stage needs the following components (all file locations are relative to \texttt{texmlbus/volume/build/stage}.
+
+\begin{enumerate}
+\item Some variables need to be defined for make.\\
+Create \texttt{stagename/make/Makefile.rule} and define the name of the directory and the name of the target.
+
+\item A rule for a makefile. Create \texttt{stagename/make/Makefile.rule}. There you also specify what command should be run when a document is being processed in this stage.
+
+\item A SQL table that stores the results of this stage. The table should be named \textsl{retval\textunderscore{}stagename} and should have columns similar to \textsl{retval\textunderscore{}pdf}.  Therefore \texttt{build/dmake/sql/retval\textunderscore{}pdf.sql} can just be copied and the name of the table be replaced.
+
+\item A class that configures the stage and that contains a method to parse the log files.  \texttt{build/dmake/RetvalPdf.php} can be used to start from. You need to make sure that the targetname exactly matches the target in RetvalStageName.php.
+
+\item Finally this class needs to be added to\\ 
+\texttt{texmlbus/volume/build/config/registerTargets.php}.
+\end{enumerate}
+
+\section{Controlling the build system}
+
+The easiest way to interact with the build system is to use the web interface. There you can easily add and delete documents and invoke documents conversions. 
+However there is a simple API and an external program \texttt{workqueue} that can control the build system. 
+
+\subsection{API}
+
+The Build System can be controlled by a simple API to add, remove and schedule articles. Currently no authentication takes place, as the whole website and the API can only be accessed locally.
+
+Requests are being sent via GET or POST HTTP requests, the answer format is plain text for browsers or json for ajax requests. Json format can be forced by adding a \texttt{format=json} parameter.
+
+Parameters are URL encoded, escpecially the \texttt{/} is encoded as \texttt{\%2f}.
+\subsubsection{Add an article}
+Add an article to the build system. The article needs to be copied to the specified location. The API is only reponsible for database interaction.\\
+
+Required parameters:\\
+\texttt{dir=DIRECTORY}, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)\\
+\texttt{AND}\\
+\texttt{sourcefile=SOURCEFILE}, the name of the main source \TeX file.
+
+\begin{verbatim}
+POST /api/add?dir=samples-gallery%2f1030084%2f478&sourcefile=main.tex
+\end{verbatim}
+
+\subsubsection{Delete an article}
+Delete an article from the Build System. The article is just removed from the database, The specified directory still needs to be removed from the file location. 
+
+Required parameters:\\
+\texttt{id=ID}, where ID is the internal ID of the article.\\
+\texttt{OR}\\
+\texttt{dir=DIRECTORY}, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)\\
+
+\begin{verbatim}
+GET /api/del?id=3034
+GET /api/del?dir=samples-gallery%2f1030084%2f478
+\end{verbatim}
+
+\subsubsection{Clean up article conversion}
+Clean up article conversion, remove all files that are automatically created for article conversion.\\
+
+Required parameters:\\
+\texttt{id=ID}, where ID is the internal ID for the article\\
+\texttt{OR}\\
+\texttt{dir=DIRECTORY}, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)\\
+\texttt{AND}\\
+\texttt{target=TARGET}, where TARGET is the document conversion target like xml or pdf.
+
+\begin{verbatim}
+GET /api/clean?id=3034&target=pdfclean
+GET /api/clean?dir=samples-gallery%2f1030084%2f478&target=xhtmlclean
+\end{verbatim}
+
+\subsubsection{Queue an article for conversion}
+Queues an article for document conversion. Previous scheduled targets might be overwritten.
+If the article has already been created, it will not be recreated. For example an article might have been scheduled for xhtml conversion. xhtml conversion depends on xml, so the article is converted to xml as well. If the article is now queued for xml conversion it will not be recreated.\\
+
+Required parameters:\\
+\texttt{id=ID}, where ID is the internal ID for the article\\
+\texttt{OR}\\
+\texttt{dir=DIRECTORY}, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)\\
+\texttt{AND}\\
+\texttt{target=TARGET}, where TARGET is the document conversion target like xml or pdf.
+
+\begin{verbatim}
+GET /api/queue?id=3034&target=pdf
+GET /api/queue?dir=samples-gallery%2f1030084%2f478&target=xml
+\end{verbatim}
+
+\subsubsection{Rerun an article  conversion}
+Queues an article for document conversion. Previous scheduled targets might be overwritten.
+If the article has already been created, it will be recreated. \\
+
+Required parameters:\\
+\texttt{id=ID}, where ID is the internal ID for the article\\
+\texttt{OR}\\
+\texttt{dir=DIRECTORY}, where DIRECTORY is the path to the article (a relative path, with ARTICLEDIR as document root)\\
+\texttt{AND}\\
+\texttt{target=TARGET}, where TARGET is the document conversion target like xml or pdf.
+
+\begin{verbatim}
+GET /api/rerun?id=3034&target=pdf
+GET /api/rerun?dir=samples-gallery%2f1030084%2f478&target=xml
+\end{verbatim}
+
+\subsection{Workqueue}
+
+This part is \textit{deprecated}. It is far easier to control the conversion via the browser. 
+The program is still there, but currently not tested at all.
+ 
+Jobs can also be scheduled via the program \texttt{workqueue}, which can be executed on the command line. (To access the command line of the webserver just start \texttt{texmlbus/tools/webserver-bash}). You have then a terminal console on the webserver.
+
+\nopagebreak
+\texttt{workqueue} should be in your path, it can also be called as  \texttt{/usr/local/bin/workqueue}.
+
+\begin{verbatim}
+Usage:
+workqueue <command> [-d directory]
+                    [-id \d\d\d\d\d\d\d]
+                    [-v retval retval_target]
+                    [-m macro] [-s stylefile] [-p priority]
+
+command action to be taken (pdf, xml, xhtml, jats, pdfclean, xmlclean, xhtmlclean, jatsclean)
+
+-d    path/file restriction, select subpath/package like samples-working or samples-batch2, you can also use a longer path to select specific articles.
+
+-id   restrict selection to file with given 7-digit id
+
+-v    restrict selection to retval of retval_target
+
+-m    restrict selection to files with this macro (not yet tested again).
+
+-s    restrict selection to files that use this stylefile (not yet tested again).
+
+-p    set priority, higher priorities will scheduled first.
+\end{verbatim}
+
+\subsection{Examples}
+
+\begin{verbatim}
+workqueue xmlclean -d samples-working
+\end{verbatim}
+removes all xml targets in the set samples-working, the xml files must be recreated when you later build the xml target, or a target further down the conversion pipeline.
+
+\begin{verbatim}
+workqueue xhtmlclean -id 2467208
+\end{verbatim}
+removes thel xhtml target and possibly files that are also created at this stage for document with id  2467208.
+
+\begin{verbatim}
+workqueue xmlclean -v error jats
+workqueue xhtml -v error jats
+\end{verbatim}
+First remove all xml targets of articles that resulted in error in the jats stage.\\
+Then select these articles for to build the xhtml target.
+
+\subsection{History}
+
+This build system is based on the \textit{arxiv build system}, which I have written
+as a member of the arxivml group at Jacobs University Bremen.
+
+H. Stamerjohanns, M. Kohlhase , D. Ginev , C. David, and B. Miller. Transforming large collections of scientific publications to XML. Mathematics in Computer Science 3, 299 (2010).
+
+H. Stamerjohanns and M. Kohlhase. Transforming the arχiv to XML.
+In Serge Autexier, John Campbell, J. Rubio, Volker Sorge, Masakasu
+Suzuki, and Freek Wiedijk, editors, 9th International Conference,
+AISC 2008 15th Symposium, Calculemus 2008 7th International Con-
+ference, MKM 2008 Birmingham, UK, July 28 - August 1, 2008, Intelligent Computer Mathematics, 574–582. Springer Verlag (2008).
+
+This open source version has been sponsored by 
+\href{https://www.overleaf.com}{Overleaf}.
+
+
+\end{document}
+

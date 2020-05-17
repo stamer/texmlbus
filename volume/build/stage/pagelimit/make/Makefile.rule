@@ -1,0 +1,9 @@
+# Makefile.rule
+# defines the rule, which consists of target, prerequisite and recipe.
+$(TARGET.pagelimit.html): %.pagelimit.html: %.tex
+	$(PAGELIMIT_STAGEDIR)/script/pagelimit.sh '$(firstword $<)' '$(TARGET.pagelimit.html)'
+
+pagelimitclean: backup
+	rm -f '$(TARGET.pagelimit.html)'
+
+ALLCLEAN += pagelimitclean

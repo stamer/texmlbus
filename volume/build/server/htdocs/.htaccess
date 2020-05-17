@@ -1,0 +1,10 @@
+#Options FollowSymLinks Includes Indexes
+#XBithack full
+#AuthType Basic
+#AuthBasicProvider file
+#AuthUserFile ../passwd_html/.htpasswd
+#AuthGroupFile ../passwd_html/.htgroup
+
+#AuthName Internal
+#Require user "myuser"
+

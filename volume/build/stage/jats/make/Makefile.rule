@@ -1,0 +1,10 @@
+# Makefile.rule
+# defines the rule, which consists of target, prerequisite and recipe.
+$(TARGET.jats.xml): %.jats.xml: %.tex.xml
+	$(LATEXMLPOST) --format=jats --destination='$@' '$(firstword $<)' 2> jats.stderr.log > jats.stdout.log
+
+jatsclean: backup
+	rm -f '$(TARGET.jats.xml)'
+	rm -f jats.stderr.log jats.stdout.log
+
+ALLCLEAN += jatsclean
