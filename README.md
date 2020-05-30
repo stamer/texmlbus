@@ -53,9 +53,10 @@ Start the app as described above. Upload LaTeX documents via a web browser and c
   If you still receive error messages like unable to share drive, then a problem might be, that SMB is not enabled on your  machine.
   To enable SMB2 on Windows 10, you need to press the Windows Key + S and start typing and click on Turn Windows features on or off. You can also search the same phrase in Start, Settings. Scroll down to SMB 1.0/CIFS File Sharing Support and check that top box.
 - __Need more memory__
+  
   If you are not using wsl2 enabled Docker on Windows, you need to assign memory via 
 
-  `Docker →→ Settings →→ Resources` 
+  `Docker → Settings → Resources` 
 
   Increase Memory on the right side. It is worth it. If possible switch to wsl2 on Windows.
 
