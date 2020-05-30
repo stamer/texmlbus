@@ -26,6 +26,41 @@ Start the app as described above. Upload LaTeX documents via a web browser and c
 
 ## Documentation
 
+### Typical issues using docker ### 
+
+#### Windows
+- On Windows try to use wsl2. It is faster and provides all the memory of the host machine. 
+  If you use wsl2 and receive an error message like this 
+  ```
+  docker.credentials.errors.InitializationError: docker-credential-desktop.exe not installed or 
+  not available in PATH [399] Failed to execute script docker-compose
+  ```
+  when using `docker-compose up`, do
+  ```bash
+    echo 'export PATH=$PATH:"/mnt/c/Program Files/Docker/Docker/resources/bin"' >> $HOME/.bashrc 
+  ```
+  inside the wsl console. Exit wsl and enter the wsl console again.
+
+- __Avoid share drive questions__
+  
+  `Docker → Settings → Resources → File Sharing`
+  
+  Add the folder `texmlbus`.
+  
+- __Unable to share drive__
+  On windows you will be asked to share a drive. Please click ”Share it”. Also the windows firewall might ask you to allow a     connection.
+
+  If you still receive error messages like unable to share drive, then a problem might be, that SMB is not enabled on your  machine.
+  To enable SMB2 on Windows 10, you need to press the Windows Key + S and start typing and click on Turn Windows features on or off. You can also search the same phrase in Start, Settings. Scroll down to SMB 1.0/CIFS File Sharing Support and check that top box.
+- __Need more memory__
+  If you are not using wsl2 enabled Docker on Windows, you need to assign memory via 
+
+  `Docker →→ Settings →→ Resources` 
+
+  Increase Memory on the right side. It is worth it. If possible switch to wsl2 on Windows.
+
+  
+
 Further documentation can be found via the menu once the project is started. 
 
 ## Sponsors
