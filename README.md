@@ -28,9 +28,13 @@ Start the app as described above. Upload LaTeX documents via a web browser and c
 
 ### Issues
 
-- __When I queue files, my browser window is not updated__
+- __When I queue files, my browser window is not updated.__
   
   Please use a browser that is capable to use SSE. Windows IE is not among these browsers.
+
+- __I cannot access the pages from other machines than the docker host.__
+
+  The system is supposed to be accessed only from localhost. Please do not change the default configuration and expose the system publicly without further access control, as others will then be able to upload files to your machine.
 
 ### Typical issues using docker ### 
 
