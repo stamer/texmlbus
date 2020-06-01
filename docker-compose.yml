@@ -93,8 +93,8 @@ services:
                     - dmake
                     - texmlbus
         ports:
-            - "${TEXMLBUS_HTTP:-8080}:80"
-            - "${TEXMLBUS_HTTPS:-8443}:443"
+            - "127.0.0.1:${TEXMLBUS_HTTP:-8080}:80"
+            - "127.0.0.1:${TEXMLBUS_HTTPS:-8443}:443"
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
@@ -105,7 +105,7 @@ services:
 networks:
     texmlbus_net:
 volumes:
-    # shared by latexml-dmake and temlbus
+    # shared by latexml-dmake and texmlbus
     optdata:
     # mysql database
     data-mysql:
