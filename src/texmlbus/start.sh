@@ -94,6 +94,9 @@ chmod ugo+rwx /srv/texmlbus/articles
 echo "chmod articles/upload..."
 chmod ugo+rwx /srv/texmlbus/articles/upload
 
+mkdir /opt/run || true
+chmod ugo+rwx /opt/run
+
 cd /srv/texmlbus/build/
 sudo -u dmake /usr/local/bin/composer install
 

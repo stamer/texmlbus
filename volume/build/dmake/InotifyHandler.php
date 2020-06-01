@@ -21,6 +21,15 @@ class InotifyHandler
     const wqTrigger = 'wq';
     const doneTrigger = 'done';
 
+    // triggers need to be on docker-managed volume.
+    // docker on windows wsl2 cannot handle inotify events on shared volumes
+
+    // write queue trigger
+    const wqTriggerFile = '/opt/run/wq_trigger';
+
+    // write done trigger to inform about finished jobs
+    const doneTriggerFile = '/opt/run/done_trigger';
+
     private $debug = false;
 
     private $active = false;
@@ -44,7 +53,7 @@ class InotifyHandler
         if ($this->debug) {
             error_log('BUILDDIR: ' . BUILDDIR);
         }
-        $this->triggerFile[self::wqTrigger] = BUILDDIR.'/run/wq_trigger';
+        $this->triggerFile[self::wqTrigger] = self::wqTriggerFile;
         if (!is_file($this->triggerFile[self::wqTrigger])) {
             touch($this->triggerFile[self::wqTrigger]);
         }
@@ -52,7 +61,7 @@ class InotifyHandler
         if ($perms != '666') {
             chmod($this->triggerFile[self::wqTrigger], 0666);
         }
-        $this->triggerFile[self::doneTrigger] = BUILDDIR.'/run/done_trigger';
+        $this->triggerFile[self::doneTrigger] = self::doneTriggerFile;
         if (!is_file($this->triggerFile[self::doneTrigger])) {
             touch($this->triggerFile[self::doneTrigger]);
         }
