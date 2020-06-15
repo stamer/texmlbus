@@ -36,7 +36,19 @@ Start the app as described above. Upload LaTeX documents via a web browser and c
 
   The system is supposed to be accessed only from localhost. Please do not change the default configuration and expose the system publicly without further access control, as others will then be able to upload files to your machine.
 
-### Typical issues using docker ### 
+### Typical issues using docker ###
+
+#### docker-composer fails to build
+
+- `docker-compose up` fails with something like 
+    ```
+    Step 8/15 : ADD bin/            /opt/latexml/bin
+    ERROR: Service 'latexml' failed to build: ADD failed: stat /var/lib/docker/tmp/docker-builder406273412/bin: 
+    no such file or directory
+    ```
+    You have not used the `--recursive` option, when you cloned the repository. Please run
+    `git submodule update --init --recursive` and start `docker-compose up` again. 
+    
 
 #### Windows
 - On Windows try to use wsl2. It is faster and provides all the memory of the host machine. 
