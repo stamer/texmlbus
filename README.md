@@ -22,7 +22,14 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Ma
 
 ## Usage
 
-Start the app as described above. Upload LaTeX documents via a web browser and convert documents.
+Install and start the app as described above.
+
+1. Goto http://localhost:8080
+2. Click on __Create Sample Set__ in the top menu.
+3. Click on __Scan sample set__ to import some sample documents
+4. Goto "Documents alphabetically" to see the documents.
+5. Click on __queue__ to convert a document.
+6. Click on __Destfile__ to see the converted document.
 
 ## Documentation
 
