@@ -254,7 +254,7 @@ class Api
      */
     public function snapshot($setname)
     {
-        if (!empty($set)) {
+        if (!empty($setname)) {
             $set['set'] = $setname;
             HistoryAction::createHistorySumEntry($set);
         } else {
