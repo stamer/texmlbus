@@ -1,10 +1,10 @@
-#Options FollowSymLinks Includes Indexes
-#XBithack full
+Options FollowSymLinks Includes Indexes
+
 #AuthType Basic
 #AuthBasicProvider file
-#AuthUserFile ../passwd_html/.htpasswd
-#AuthGroupFile ../passwd_html/.htgroup
+#AuthUserFile /srv/texmlbus/build/server/passwd_html/.htpasswd
+#AuthGroupFile /src/texmlbus/build/server/passwd_html/.htgroup
 
-#AuthName Internal
-#Require user "myuser"
+#AuthName "texmlbus user"
+#Require user "texmlbususer"
 
