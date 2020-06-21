@@ -6,6 +6,7 @@
  */
 namespace Server;
 
+use Dmake\JwToken;
 use Dmake\StatEntry;
 
 class Page
@@ -110,6 +111,17 @@ class Page
 
         $currentSet = $this->getRequest()->getQueryParam('set', '');
         $detail = (int) $this->getRequest()->getQueryParam('detail', 0);
+
+        if ($cfg->auth->useJwToken) {
+            $jwToken = $this->getRequest()->getCookieParam('jwToken');
+
+            if (empty($jwToken)
+                || !JwToken::validate($jwToken)
+            ) {
+                $jwToken = JwToken::create();
+                setcookie('jwToken', $jwToken, ['samesite' => 'Strict']);
+            }
+        }
 
         header('Cache-control: no-cache');
         header('Cache-control: no-store');

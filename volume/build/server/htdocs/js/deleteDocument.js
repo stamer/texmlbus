@@ -7,6 +7,11 @@ function deleteDocument(element, id)
                     ''
         );
 
+        var token = getCookie('jwToken');
+        $.ajaxSetup({
+            headers: { "Authorization": token }
+        });
+
         $.ajax({
             url: "/ajax/deleteDocument.php?id=" + id,
             method: "GET",

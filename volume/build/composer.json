@@ -12,7 +12,8 @@
     "require": {
         "nyholm/psr7-server": "^0.4.1",
         "nyholm/psr7": "^1.2",
-        "laminas/laminas-httphandlerrunner": "^1.1"
+        "laminas/laminas-httphandlerrunner": "^1.1",
+        "nowakowskir/php-jwt": "^1.1"
     },
     "autoload": {
         "psr-4": {

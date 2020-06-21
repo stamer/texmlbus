@@ -2,6 +2,11 @@ function dequeueDocument(element, id)
 {
     var debug = false;
 
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: { "Authorization": token }
+    });
+
     $.ajax({
         url: "/ajax/dequeueDocument.php?id=" + id,
         method: "GET",

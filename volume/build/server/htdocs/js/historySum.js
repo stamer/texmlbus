@@ -6,6 +6,10 @@ function getHistSum(set, stage, id, detail)
         return;
     }
 
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: { "Authorization": token }
+    });
     $.ajax({
             url: "/ajax/historySum.php?set="+set+"&stage="+stage+"&detail="+detail,
             method: "GET",

@@ -6,6 +6,11 @@ function deleteSet(element, set)
                     ''
         );
 
+        var token = getCookie('jwToken');
+        $.ajaxSetup({
+            headers: { "Authorization": token }
+        });
+
         $.ajax({
             url: "/ajax/deleteSet.php?set=" + set,
             method: "GET",

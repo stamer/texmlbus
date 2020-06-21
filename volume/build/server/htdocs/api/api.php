@@ -9,6 +9,8 @@ require_once __DIR__ .'/../../../dmake/IncFiles.php';
 use Dmake\Api;
 use Dmake\Config;
 use Dmake\Dao;
+use Dmake\JwToken;
+
 use Server\RequestFactory;
 
 $cfg = Config::getConfig();
@@ -20,6 +22,10 @@ $request = RequestFactory::create();
 // for ajax requests and format=json return json
 $resultAsJson = ('XMLHttpRequest' == ($request->getServerParam('HTTP_X_REQUESTED_WITH', '')))
             || ($request->getParam('format', '') === 'json');
+
+if ($cfg->auth->useJwToken) {
+    JwToken::authenticate();
+}
 
 $api = new Api($request->getServerParam('REQUEST_URI'), $resultAsJson);
 

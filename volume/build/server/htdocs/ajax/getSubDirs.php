@@ -7,11 +7,17 @@
 require_once "../../include/IncFiles.php";
 
 use Dmake\UtilFile;
+use Dmake\JwToken;
 use Server\Config;
 use Server\RequestFactory;
 use Server\ResponseFactory;
 
 $cfg = Config::getConfig();
+
+if ($cfg->auth->useJwToken) {
+    JwToken::authenticateByCookie();
+}
+
 $request = RequestFactory::create();
 $response = ResponseFactory::create();
 

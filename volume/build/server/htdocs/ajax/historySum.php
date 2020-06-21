@@ -7,6 +7,7 @@
 require_once "../../include/IncFiles.php";
 
 use Dmake\ChartJs;
+use Dmake\JwToken;
 use Dmake\StatEntry;
 use Dmake\HistorySum;
 use Server\Config;
@@ -14,6 +15,10 @@ use Server\RequestFactory;
 use Server\ResponseFactory;
 
 $cfg = Config::getConfig();
+
+if ($cfg->auth->useJwToken) {
+    JwToken::authenticate();
+}
 
 $request = RequestFactory::create();
 $response = ResponseFactory::create();

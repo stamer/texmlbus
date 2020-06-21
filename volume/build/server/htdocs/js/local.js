@@ -5,6 +5,21 @@ function setCookie(cname, cvalue, exdays) {
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
+function getCookie(cookieName) {
+    var name = cookieName + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return '';
+}
+
 function openHelp(id) {
     showUrlInModal('/ajax/getHelp.php?id=' + id);
 }
@@ -108,6 +123,10 @@ function cleanupID(str)
 
 function rerunById(id, target)
 {
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: { "Authorization": token }
+    });
     $.post('/api/rerun',
         { 'id':id, 'target':target},
         function(data) {
@@ -139,6 +158,10 @@ function rerunByIds(ids, target)
 
 function createSnapshotBySet(set)
 {
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: { "Authorization": token }
+    });
     $.post('/api/snapshot',
         { 'set':set},
         function(data) {

@@ -10,6 +10,11 @@ function scanFiles(set)
                 ''
     );
 
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: { "Authorization": token }
+    });
+
     $.ajax({
         url: "/ajax/scanFiles.php?set="+set,
         method: "GET",
