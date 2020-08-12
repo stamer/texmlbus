@@ -1,7 +1,7 @@
 # Makefile.rule
 # defines the rule, which consists of target, prerequisite and recipe.
 $(TARGET.xhtml): %.xhtml: %.tex.xml
-	$(LATEXMLPOST) --format=xhtml --css=/css/latexml-local.css --pmml --cmml --javascript=LaTeXML-maybeMathjax.js --novalid --destination='$@' '$(firstword $<)' 2> xhtml.stderr.log > xhtml.stdout.log
+	$(LATEXMLPOST) $(LATEXMLPOSTOPTS) --format=xhtml --css=/css/latexml-local.css --pmml --cmml --javascript=LaTeXML-maybeMathjax.js --novalid --destination='$@' '$(firstword $<)' 2> xhtml.stderr.log > xhtml.stdout.log
 
 xhtmlclean: backup
 	rm -f '$(TARGET.xhtml)'

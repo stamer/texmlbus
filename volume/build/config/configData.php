@@ -37,16 +37,18 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->file = '/usr/bin/file';
     $config->app->gunzip = '/bin/gunzip';
     $config->app->gzip = '/bin/gzip';
-    $config->app->make = '/usr/bin/make';
-    $config->app->nice = '/bin/nice';
 
     $config->app->latexmk = '/usr/bin/latexmk';
     $config->app->latexml = '/usr/local/bin/latexml';
-    $config->app->latexmlpost = '/usr/local/bin/latemlpost';
+    $config->app->latexmlpost = '/usr/local/bin/latexmlpost';
+
+    $config->app->make = '/usr/bin/make';
+    $config->app->nice = '/bin/nice';
     $config->app->ssh = '/usr/bin/ssh'; // -o BatchMode=yes;
     $config->app->unrar = '/usr/bin/unrar';
     $config->app->unzip = '/usr/bin/unzip';
     $config->app->wc = '/usr/bin/wc';
+    $config->app->xmllint = '/usr/bin/xmllint';
     $config->app->zip = '/usr/bin/zip';
 
     // this applies to the server, it is not installed.
@@ -61,19 +63,18 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->file = '/usr/bin/file';
     $config->app->gunzip = '/usr/bin/gunzip';
     $config->app->gzip = '/usr/bin/gzip';
-    $config->app->make = '/usr/bin/make';
-    $config->app->nice = '/usr/bin/nice';
-    /*
-     * latexmk is typically too old, make sure we use
-     * our own version
-     */
+
     $config->app->latexmk = '/usr/bin/latexmk';
     $config->app->latexml = '/usr/local/bin/latexml';
-    $config->app->latexmlpost = '/usr/local/bin/latemlpost';
+    $config->app->latexmlpost = '/usr/local/bin/latexmlpost';
+
+    $config->app->make = '/usr/bin/make';
+    $config->app->nice = '/usr/bin/nice';
     $config->app->ssh = '/usr/bin/ssh'; // -o BatchMode=yes;
     $config->app->unrar = '/usr/bin/unrar';
     $config->app->unzip = '/usr/bin/unzip';
     $config->app->wc = '/usr/bin/wc';
+    $config->app->xmllint = '/usr/bin/xmllint';
     $config->app->zip = '/usr/bin/zip';
 }
 /**
