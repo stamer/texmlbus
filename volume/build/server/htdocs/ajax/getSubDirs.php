@@ -25,13 +25,12 @@ $query = $request->getQueryParam('q','');
 
 $data['results'] = [];
 
-$uploadDirName = basename(UPLOADDIR);
 
 $subDirs = UtilFile::getSubDirs(ARTICLEDIR);
 
 foreach ($subDirs as $key => $subDir) {
-    // upload Dir should not be shown
-    if ($subDir == $uploadDirName) {
+    // upload or sty dir should not be shown
+    if (in_array($subDir, $cfg->upload->specialDirs)) {
         continue;
     }
     $item = new StdClass();

@@ -608,4 +608,15 @@ class UtilFile
         }
     }
 
+    /**
+     * Makes a file world-writable
+     * @param string $filename
+     * @return bool
+     */
+    public static function makeFileWritable(string $filename)
+    {
+        $result = chmod($filename, 0666);
+        return $result;
+    }
+
 }

@@ -16,19 +16,21 @@ use Dmake\UtilFile;
 use Dmake\UtilZipfile;
 use Server\Config;
 
-class CustomUploadHandler extends UploadHandler
+class StyUploadHandler extends UploadHandler
 {
     private $debug = true;
 
     /**
-     * CustomUploadHandler constructor.
+     * StyUploadHandler constructor.
      * @param null $options
      * @param bool $initialize
      * @param null $error_messages
      */
     public function __construct($options = null, $initialize = true, $error_messages = null)
     {
+
         $options['import_type'] = 'POST';
+        $options['delete_url'] = '/indexSty.php';
         $options['upload_dir'] = UPLOADDIR . '/';
         $options['upload_url'] = '/files/upload/';
         parent::__construct($options, $initialize, $error_messages);
@@ -105,7 +107,7 @@ class CustomUploadHandler extends UploadHandler
                 $file->num_files = count($file->subDirs);
             }
 
-            $file->importUrl = $this->options['script_url']
+            $file->importUrl = '/upload/indexSty.php'
                 . $this->get_query_separator($this->options['script_url'])
                 . $this->get_singular_param_name()
                 . '=' . rawurlencode($file->name);
@@ -135,8 +137,9 @@ class CustomUploadHandler extends UploadHandler
             $response['message'] = "No set specified, please select a set where to import to.";
             return $this->generate_response($response, $print_response);
         }
-        if (in_array($destSet, $cfg->upload->specialDirs)) {
-            $response['message'] = "The set name may not be named <em>" . $destSet . "</em>.";
+
+        if (!in_array($destSet, $cfg->upload->styDirs)) {
+            $response['message'] = "Class- or Stylefiles can only be uploaded to <em>" . implode('</em> or <em>', $cfg->upload->styDirs). "</em>.";
             return $this->generate_response($response, $print_response);
         }
 
@@ -186,14 +189,14 @@ class CustomUploadHandler extends UploadHandler
                      * There several options now.
                      * The zip file could be consist of
                      * subdir/content
-                     *  subdir/main.tex
-                     *  subdir/images/1.png
-                     *  subdir/images/2.png
+                     *  subdir/a.cls
+                     *  subdir/more/ba.cls
+                     *  subdir/more/bb.cls
                      *
                      * or the zip file extracts to the same directory
-                     * main.tex
-                     * images/1.png
-                     * images/2.png
+                     * a.cls
+                     * more/ba.cls
+                     * more/bb.cls
                      */
                     $subDirs = $pf->getSubdirs($tmpUploadDir);
                     $this->debugLog('SubDirs: ' . count($subDirs));
@@ -207,12 +210,7 @@ class CustomUploadHandler extends UploadHandler
                         // just a dir that holds the subdirs?
                         $this->debugLog("Zipfile $fileName extracts into same directory.");
                         $pf = new PrepareFiles();
-                        $files = $pf->findTexFileInDirectory($tmpUploadDir);
-                        if (empty($files)) {
-                            $subDirs = $pf->getSubdirs($tmpUploadDir);
-                        } else {
-                            $subDirs = ['.'];
-                        }
+                        $subDirs = ['.'];
                         // import will be renamed to name of zipfile.
                         $renameTo = $filePrefix;
                     } elseif (count($subDirs) == 1 && !count($filesInDir)) {
@@ -220,8 +218,8 @@ class CustomUploadHandler extends UploadHandler
                         $pf = new PrepareFiles();
                         $depth = 0;
                         while ($depth++ < 10) {
-                            $files = $pf->findTexFileInDirectory($tmpUploadDir . '/' . $subDirs[0]);
-                            if (!empty($files)) {
+                            $filesInDir = $pf->getFilesInDir($tmpUploadDir . '/' . $subDirs[0]);
+                            if (!empty($filesInDir)) {
                                 break;
                             } else {
                                 $subDirSave = $subDirs[0];
@@ -232,7 +230,8 @@ class CustomUploadHandler extends UploadHandler
                             }
                         }
                     }
-                    // reference needs to be unset...
+
+                    // need to unset possible reference!
                     unset($subDir);
                     foreach ($subDirs as $subDir) {
                         $destDir = ARTICLEDIR . '/' . $destSet;
@@ -247,42 +246,44 @@ class CustomUploadHandler extends UploadHandler
                         } else {
                             $currentDir = $tmpUploadDir . '/' . $subDir;
                         }
-                        $result = $pf->importTex(
+                        $filesInDir = $pf->getFilesInDir($currentDir);
+                        $result = $pf->importClsSty(
                             $currentDir,
                             $destDir,
-                            $destDir
+                            false
                         );
-                        if (is_string($result)) {
-                            $documentsImported++;
+                        if (is_array($result)) {
+                            $documentsImported += count($result);
+                            foreach ($result as $filename) {
+                                $response['files'][$subDir . '/' . $filename] .= $filename;
+                            }
                         }
-                        $response['files'][$subDir] = $result;
                     }
                     $result = unlink($filePath);
                 } else {
-                    // we need a directory for single file
-                    $safePrefix = UtilFile::sanitizeFilename($fileName, true);
-                    $dirName = $tmpUploadDir . '/' . $safePrefix;
-                    $this->createSubDir($dirName);
+                    $dirName = $tmpUploadDir;
                     $newFilePath = $dirName . '/' . $fileName;
                     // need to implement own rename because of Windows
                     UtilFile::rename($filePath, $newFilePath);
 
                     try {
                         $pf = new PrepareFiles();
-                        $result = $pf->importTex(
+                        $result = $pf->importClsSty(
                             $dirName,
                             ARTICLEDIR . '/' . $destSet,
-                            ARTICLEDIR . '/' . $destSet
+                            true
                         );
                     } catch (Throwable $t) {
                         $response['success'] = false;
                         $response['message'] = $t->getMessage();
                         break;
                     }
-                    if (is_string($result)) {
-                        $documentsImported++;
+                    if (is_array($result)) {
+                        $documentsImported += count($result);
+                        foreach ($result as $filename) {
+                            $response['files']['sty' . '/' . $filename] = $filename;
+                        }
                     }
-                    $response['files'][$this->stripUploadTmpDir($tmpUploadDir, $dirName)] = $result;
                 }
 
                 $this->debugLog(__METHOD__ . ": Deleting tmpdir $tmpUploadDir");
@@ -356,7 +357,10 @@ class CustomUploadHandler extends UploadHandler
         $uploadDir = $this->get_upload_path($prefix);
         if (!is_dir($uploadDir)) {
             error_log($uploadDir . " does not exist, creating directory");
-            mkdir($uploadDir, 0777);
+            $result = mkdir($uploadDir, 0777);
+            if (!$result) {
+                throw new ErrorException("Failed to create $uploadDir.");
+            }
         }
         $dirName = tempnam($uploadDir, $prefix);
         $this->debugLog(__METHOD__ . " TempUploadDir is: $dirName");

@@ -21,6 +21,8 @@ function deleteSet(element, set)
                 }
                 var message = '';
                 var msgClass = '';
+                var fadeMsec = 2500;
+
                 if (data.result) {
                     if (data.result['message']) {
                         message += '<h5>' + data.result['message'] + '</h5>';
@@ -28,6 +30,7 @@ function deleteSet(element, set)
                     if (data.result['documentsDeleted']) {
                         message += data.result['documentsDeleted'] + " article" + (data.result['documentsDeleted'] != 1 ? 's' : '') + " deleted from set <em>" + data.result['destSet'] + "</em>.";
                         msgClass = 'success';
+                        fadeMsec = 1000;
                     } else {
                         message += "No articles have been deleted.";
                         msgClass = 'info';

@@ -44,7 +44,7 @@ foreach ($subDirs as $subDir) {
     }
 
     try {
-        $result = $pf->import($directory . '/' . $subDir, $directory);
+        $result = $pf->importTex($directory . '/' . $subDir, $directory);
         if (is_string($result)) {
             $documentsImported++;
         }

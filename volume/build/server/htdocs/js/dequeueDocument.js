@@ -17,6 +17,8 @@ function dequeueDocument(element, id)
             }
             var message = '';
             var msgClass = '';
+            var mSec = 1500;
+
             if (data.result) {
                 if (data.result['message']) {
                     message += '<h5>' + data.result['message'] + '</h5>';
@@ -24,11 +26,12 @@ function dequeueDocument(element, id)
                 if (data.result['success']) {
                     message += "Document dequeued.";
                     msgClass = 'success';
+                    fadeMsec = 800;
                 } else {
                     message += "No document has been dequeued.";
                     msgClass = 'warning';
                 }
-                showMessage('Document Dequeue', message, msgClass, 800);
+                showMessage('Document Dequeue', message, msgClass, fadeMsec);
                 $(element).closest('tr').hide();
             }
         },

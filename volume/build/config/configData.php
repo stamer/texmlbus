@@ -26,7 +26,7 @@ define('HTDOCS', SERVERDIR.'/htdocs');
  * Application
  */
 if (!isset($config)) {
-	$config = new stdClass;
+	$config = new stdClass();
 }
 
 $config->app = new stdClass();
@@ -91,4 +91,28 @@ $config->uncompress->unzip->interactive = '';
 $config->uncompress->unzip->overwriteOn = '-o';
 $config->uncompress->unzip->overwriteOff = '-n';
 
+$config->upload = new stdClass();
+
+// special names of sets which cannot be used
+
+$config->upload->specialDirs = [
+    'sty', // global directory for style and class files
+    'overall', // virtual set overall
+    'upload', // directory for uploads
+];
+
+$config->upload->styDirs = [
+    'sty', // global directory for style and class files
+];
+
+$config->upload->forbiddenSubstrings = [
+    [
+        'substring' => '..',
+        'message' => 'The set name may not contain two dot characters: ..'
+    ],
+    [
+        'substring' => '/',
+        'message' => 'The set name may not contain a forward slash: / '
+    ],
+];
 

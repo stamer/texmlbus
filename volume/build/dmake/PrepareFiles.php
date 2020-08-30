@@ -506,9 +506,9 @@ class PrepareFiles
      * @param string $currentDir
      * @param string $makeFileDir
      * @param string $destDir
-     * @return int|string .
+     * @return int|string // int = errorcode, string = filename
      */
-    public function import(
+    public function importTex(
             string $currentDir,
             string $makeFileDir = '',
             string $destDir = ''
@@ -530,7 +530,7 @@ class PrepareFiles
 
         // list directories again, we might have new ones now
         // also look for files in the current directory
-        $result_dirs = array($currentDir);
+        $result_dirs = [$currentDir];
         $current_depth = 0;
         UtilFile::listDirR($currentDir, $result_dirs, $current_depth, true, true, '//');
 
@@ -687,6 +687,82 @@ class PrepareFiles
             }
         }
         return $retval ?? self::NOTEXFILEFOUND;
+    }
+
+    /**
+     * Tries to import a cls/sty file in the given directory.
+     * If $destDir is not empty, it will be moved to $destDir.
+     * It also implicitly assumes that file has been uploaded to UPLOADDIR/tmp ...
+     *
+     * @param string $currentDir
+     * @param string $destDir
+     * @return int|string[] // int errorcode, [] name of filenames
+     */
+    public function importClsSty(
+        string $currentDir,
+        string $destDir = '',
+        bool $isSingleFile
+    )
+    {
+        $this->debugLog(__METHOD__ . ": currentDir is $currentDir");
+        $this->debugLog(__METHOD__ . ": destDir is $destDir");
+
+        if ($isSingleFile) {
+            $files = UtilFile::listDir($currentDir);
+
+            // should be only one...
+            foreach ($files as $file) {
+                // need to implement own rename because of Windows
+                $currentFile = $currentDir . '/' . $file;
+                $newFile = $destDir . '/' . $file;
+                $result = UtilFile::rename($currentFile, $newFile);
+                if (!$result) {
+                    $this->debugLog(__METHOD__ . ": Failed to move $currentFile to $newFile");
+                    return self::MOVEDIRERROR;
+                }
+                $this->debugLog("NEWFILE: $newFile");
+                UtilFile::makeFileWritable($newFile);
+
+                return [$file];
+            }
+        } else {
+            $this->findAndUncompressFiles($currentDir);
+
+            $result_dirs = [$currentDir];
+            $current_depth = 0;
+            UtilFile::listDirR($currentDir, $result_dirs, $current_depth, true, true, '//');
+
+            foreach ($result_dirs as $dir) {
+                $files = UtilFile::listDir($dir);
+                $this->debugLog("DIR: $dir");
+
+                $files = UtilFile::listDir($dir);
+                /*
+                 * on import destDir is not empty, on scan destDir is empty
+                 */
+                if ($destDir !== '') {
+                    $newDir = str_replace(dirname($currentDir), $destDir, $currentDir);
+                    $addDir = str_replace(dirname($currentDir), $destDir, $dir);
+                    if (file_exists($newDir)) {
+                        $this->debugLog("Skipping $newDir: directory already exists");
+                        $retval = self::DIRECTORYEXISTS;
+                        continue;
+                    }
+                    // need to implement own rename because of Windows
+                    $result = UtilFile::rename($currentDir, $newDir);
+                    if (!$result) {
+                        $this->debugLog(__METHOD__ . ": Failed to move $currentDir to $newDir");
+                        return self::MOVEDIRERROR;
+                    }
+                    UtilFile::makeDirWritable($newDir);
+                    $this->debugLog("DIR: $dir");
+                    $this->debugLog("NEWDIR: $newDir");
+
+                    return $files;
+                }
+            }
+        }
+        return $retval ?? self::FILENOTFOUND;
     }
 
     /**

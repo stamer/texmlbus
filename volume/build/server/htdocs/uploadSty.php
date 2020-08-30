@@ -12,7 +12,7 @@ use Server\Page;
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
 
-$page = new Page('Upload / Import');
+$page = new Page('Upload Stylefiles');
 $page->addScript("/js/select2.min.js");
 $page->addCss('
 <link href="/css/select2.min.css" rel="stylesheet" />
@@ -90,7 +90,7 @@ $statsTab = $page->getRequest()->getCookieParam('statsTab', 'tab-1');
 if ($set != '') {
     echo '<h4>File Upload <em>'.htmlspecialchars($set).'</em> <span class="fas fa-info-circle"></span></h4>'.PHP_EOL;
 } else {
-    echo '<h4>Upload and import articles ' . $page->info('upload') . '</h4>';
+    echo '<h4>Upload and import class and style files ' . $page->info('uploadsty') . '</h4>';
 }
 ?>
 
@@ -98,7 +98,7 @@ if ($set != '') {
       <!-- The file upload form used as target for the file upload widget -->
       <form
         id="fileupload"
-        action="/upload/index.php"
+        action="/upload/indexSty.php"
         method="POST"
         enctype="multipart/form-data"
       >
@@ -107,7 +107,7 @@ if ($set != '') {
           ><input
             type="hidden"
             name="redirect"
-            value="/upload/index.php"
+            value="/upload/indexSty.php"
         /></noscript>
 
 
@@ -156,8 +156,6 @@ if ($set != '') {
             <div class="progress-extended">&nbsp;</div>
           </div>
         </div>
-
-        <select id="destset" name="destset" class="js-data-get-sets" style="width: 400px"></select> <?=$page->info('upload-select', 0.9) ?>
 
         <!-- The table listing the files available for upload/download -->
         <table role="presentation" class="table table-striped" style="margin-top: 20px">
@@ -300,7 +298,7 @@ if ($set != '') {
     <!-- The File Upload user interface plugin -->
     <script src="js/jquery.fileupload/jquery.fileupload-ui.js"></script>
     <!-- The main application script -->
-    <script src="js/jquery.fileupload/upload.js"></script>
+    <script src="js/jquery.fileupload/uploadSty.js"></script>
     <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
     <!--[if (gte IE 8)&(lt IE 10)]>
       <script src="js/cors/jquery.xdr-transport.js"></script>
@@ -317,6 +315,12 @@ if ($set != '') {
 
         $('#fileupload').fileupload({
             dropZone: $('#dropzone')
+        });
+
+        $('#fileupload').fileupload({
+            // Uncomment the following to send cross-domain cookies:
+            //xhrFields: {withCredentials: true},
+            url: '/upload/indexSty.php'
         });
 
         /*
@@ -343,11 +347,7 @@ if ($set != '') {
                    data.type == POST: IMPORT action
                  */
                 if (data.type === 'POST') {
-                    var select2 = $('#destset');
-                    var destset = select2.val();
-                    if (destset === null) {
-                        destset = 'main';
-                    }
+                    var destset = 'sty';
                     showMessage('Importing to ' + destset + '...',
                             '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Scanning and importing...</span></div></div>',
                             ''
@@ -371,21 +371,21 @@ if ($set != '') {
                         message += '<h5>' + data.result['message'] + '</h5>';
                     }
                     if (data.result['documentsImported']) {
-                        message += data.result['documentsImported'] + " article" + (data.result['documentsImported'] != 1 ? 's' : '') + " imported to set <em>" + data.result['destSet'] + "</em>.";
+                        message += data.result['documentsImported'] + " class/style file" + (data.result['documentsImported'] != 1 ? 's' : '') + " imported to <em>" + data.result['destSet'] + "</em>.";
                         msgClass = 'success';
                     } else {
-                        message += "No articles have been imported.";
+                        message += "No files have been imported.";
                         msgClass = 'warning';
                     }
                     message += '<br />';
-                    var text = ['Not found', 'no tex file found', 'texfile exists', 'texfile added', 'directory exists', 'move directory error'];
+                    var text = ['Not found', 'no file found', 'file exists', 'file added', 'directory exists', 'move directory error'];
                     if (data.result['files'] !== undefined) {
                         var subDirs = data.result['files'];
                         message += '<small>';
                         for (var prop in subDirs) {
                             // if string, a file had been added
                             if (typeof subDirs[prop] === 'string' || subDirs[prop] instanceof String) {
-                                message += prop + ": " + 'texfile ' + subDirs[prop] + ' added';
+                                message += prop + ": " + 'class/style file ' + subDirs[prop] + ' added';
                             } else {
                                 message += prop + ": " + text[subDirs[prop]]
                             }
@@ -393,7 +393,7 @@ if ($set != '') {
                         }
                         message += '</small>';
                     }
-                    var title = 'Article Import to set <em>' + data.result['destSet'] + '</em>.';
+                    var title = 'Sty Import to  <em>' + data.result['destSet'] + '</em>.';
                     showMessage(title, message, msgClass, 10000);
                 }
             });
@@ -420,15 +420,4 @@ if ($set != '') {
     </script>
 <?php
 
-$deferJS[] = '
-$(".js-data-get-sets").select2({
-    tags: true,
-    placeholder: "Please specify a set when you import",
-    ajax: {
-    url: "/ajax/getSets.php",
-    dataType: "json"
-    }
-});';
-
-
-$page->showFooter($deferJS);
+$page->showFooter();

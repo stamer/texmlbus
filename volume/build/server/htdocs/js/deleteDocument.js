@@ -22,6 +22,8 @@ function deleteDocument(element, id)
                 }
                 var message = '';
                 var msgClass = '';
+                var fadeMsec = 1500;
+
                 if (data.result) {
                     if (data.result['message']) {
                         message += '<h5>' + data.result['message'] + '</h5>';
@@ -29,11 +31,12 @@ function deleteDocument(element, id)
                     if (data.result['documentsDeleted']) {
                         message += data.result['documentsDeleted'] + " document" + (data.result['documentsDeleted'] != 1 ? 's' : '') + " deleted.";
                         msgClass = 'success';
+                        fadeMsec = 800;
                     } else {
                         message += "No documents have been deleted.";
                         msgClass = 'warning';
                     }
-                    showMessage('Document Delete', message, msgClass, 1500);
+                    showMessage('Document Delete', message, msgClass, fadeMsec);
                     $(element).closest('tr').hide();
                     $(element).closest('tr').next().hide();
                 }
