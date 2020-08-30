@@ -203,13 +203,14 @@ class UtilFile
             ) {
                 $filename = $dir . "/" . $file;
                 if (empty($pattern)) {
-                    if (is_dir($filename)) {
-                        self::listDirR($filename, $result_dirs, $current_depth, $ignore_error, $only_dirs, $pattern, $only_depth);
-                    }
                     $add = !($only_dirs && (!is_dir($filename)));
                     if ($add) {
                         if (!$only_depth || $only_depth == $current_depth) {
-                            $result_dirs[] = $filename;
+                            if (is_dir($filename)) {
+                                $result_dirs[] = $filename . '/';
+                            } else {
+                                $result_dirs[] = $filename;
+                            }
                             if (DBG_LEVEL & DBG_DIRECTORIES) echo "$current_depth: Adding $filename...\n";
                             if (DBG_LEVEL & DBG_DIRECTORIES) {
                                 self::$flc++;
@@ -217,26 +218,32 @@ class UtilFile
                             }
                         }
                     }
+                    if (is_dir($filename)) {
+                        self::listDirR($filename, $result_dirs, $current_depth, $ignore_error, $only_dirs, $pattern, $only_depth);
+                    }
                 } else {
                     $res = preg_match($pattern, $filename);
                     if ($res) {
                         if (DBG_LEVEL & DBG_DIRECTORIES) echo "FILE: $filename\n";
                     }
-
                     if ($res || ($current_depth < 3)) {
-                        if (is_dir($filename)) {
-                            self::listDirR($filename, $result_dirs, $current_depth, $ignore_error, $only_dirs, $pattern, $only_depth);
-                        }
                         $add = !($only_dirs && (!is_dir($filename)));
                         if ($res && $add) {
                             if (!$only_depth || $only_depth == $current_depth) {
-                                $result_dirs[] = $filename;
+                                if (is_dir($filename)) {
+                                    $result_dirs[] = $filename . '/';
+                                } else {
+                                    $result_dirs[] = $filename;
+                                }
                                 if (DBG_LEVEL & DBG_DIRECTORIES) echo "Adding $filename...\n";
                                 if (DBG_LEVEL & DBG_DIRECTORIES) {
                                     self::$flc++;
                                     if (self::$flc % 1000 == 0) self::updateNumber(self::$flc);
                                 }
                             }
+                        }
+                        if (is_dir($filename)) {
+                            self::listDirR($filename, $result_dirs, $current_depth, $ignore_error, $only_dirs, $pattern, $only_depth);
                         }
                     }
                 }

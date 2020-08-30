@@ -17,7 +17,7 @@ echo "Writing backup to ${OUTFILE}"
 docker exec texmlbus_mariadb_1 sh -c 'exec mysqldump buildsysdb --no-data -uroot -p"$MYSQL_ROOT_PASSWORD"' > ${OUTFILE}
 
 #dump help contents
-docker exec texmlbus_mariadb_1 sh -c 'exec mysqldump buildsysdb help -uroot -p"$MYSQL_ROOT_PASSWORD"' >> ${OUTFILE}
+docker exec texmlbus_mariadb_1 sh -c 'exec mysqldump buildsysdb help --skip-extended-insert -uroot -p"$MYSQL_ROOT_PASSWORD"' >> ${OUTFILE}
 
 # dump dbversion for current dbversion
 docker exec texmlbus_mariadb_1 sh -c 'exec mysqldump buildsysdb dbversion -uroot -p"$MYSQL_ROOT_PASSWORD"' >> ${OUTFILE}
