@@ -21,6 +21,7 @@ require_once "IncFiles.php";
 
 use Dmake\Config;
 use Dmake\Dao;
+use Dmake\DbUpdate;
 use Dmake\Dmake;
 use Dmake\DmakeStatus;
 use Dmake\InotifyHandler;
@@ -69,6 +70,10 @@ while (!$dao = Dao::getInstance(false)) {
     echo "Database not yet ready? Sleeping $secondsToSleep sec..." . PHP_EOL;
     sleep($secondsToSleep);
 }
+
+// check for Updates
+$du = new DbUpdate();
+$du->execute();
 
 $ds = new DmakeStatus;
 $ds->directory = '';
