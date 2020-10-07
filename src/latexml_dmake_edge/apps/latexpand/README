@@ -1,0 +1,125 @@
+NAME
+    latexpand - Flatten LaTeX file by expanding \include and \input, ... and
+    remove comments
+
+SYNOPSIS
+    latexpand [options] FILE...
+
+  Options:
+            --verbose        show what's going on
+            --keep-comments  don't strip comments (comments are lines
+                             starting with %, and anything below
+                             \end{document})
+            --empty-comments keep empty comments (i.e. % at end of lines) for clarity
+            --keep-includes  don't expand \input and \include directives
+            --expand-usepackage
+                             Expand \usepackage{...} directives if the
+                             corresponding .sty file is found in
+                             $TEXINPUTS (or the current directory if
+                             $TEXINPUTS is not set)
+            --expand-bbl FILE
+                             Expand the bibliography by inlining FILE
+                             (should be a *.bbl file)
+            --biber FILE     Include \bibliography{} with FILE's content,
+                             as needed by biblatex with the biber backend.
+                             (similar to --expand-bbl FILE, but for
+                             biber+biblatex).
+            --help           this help message
+            --output <file>, -o <file>
+                             generate output in <file>
+            --explain        generate explanatory comments in output
+            --show-graphics  show included graphics
+            --graphics_extensions
+                             colon-separated list of possible graphics extensions
+                             (used by --show-graphics to find the actual graphics files)
+            --fatal          Die in case a file can't be found.
+            --makeatletter   Insert a \makeatletter in the preamble. In some
+                             rare cases it may break your document, but it
+                             may help fixing bad interactions between
+                             @-commands and inclusion (see BUGS section).
+            --in-encoding FMT, --out-encoding FMT
+                             File encoding used by input and output files.
+                             This uses the same syntax as PerlIO's layers.
+                             Example:
+                             --in-encoding 'encoding(UTF-8)'
+                             The default is 'bytes' and should always work.
+
+USES
+    The most common use of latexpand is to simplify distribution of source
+    LaTeX files, typically to satisfy the requirement of editors and
+    archival sites (springer, arXiv.org, ...) who force the authors to
+    submit sources. One does not necessarily want to submit sources with
+    comments, and uploading a document made of several files including each
+    other is a bit painful. By default, latexpand answers both problems by
+    outputing a single LaTeX file that contain no comment.
+
+GETTING LATEXPAND
+    The latest version of latexpand is available here:
+
+      https://gitlab.com/latexpand/latexpand
+
+    Versions are uploaded to ctan.org from time to time:
+
+      http://www.ctan.org/pkg/latexpand
+
+BUGS
+    Please, report bugs on the issue tracker on the project site:
+
+      https://gitlab.com/latexpand/latexpand/issues
+
+  Known bugs
+   Verbatim
+    latexpand currently ignores \begin{verbatim} ... \end{verbatim}, and
+    will therefore process any \include, \input, ... directives that appear
+    within verbatim environments (while it shouldn't).
+
+    LaTeX comments inside verbatim environments are also incorrectly
+    stripped. You can use --keep-comments as a workaround to avoid this.
+
+   Comment environment
+    It would be nice to remove code between \begin{comment} and
+    \end{comment} too if \usepackage{comment} is used.
+
+    Code like
+
+            foo%
+            \begin{comment}
+
+    will produce the incorrect
+
+            foo\begin{comment}
+
+    A workaround is to use --empty-comments when such tricky usage of the
+    comments package is done.
+
+   \makeatletter and use with transfig/xfig with \scalebox{}
+    If \input{} or \include{} appears as argument to a command, and the file
+    included contains \makeatletter, then after expansion, the \makeatletter
+    and the @-command appear as argument to the command, which is forbidden
+    because the argument is parsed (and the @-command badly tokenized)
+    before being executed.
+
+    This happens with
+
+            \scalebox{ \input{file-generated-by-xfig.pdf_t} }
+
+    Workaround: add \makeatletter before the scalebox manually in your code,
+    like
+
+            \makeatletter{}
+            \scalebox{ \input{file-generated-by-xfig.pdf_t} }
+            \makeatother{}
+
+    In the case of xfig generated files, it is necessary only for the first
+    occurence.
+
+    A more brute-force workaround is to use latexpand --makeatletter.
+
+SEE ALSO
+    Instructions to include only the relevant .bib items (french):
+
+    https://lacl.fr/~caubert/notes/portabilite-du-tex.html#dependances
+
+VERSION
+    This is latexpand version v1.6.
+
