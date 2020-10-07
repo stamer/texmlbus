@@ -170,7 +170,10 @@ class Dmake
             // limit the amount of memory the worker may use
             $args[2] .= 'ulimit -v ' . $host['memlimitVirtual'] . '; ';
         }
-        $args[2] .= 'umask 0002; cd \'' . $host['dir'] . '/' . $entry->filename . '\';' . $makeCommand;
+
+        $sourceDir = UtilStage::getSourceDir($host['dir'], $entry->filename, $hostGroup);
+
+        $args[2] .= 'umask 0002; cd \'' . $sourceDir . '\';' . $makeCommand;
 
         if (DBG_LEVEL & DBG_EXEC) {
             echo $execstr . PHP_EOL;

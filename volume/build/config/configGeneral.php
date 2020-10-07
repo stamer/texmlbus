@@ -75,3 +75,4 @@ $config->auth = new StdClass();
 // as access is limited to localhost, this is not necessary.
 $config->auth->useJwToken = false;
 
+$config->linkSourceFiles = true;

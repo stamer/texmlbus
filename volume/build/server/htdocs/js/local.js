@@ -121,14 +121,14 @@ function cleanupID(str)
 	return str.replace(/[\\.:@]/g);
 }
 
-function rerunById(id, target)
+function rerunById(id, stage, target)
 {
     var token = getCookie('jwToken');
     $.ajaxSetup({
         headers: { "Authorization": token }
     });
     $.post('/api/rerun',
-        { 'id':id, 'target':target},
+        { 'id':id, 'stage': stage, 'target':target},
         function(data) {
             if (data.success) {
                 var msg_class = 'success';
@@ -139,7 +139,7 @@ function rerunById(id, target)
                 showMessage('Rerun', data.output, 'info', 2000);
             }
 
-            var field = '#rerun_'+id+'_'+target;
+            var field = '#rerun_' + id + '_' + stage;
             if (data.success) {
                 $(field).html('<span class="ok">'+'queued'+'</span>');
             } else {
@@ -149,10 +149,10 @@ function rerunById(id, target)
     );
 }
 
-function rerunByIds(ids, target)
+function rerunByIds(ids, stage, target)
 {
        for (var i = 0; i < ids.length; i++) {
-           rerunById(ids[i], target);
+           rerunById(ids[i], stage, target);
        }
 }
 

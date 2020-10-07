@@ -1,0 +1,4 @@
+# Makefile.stage
+# names the target and prerequisites
+PDF_EDGE_STAGEDIR = $(PREFIX)/stage/pdf_edge
+

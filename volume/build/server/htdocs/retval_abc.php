@@ -8,6 +8,7 @@ require_once "../include/IncFiles.php";
 
 use Dmake\Dao;
 use Dmake\RetvalDao;
+use Dmake\UtilStage;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -127,10 +128,11 @@ foreach ($stages as $stage) {
     <th>Directory&nbsp;&nbsp;<a title="Sort by ascending name" href="<?=$urlSortNameAsc ?>">&#9662;</a><a title="Sort by descending name" href="<?=$urlSortNameDesc ?>">&#9652;</a></th>
 <?php
 foreach ($stages as $stage) {
+    $target = $cfg->stages[$stage]->target;
 	echo '<th style="min-width:138px">';
 	echo '<small>'.$stage.'</small><br />';
 	$ids = array_keys($stat);
-    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids). '],\''.$stage.'\'); return false">queue</a>'.PHP_EOL;
+    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids) . '],\'' . $stage . '\', \'' . $target.'\'); return false">queue</a>'.PHP_EOL;
 	echo '</th>';
 }
 ?>
@@ -140,6 +142,8 @@ foreach ($stages as $stage) {
 $count = 0;
 
 foreach ($stat as $id => $entry) {
+
+    // sources are hostgroup independent
     $directory = 'files/'.$entry['all']['filename'].'/';
     if (!preg_match('/\.tex$/', $entry['all']['sourcefile'])) {
         $sourcefile = $entry['all']['sourcefile'].'.tex';
@@ -174,7 +178,7 @@ foreach ($stat as $id => $entry) {
 	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a></td>' . PHP_EOL;
 
     foreach ($stages as $stage) {
-
+        $directory = UtilStage::getSourceDir('files', $entry['all']['filename'], $cfg->stages[$stage]->hostGroup) . '/';
         //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
         $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
         $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$stage]);
@@ -198,12 +202,15 @@ foreach ($stat as $id => $entry) {
             $retval = 'unknown';
         }
         $date_modified = $entry[$stage]['date_modified'];
+        $target = $cfg->stages[$stage]->target;
+
         echo View::renderRetvalColumn(
             $retval,
             $stderrFileLink,
             $destFileLink,
             $id,
             $stage,
+            $target,
             $date_modified,
             $queued
         );

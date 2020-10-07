@@ -26,6 +26,7 @@ use Dmake\Dmake;
 use Dmake\DmakeStatus;
 use Dmake\InotifyHandler;
 use Dmake\StatEntry;
+use Dmake\UtilFile;
 use Dmake\UtilHost;
 use Dmake\UtilStage;
 
@@ -95,9 +96,16 @@ $ds->hostnames = $str;
 $ds->timeout = $cfg->timeout->default;
 $ds->save(TRUE);
 
-function mainLoop($inotify, $hostGroupName, $dmake, $ds)
+function mainLoop($hostGroupName, $dmake, $ds)
 {
     $cfg = Config::getConfig();
+
+    $inotify = new InotifyHandler();
+
+    if ($inotify->isActive()) {
+        echo "Setting up inotifyWatcher for $hostGroupName ...\n";
+        $inotify->setupWatcher($hostGroupName, InotifyHandler::wqTrigger);
+    }
 
     $possibleCleanActions = array('clean');
 
@@ -144,13 +152,20 @@ function mainLoop($inotify, $hostGroupName, $dmake, $ds)
                     continue;
                 }
 
+                $directory = $entry->filename;
+                echo "Dir: " . $directory . "\n";
+
+                if ($cfg->linkSourceFiles) {
+                    UtilStage::setupFiles(ARTICLEDIR, $directory, $hostGroupName);
+                }
+
+                $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroupName);
+
                 if (in_array($action, $possibleCleanActions)) {
                     echo "Cleaning up...\n";
 
-                    $directory = $entry->filename;
-                    echo "Dir: " . $directory . "\n";
                     // ARTICLEDIR./.$directory need quotes!
-                    $systemCmd = 'cd "' . ARTICLEDIR . '/' . $directory . '" && /usr/bin/make ' . $action;
+                    $systemCmd = 'cd "' . $sourceDir . '" && /usr/bin/make ' . $action;
                     if (DBG_LEVEL & DBG_DELETE) {
                         echo "Make $action $directory...\n";
                     }
@@ -192,6 +207,7 @@ function mainLoop($inotify, $hostGroupName, $dmake, $ds)
                                     // the connection will not be gone for the parent.
                                     // https://stackoverflow.com/questions/3668615/pcntl-fork-and-the-mysql-connection-is-gone
                                     // https://www.electrictoolbox.com/mysql-connection-php-fork/
+
                                     $result = $dmake->childMain(
                                         $hostGroupName,
                                         $cfg->hosts[$hostGroupName][$hostkey],
@@ -260,15 +276,9 @@ function mainLoop($inotify, $hostGroupName, $dmake, $ds)
     }
 }
 
-$inotify = new InotifyHandler();
-
 foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
 
     echo "HostGroup: $hostGroupName" . PHP_EOL;
-    if ($inotify->isActive()) {
-        echo "Setting up inotifyWatcher for $hostGroupName ...\n";
-        $inotify->setupWatcher($hostGroupName, InotifyHandler::wqTrigger);
-    }
     // close DB connection, so connection is not shared among children
     Dao::dropInstance();
 
@@ -281,7 +291,7 @@ foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
             break;
         case 0:
             // child
-            $result = mainLoop($inotify, $hostGroupName, $dmake, $ds);
+            $result = mainLoop($hostGroupName, $dmake, $ds);
             exit($result);
             break;
         default:

@@ -90,7 +90,7 @@ foreach ($stages as $stage) {
 
 $numrows = StatEntry::wqGetNumEntries();
 
-$stat = StatEntry::wqGetNextEntries(20, false);
+$stat = StatEntry::wqGetNextEntries('', 20, false);
 
 ?>
 <table border="1">

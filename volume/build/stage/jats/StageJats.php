@@ -13,12 +13,13 @@ use Dmake\Dao;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StageJats extends AbstractStage implements StageInterface
 {
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     public static function register()
@@ -26,13 +27,15 @@ class StageJats extends AbstractStage implements StageInterface
         $config = array(
             'stage' => 'jats',
             'classname' => __CLASS__,
+            'target' => 'jats',
+            'hostGroup' => 'worker',
             'parseXml' => true,
             'timeout' => 1200,
             'dbTable' => 'retval_jats',
             'destFile' => '%MAINFILEPREFIX%.jats.xml',
             'stdoutLog' => 'jats.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'jats.stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array('xml'), // which log files need to be parsed?
+            'dependentStages' => array('xml'), // which log files need to be parsed?
             'showRetval' =>
                 array(
                     'unknown'           => false,
@@ -186,15 +189,16 @@ class StageJats extends AbstractStage implements StageInterface
         $stmt->execute();
 	}
 
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static();
         $res->id = $entry->id;
 
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
         if ($childAlarmed) {
             $res->retval = 'timeout';

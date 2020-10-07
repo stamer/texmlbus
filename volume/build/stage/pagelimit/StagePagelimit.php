@@ -6,6 +6,7 @@ use Dmake\Dao;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StagePagelimit extends AbstractStage implements StageInterface
 {
@@ -15,7 +16,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
 
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     public static function register()
@@ -23,13 +24,15 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $config = array(
             'stage' => 'pagelimit',
             'classname' => __CLASS__,
+            'target' => 'pagelimit',
+            'hostGroup' => 'worker',
             'parseXml' => false,
             'timeout' => 1200,
             'dbTable' => 'retval_pagelimit',
             'destFile' => '%MAINFILEPREFIX%.pagelimit.html',
             'stdoutLog' => 'pagelimit.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'pagelimit.stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array(), // which log files need to be parsed?
+            'dependentStages' => array(), // which log files need to be parsed?
             /* retvals to be shown */
             'showRetval' =>
                 array(
@@ -192,17 +195,18 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $stmt->execute();
     }
 
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static();
         $res->id = $entry->id;
 
-        $stdErrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $stdErrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
 
         $destFile = str_replace('%MAINFILEPREFIX%', $texSourcefilePrefix, $res->config['destFile']);
 
@@ -257,7 +261,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
         }
         $res->errmsg .= implode("\n", $matches[4]);
 
-        echo __CLASS__ . ": Setting retval to " . $res->retval . PHP_EOL;
+        echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
         $res->updateRetval();
     }

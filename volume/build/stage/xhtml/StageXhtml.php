@@ -13,12 +13,13 @@ use Dmake\Dao;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StageXhtml extends AbstractStage implements StageInterface
 {
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     public static function register()
@@ -26,12 +27,16 @@ class StageXhtml extends AbstractStage implements StageInterface
         $config = array(
             'stage' => 'xhtml',
             'classname' => __CLASS__,
+            'target' => 'xhtml',
+            'hostGroup' => 'worker',
             'timeout' => 1200,
             'dbTable' => 'retval_xhtml',
             'destFile' => '%MAINFILEPREFIX%.xhtml',
             'stdoutLog' => 'xhtml.stdout.log',  // this needs to match entry in Makefile
             'stderrLog' => 'xhtml.stderr.log',  // needs to match entry in Makefile
-            'dependentTargets' => array('xml'), // which log files need to be parsed?
+            // which log files need to be parsed?
+            // the dependent stage needs to have the same hostGroup as this stage
+            'dependentStages' => array('xml'),
             'showRetval' =>
                 array(
                     'unknown'           => false,
@@ -185,15 +190,16 @@ class StageXhtml extends AbstractStage implements StageInterface
         $stmt->execute();
 	}
 
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static();
         $res->id = $entry->id;
 
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
         if ($childAlarmed) {
             $res->retval = 'timeout';

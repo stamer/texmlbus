@@ -12,6 +12,7 @@ use Dmake\ErrDetEntry;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StageXml extends AbstractStage implements StageInterface
 {
@@ -22,7 +23,7 @@ class StageXml extends AbstractStage implements StageInterface
 
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
         $this->debug = true;
     }
 
@@ -31,13 +32,15 @@ class StageXml extends AbstractStage implements StageInterface
         $config = array(
             'stage' => 'xml',
             'classname' => __CLASS__,
+            'target' => 'xml',
+            'hostGroup' => 'worker',
             'parseXml' => true,
             'timeout' => 1200,
             'dbTable' => 'retval_xml',
             'destFile' => '%MAINFILEPREFIX%.tex.xml',
             'stdoutLog' => 'stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array(),
+            'dependentStages' => array(),
             'showRetval' =>
                 array(
                     'unknown'           => true,
@@ -291,17 +294,17 @@ class StageXml extends AbstractStage implements StageInterface
         $stmt->execute();
 	}
 
-
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
         $res = new static();
         $res->id = $entry->id;
 
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
@@ -340,7 +343,6 @@ class StageXml extends AbstractStage implements StageInterface
             if (isset($matches[4])) {
                 $res->ok_xmath = $matches[4];
             }
-
 
             $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
             preg_match($fatal_pattern, $content, $matches);
@@ -407,7 +409,7 @@ class StageXml extends AbstractStage implements StageInterface
         $res->updateRetval();
     }
 
-    public function parseDetail(StatEntry $entry)
+    public function parseDetail($hostGroup, StatEntry $entry)
     {
         $directory = $entry->getFilename();
         $datestamp = date("Y-m-d H:i:s", time());

@@ -87,12 +87,13 @@ class Api
             case 'rerun':
                 // clean + rerun
                 // will for recreation of target and queues target
+                $stage = $this->request->getParam('stage', '');
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->rerun($target);
+                $apiResult = $this->rerun($stage, $target);
                 break;
             case 'snapshot':
                 // create history snapshot
@@ -131,7 +132,8 @@ class Api
         if (!empty($directory) && !empty($sourcefile)) {
             $minDepth = 1;
             $result = StatEntry::addNew($directory, $sourcefile, $minDepth);
-            $this->inotify->trigger();
+            // ??
+            // $this->inotify->trigger();
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -161,13 +163,13 @@ class Api
      *
      * @return ApiResult
      */
-    public function clean($stage)
+    public function clean($stage, $target)
     {
         /** @var $statEntry StatEntry */
-        $cfg = Config::getConfig();
-        $possibleTargets = array_keys($cfg->stages);
-        if (!in_array(preg_replace('/clean$/', '', $stage), $possibleTargets)) {
-            return new ApiResult(false, 'Invalid stage.');
+        $possibleTargets = UtilStage::getPossibleTargets();
+        $baseTarget = preg_replace('/clean$/', '', $target);
+        if (!in_array($baseTarget, $possibleTargets)) {
+            return new ApiResult(false, 'Invalid target.');
         }
 
         $id = $this->request->getParam('id', '');
@@ -189,8 +191,9 @@ class Api
         }
 
         // needs to be done via workqueue, so files are deleted in context of dmake
-        $result = StatEntry::addToWorkqueue($directory, $stage, 1);
-        $this->inotify->trigger(InotifyHandler::wqTrigger);
+        $hostGroup = UtilStage::getHostGroupByStage($stage);
+        $result = StatEntry::addToWorkqueue($directory, $hostGroup, $stage, $target,1);
+        $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
         sleep(1);
         $returnVar = 0;
         $success = true;
@@ -208,22 +211,22 @@ class Api
      * Job is queued, if this job has already run before, it will not be recreated.
      * @return ApiResult
      */
-    public function queue($stage)
+    public function queue($stage, $target)
     {
-        $cfg = Config::getConfig();
-        $possibleTargets = array_keys($cfg->stages);
-        if (!in_array($stage, $possibleTargets)) {
-            return new ApiResult(false, 'Invalid stage.');
+        $possibleTargets = UtilStage::getPossibleTargets();
+        if (!in_array($target, $possibleTargets)) {
+            return new ApiResult(false, 'Invalid target.');
         }
         $id = $this->request->getParam('id', '');
         $dir = $this->request->getParam('dir', '');
+        $hostGroup = UtilStage::getHostGroupByStage($stage);
         if ($id !== '') {
-            $result = StatEntry::addToWorkqueueById($id, $stage, $this->priority);
-            $this->inotify->trigger(InotifyHandler::wqTrigger);
+            $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
         } elseif (!empty($dir)) {
-            $result = StatEntry::addToWorkqueue($dir, $stage, $this->priority);
-            $this->inotify->trigger(InotifyHandler::wqTrigger);
+            $result = StatEntry::addToWorkqueue($dir, $hostGroup, $stage, $target, $this->priority);
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -233,18 +236,17 @@ class Api
     /**
      * Rerun Job is clean + queue
      * @param string $stage
+     * @param string $target
      * @return ApiResult
      */
-    public function rerun($stage)
+    public function rerun($stage, $target)
     {
-        $cfg = Config::getConfig();
-
-        $apiResult = $this->clean($stage . 'clean');
+        $apiResult = $this->clean($stage, $target . 'clean');
         if (!$apiResult->getSuccess()) {
             return $apiResult;
         }
 
-        $apiResult = $this->queue($stage);
+        $apiResult = $this->queue($stage, $target);
         return $apiResult;
     }
 

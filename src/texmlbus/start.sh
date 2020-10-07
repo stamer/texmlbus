@@ -82,7 +82,7 @@ if [ ! -z "$PHP_XDEBUG_ENABLED" ]
 fi
 
 # find entry for host
-# 'worker' must be defined in docker-compose.yml it is texmlbus_lateml_dmake_1
+# 'worker' must be defined in docker-compose.yml it is texmlbus_latexml_dmake_1
 /bin grep worker /home/dmake/.ssh/known_hosts >/dev/null 2>&1
 if [[ "$?" != "0" ]]; then
     ssh-keyscan -H worker >> /home/dmake/.ssh/known_hosts
@@ -90,7 +90,23 @@ if [[ "$?" != "0" ]]; then
 fi
 
 echo "chmod articles..."
+if [[ ! -d /srv/texmlbus/articles ]]; then
+    echo "Unable to find articles volume!"
+    echo "Please enable file sharing in docker."
+    echo "Exiting..."
+    exit 1
+fi
 chmod ugo+rwx /srv/texmlbus/articles
+if [[ ! -d /srv/texmlbus/articles/upload ]]; then
+    if [[ -e /srv/texmlbus/articles/upload ]]; then
+        echo "Unable to create directory articles/upload, file exists."
+        echo "Please remove or rename the file articles/upload."
+        echo "Exiting..."
+        exit 1
+    fi
+    echo "Creating articles/upload..."
+    mkdir articles/upload
+fi
 echo "chmod articles/upload..."
 chmod ugo+rwx /srv/texmlbus/articles/upload
 

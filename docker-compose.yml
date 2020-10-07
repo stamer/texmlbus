@@ -48,7 +48,34 @@ services:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
             - optdata:/opt
-        
+
+    latexml_edge:
+        build:
+            context: src/LaTeXML_edge
+            dockerfile: ../LaTeXML-Dockerfile_edge
+            #dockerfile: release/docker/Dockerfile
+            target: latexml_base_edge
+            args:
+                - WITH_TEXLIVE=yes
+                - WITH_TESTS=no
+        command: 'echo "OK, that this container exits."'
+
+    latexml_dmake_edge:
+        build:
+            context: src/latexml_dmake_edge
+            dockerfile: Dockerfile
+            target: latexml_dmake_edge
+        environment:
+            DOCKERIZED: 1
+        networks:
+            texmlbus_net:
+                aliases:
+                    - worker_edge
+        volumes:
+            - ./volume/articles:/srv/texmlbus/articles
+            - ./volume/build:/srv/texmlbus/build
+            - optdata_edge:/opt_edge
+
     texmlbus:
         build:
             context: src/texmlbus
@@ -107,6 +134,7 @@ networks:
 volumes:
     # shared by latexml-dmake and texmlbus
     optdata:
+    optdata_edge:
     # mysql database
     data-mysql:
 

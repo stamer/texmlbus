@@ -18,6 +18,7 @@ $config = Config::getConfig();
  */
 $stages = [
     'pdf' => ['class' => 'StagePdf', 'enabled' => true],
+    'pdf_edge' => ['class' => 'StagePdfEdge', 'enabled' => true],
     'xml' => ['class' => 'StageXml', 'enabled' => true],
     'xhtml' => ['class' => 'StageXhtml', 'enabled' => true],
     'jats' => ['class' => 'StageJats', 'enabled' => true],

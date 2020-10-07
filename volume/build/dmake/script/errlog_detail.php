@@ -17,9 +17,9 @@ if (isset($argv[1])) {
 }
 
 if (isset($argv[2])) {
-    $action = $argv[2];
+    $stage = $argv[2];
 } else {
-    $action = 'xml';
+    $stage = 'xml';
 }
 
 /**
@@ -27,9 +27,9 @@ if (isset($argv[2])) {
  */
 $restrict['dir'] = 'Misgeld';
 $restrict['retval'] = 'error';
-$restrict['retval_target'] = $action;
+$restrict['retval_target'] = $stage;
 
-$dirs = StatEntry::getFilenamesByRestriction($action, $restrict);
+$dirs = StatEntry::getFilenamesByRestriction($stage, $restrict);
 
 /**
  * loop through all given directories
@@ -47,16 +47,17 @@ foreach ($dirs as $directory) {
 
 	ErrDetEntry::deleteByIdAndTarget($document_id, $action);
 
-    $classname = $cfg->stages[$action]->classname;
+    $classname = $cfg->stages[$stage]->classname;
+    $hostGroup = $cfg->stages[$stage]->hostGroup;
 
     if (!class_exists($classname)) {
-        die ("Action: $action, Trying to load $classname, but it does not exist");
+        die("Stage: $stage, Trying to load $classname, but it does not exist");
     }
 
     $retvalInstance = new $classname;
 
     // parses and creates entries in errlog_detail for each single entry in the logfile.
-    $retvalInstance->parseDetail($statEntry);
+    $retvalInstance->parseDetail($hostGroup, $statEntry);
 
 }
 

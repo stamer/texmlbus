@@ -23,7 +23,7 @@ $response = ResponseFactory::create();
 $id = $request->getQueryParam('id', '');
 
 if (!empty($id)) {
-    $success = StatEntry::addToWorkqueueById($id, 'none', 0);
+    $success = StatEntry::addToWorkqueueById($id, '', 'none', 0);
     $out['success'] = $success;
     if ($success) {
         $out['message'] = 'Success.';

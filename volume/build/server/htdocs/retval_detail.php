@@ -53,10 +53,10 @@ if ($requestSort == 'name') {
 
 // via bindParam, safe
 $stage = $page->getRequest()->getQueryParam('stage', 'xml');
-
 $stages = array_keys($cfg->stages);
 
 if (in_array($stage, $stages)) {
+    $target = $cfg->stages[$stage]->target;
     $joinTable = $cfg->stages[$stage]->dbTable;
     $tableTitle = $cfg->stages[$stage]->tableTitle;
     if (!empty($cfg->stages[$stage]->destFile)) {
@@ -127,7 +127,7 @@ if (!$numRows) {
     <th><?= htmlspecialchars($stage) ?><br />
     <?php
     $ids = array_keys($rows);
-    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids). '],\''.$stage.'\'); return false">queue</a>'.PHP_EOL;
+    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids) . '],\'' . $stage . '\',\'' . $target . '\'); return false">queue</a>'.PHP_EOL;
     ?>
     </th>
 <?php
@@ -171,6 +171,7 @@ foreach ($rows as $row) {
         $no,
         $directory,
         $stage,
+        $target,
         $retval,
         $stderrFileLink,
         $destFileLink,

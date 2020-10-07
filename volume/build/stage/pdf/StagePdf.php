@@ -12,6 +12,7 @@ use Dmake\ErrDetEntry;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
  /**
   * Class StagePdf
@@ -33,7 +34,7 @@ class StagePdf extends AbstractStage implements StageInterface
      */
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     const FOUND_MISSING_MACROS = 1 << 3;
@@ -47,16 +48,28 @@ class StagePdf extends AbstractStage implements StageInterface
     public static function register()
     {
         $config = array(
+            // the name of the stage
             'stage' => 'pdf',
+            // the name of the class
             'classname' => __CLASS__,
+            // the target of makefile, most times same as stage, but
+            // pdf and pdf_edge have the same target pdf
+            'target' => 'pdf',
+            // the hostGroup
+            // pdf has worker as hostGroup, pdf_edge has worker_edge
+            // therefore two different pdf environments can be used
+            'hostGroup' => 'worker',
+            // whether xml needs to be parsed
             'parseXml' => false,
+            // the name of the table where target specific results are stored
             'dbTable' => 'retval_pdf',
+            // the timeout in seconds
             'timeout' => 240,
             /* use %MAINFILEPREFIX%, if the logfile use same prefix as the main tex file */
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
-            'dependentTargets' => array(), // which log files need to be parsed?
+            'dependentStages' => array(), // which log files need to be parsed?
             'showRetval' =>
                 array(
                     'unknown'           => true,
@@ -213,6 +226,7 @@ class StagePdf extends AbstractStage implements StageInterface
 
         $dao = Dao::getInstance();
 
+        echo "Updating " . $this->config['dbTable'] . PHP_EOL;
 		$query = '
 			INSERT INTO
 				'.$this->config['dbTable'].'
@@ -249,15 +263,16 @@ class StagePdf extends AbstractStage implements StageInterface
      * @param $childAlarmed
      * @return mixed|void
      */
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static;
         $res->id = $entry->id;
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
         $logfile = $texSourcefilePrefix.'.log';
         echo "parsing Logfile $logfile ..." . PHP_EOL;
 
@@ -346,7 +361,7 @@ class StagePdf extends AbstractStage implements StageInterface
             }
         }
 
-        echo __CLASS__ . ": Setting retval to " . $res->retval . PHP_EOL;
+        echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
         $res->updateRetval();
     }
@@ -354,13 +369,14 @@ class StagePdf extends AbstractStage implements StageInterface
     /**
      * @param StatEntry $entry
      */
-    public function parseDetail(StatEntry $entry)
+    public function parseDetail($hostGroup, StatEntry $entry)
     {
         $directory = $entry->getFilename();
         $datestamp = date("Y-m-d H:i:s", time());
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
         $logfile = $texSourcefilePrefix.'.log';
 
         $this->debug('Logfile: ' . $logfile);
