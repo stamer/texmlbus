@@ -1,10 +1,13 @@
 <?php
-/*
+/**
+ * MIT License
+ * (c) 2019 - 2020 Heinrich Stamerjohanns
+ *
  * updates columns in retval_abc.php
  */
 require_once "../../include/IncFiles.php";
 /**
- * @var $buildDir
+ * @var string $buildDir
  */
 require_once $buildDir . '/dmake/InotifyHandler.php';
 require_once $buildDir . '/dmake/StatEntry.php';
@@ -36,9 +39,10 @@ if ($inotify->isActive()) {
 }
 
 while (1) {
-    $curDate = date(DATE_ISO8601);
+    $curDate = date(DATE_ATOM);
     echo "event: ping\n",
         'data: {"time": "' . $curDate . '"}', "\n\n";
+
     while (ob_get_level() > 0) {
         ob_end_flush();
     }
@@ -48,11 +52,15 @@ while (1) {
             error_log("Waiting on inotify trigger: " . InotifyHandler::doneTrigger);
         }
         $inotify->waitAnyHostGroup(InotifyHandler::doneTrigger);
+        if ($debug) {
+            error_log("triggered: " . InotifyHandler::doneTrigger);
+        }
+
     } else {
         sleep($wqSleepSeconds);
     }
 
-    $statEntries = StatEntry::getLastStat('s.date_modified', 'DESC', 0, 5);
+    $statEntries = StatEntry::getLastStat('wq.date_modified', 'DESC', 0, 5);
 
     // find the columns that should be updated
     // the column of the stage itself and the column of the dependent targets
@@ -115,11 +123,7 @@ while (1) {
             $queued = '';
         }
 
-        if (isset($entry[$stage]['retval'])) {
-            $retval = $entry[$stage]['retval'];
-        } else {
-            $retval = 'unknown';
-        }
+        $retval = $entry[$stage]['retval'] ?? 'unknown';
 
         $retvalColumn = View::renderRetvalColumn(
             $entry['retval'],

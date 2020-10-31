@@ -50,6 +50,11 @@ class UtilHost
                     echo "Cannot connect, disabling $hostkey for hosts." . PHP_EOL;
                     //$hosts[$hostkey]['status'] = self::STAT_DEACTIVATED;
                     unset($hosts[$hostGroupName][$hostkey]);
+                    echo "Disabling all stages that use $hostkey..." . PHP_EOL;
+                    $disabled = UtilStage::disableStagesByHostGroup($hostkey);
+                    foreach ($disabled as $stage) {
+                        echo "Disabled $stage." . PHP_EOL;
+                    }
                 } else {
                     $memLimit = self::determineMemLimit($output, $cfg->memory->factor);
                     $hosts[$hostGroupName][$hostkey]['memlimitRss'] = $memLimit['rss'];
@@ -169,8 +174,21 @@ class UtilHost
             }
         }
 
-        foreach ($hostnames as $hostGroup) {
-            foreach ($hostGroup as $hostname) {
+        foreach ($hostnames as $hostGroup => $hostArr) {
+            /*
+             * if specific hosts cannot be found, then corresponding
+             * dockerfile has not been used, it is useless to have such stages enabled.
+             */
+            if (count($hostnames[$hostGroup]) === 0) {
+                echo "Disabling all stages that use $hostGroup..." . PHP_EOL;
+                $disabled = UtilStage::disableStagesByHostGroup($hostGroup);
+                foreach ($disabled as $stage) {
+                    echo "Disabled $stage." . PHP_EOL;
+                }
+                continue;
+            }
+
+            foreach ($hostArr as $hostname) {
                 $str = '/usr/bin/ssh-keyscan -H ' . $hostname . ' >> /home/dmake/.ssh/known_hosts';
                 exec($str, $output, $return_var);
                 if ($return_var != 0) {

@@ -76,7 +76,6 @@ if (!empty($set)) {
 <?php
 
 
-$stages = array('pdf', 'xml', 'xhtml');
 $stages = array_keys($cfg->stages);
 
 $stat = array();
@@ -103,16 +102,15 @@ foreach ($stages as $stage) {
     $max_pp = $cfg->db->perPage;
 
     $numRows = RetvalDao::getCount($joinTable, $set);
-    $rows = RetvalDao::getEntries($joinTable, $set, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
+    $rows = RetvalDao::getEntries($stage, $joinTable, $set, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
 
     foreach ($rows as $row) {
 		// will be set several times, not a problem...
         $stat[$row['id']]['all']['s_date_modified'] = $row['s_date_modified'];
         $stat[$row['id']]['all']['filename'] = $row['filename'];
         $stat[$row['id']]['all']['sourcefile'] = $row['sourcefile'];
-        $stat[$row['id']]['all']['wq_priority'] = $row['wq_priority'];
-        $stat[$row['id']]['all']['wq_action'] = $row['wq_action'];
-
+        $stat[$row['id']][$stage]['wq_priority'] = $row['wq_priority'];
+        $stat[$row['id']][$stage]['wq_action'] = $row['wq_action'];
         $stat[$row['id']][$stage]['retval'] = $row['retval'];
         $stat[$row['id']][$stage]['prev_retval'] = $row['prev_retval'];
         //$stat[$row['id']][$stage]['num_error'] = $row['num_error'];
@@ -132,7 +130,7 @@ foreach ($stages as $stage) {
 	echo '<th style="min-width:138px">';
 	echo '<small>'.$stage.'</small><br />';
 	$ids = array_keys($stat);
-    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids) . '],\'' . $stage . '\', \'' . $target.'\'); return false">queue</a>'.PHP_EOL;
+    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . implode(',', $ids) . '],\'' . $stage . '\', \'' . $target.'\'); return false">queue</a>'.PHP_EOL;
 	echo '</th>';
 }
 ?>
@@ -190,7 +188,7 @@ foreach ($stat as $id => $entry) {
         $stdoutFileLink = $directory.$stdoutLog;
         $stderrFileLink = $directory.$stderrLog;
 
-        if ($entry['all']['wq_priority'] && $entry['all']['wq_action'] === $stage) {
+        if ($entry[$stage]['wq_priority']) {
             $queued = 'queued';
         } else {
             $queued = '';

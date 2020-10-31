@@ -9,15 +9,11 @@ namespace Dmake;
 
 require_once "IncFiles.php";
 
-use Dmake\ApiResult;
-use Dmake\HistoryAction;
-use Dmake\InotifyHandler;
-use Dmake\StatEntry;
 use Server\RequestFactory;
 
 class Api
 {
-    const NO_ACTION = 128;
+    public const NO_ACTION = 128;
 
     protected $path = '';
     protected $action = '';
@@ -49,7 +45,7 @@ class Api
      *
      * @return ApiResult
      */
-    public function execute()
+    public function execute(): void
     {
         switch ((string)$this->action) {
             case '':
@@ -61,12 +57,17 @@ class Api
                 break;
             case 'clean':
                 // cleans up target for articles
+                $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->clean($target);
+                $apiResult = $this->clean($stage, $target);
                 break;
             case 'del':
                 // removes an article from the build system
@@ -77,17 +78,26 @@ class Api
                 // it will not be recreated
                 // this make sense if xml target has already included pdf generation
                 // and now pdf is being queued
+                $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->queue($target);
+                $apiResult = $this->queue($stage, $target);
                 break;
             case 'rerun':
                 // clean + rerun
                 // will for recreation of target and queues target
                 $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
@@ -115,8 +125,8 @@ class Api
         } else {
             // create debug output in browser
             header("Content-Type: text/plain");
-            echo 'Success: ' . intval($apiResult->getSuccess()) . PHP_EOL;
-            echo 'Output: ' . join(PHP_EOL, $apiResult->getOutput()) . PHP_EOL;
+            echo 'Success: ' . (int) $apiResult->getSuccess() . PHP_EOL;
+            echo 'Output: ' . implode(PHP_EOL, $apiResult->getOutput()) . PHP_EOL;
             echo 'ShellReturn: ' . $apiResult->getShellReturnVar() . PHP_EOL;
         }
     }
@@ -152,7 +162,7 @@ class Api
             $result = StatEntry::deleteById($id);
             return new ApiResult($result);
         } elseif ($dir !== '') {
-            $result = StatEntry::deleteByFilename($dir);
+            $result = StatEntry::deleteByDirectory($dir);
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -165,7 +175,7 @@ class Api
      */
     public function clean($stage, $target)
     {
-        /** @var $statEntry StatEntry */
+        /** @var StatEntry $statEntry */
         $possibleTargets = UtilStage::getPossibleTargets();
         $baseTarget = preg_replace('/clean$/', '', $target);
         if (!in_array($baseTarget, $possibleTargets)) {

@@ -11,8 +11,12 @@ $currentDir = dirname(__FILE__);
 $buildDir = dirname(__FILE__, 3);
 
 use Server\Config;
+use Dmake\UtilStage;
 
 require_once $buildDir .'/config/registerStages.php';
+
+// some stages might have been disabled.
+UtilStage::determineActiveStages();
 
 class IncFiles
 {

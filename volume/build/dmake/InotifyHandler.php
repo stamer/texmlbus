@@ -1,13 +1,13 @@
 <?php
 /**
  * MIT License
- * (c) 2018 - 2019 Heinrich Stamerjohanns
+ * (c) 2018 - 2020 Heinrich Stamerjohanns
  *
  * Inotify is an extension to php, therefore it is necessary
  * to check the availability of the extension.
  *
  * If the extension is active, dmake will wait
- * for a trigger, otherwise it will just poll every 30 seconds.
+ * for a trigger, otherwise it will just poll every 60 seconds.
  *
  */
 
@@ -80,10 +80,8 @@ class InotifyHandler
     /**
      * Sets up the watcher for any host group.
      * Use a non-blocking read, stream_select() will wait, so we can still receive signals.
-     *
-     * @param $triggerName
      */
-    public function setupWatcherAnyHostGroup($triggerName)
+    public function setupWatcherAnyHostGroup(string $triggerName): void
     {
         $hostGroups = UtilStage::getHostGroups();
         if (!in_array($triggerName, $this->trigger)) {
@@ -97,7 +95,7 @@ class InotifyHandler
                     error_log(__METHOD__ . ": Failed to inotify_init!");
                     $this->active = false;
                 } else {
-                    error_log("Adding wq watch..");
+                    error_log("Adding wq watch for $hostGroupName...");
                     $this->watchDescriptor[$hostGroupName][$triggerName] =
                         inotify_add_watch(
                             $this->fd[$hostGroupName][$triggerName],
@@ -113,10 +111,8 @@ class InotifyHandler
     /**
      * Sets up the watcher.
      * Use a non-blocking read, stream_select() will wait, so we can still receive signals.
-     *
-     * @param $triggerName
      */
-	public function setupWatcher($hostGroupName, $triggerName)
+	public function setupWatcher(string $hostGroupName, string $triggerName): void
 	{
 	    if (!in_array($triggerName, $this->trigger)) {
 	        error_log("Unknown watcher $triggerName");
@@ -128,7 +124,7 @@ class InotifyHandler
                 error_log(__METHOD__ . ": Failed to inotify_init!");
                 $this->active = false;
             } else {
-                error_log("Adding wq watch..");
+                error_log("Adding wq watch for $hostGroupName...");
                 $this->watchDescriptor[$hostGroupName][$triggerName] =
                     inotify_add_watch($this->fd[$hostGroupName][$triggerName], $this->triggerFile[$hostGroupName][$triggerName], IN_ATTRIB);
                 stream_set_blocking($this->fd[$hostGroupName][$triggerName], false);
@@ -138,9 +134,8 @@ class InotifyHandler
 
     /**
      * Waits for some action.
-     * @param $triggerName
      */
-	public function waitAnyHostGroup($triggerName)
+	public function waitAnyHostGroup(string $triggerName)
     {
         $hostGroups = UtilStage::getHostGroups();
         if (!in_array($triggerName, $this->trigger)) {
@@ -150,11 +145,9 @@ class InotifyHandler
         if ($this->active) {
             // php does not catch signals while inside a blocking read.
             // instead use not blocking reads and use stream_select with timeout
-            $readFds = [];
             // wait on all fds of triggerName
             foreach ($hostGroups as $hostGroupName) {
                 stream_set_blocking($this->fd[$hostGroupName][$triggerName], false);
-                $readFds[] = $this->fd[$hostGroupName][$triggerName];
             }
             while (1) {
                 // if we work with declare ticks, the interrupted system call might just
@@ -162,18 +155,22 @@ class InotifyHandler
                 if (version_compare(PHP_VERSION, '7.1.0', '<')) {
                     pcntl_signal_dispatch();
                 }
+                $readFds = [];
+                foreach ($hostGroups as $hostGroupName) {
+                    $readFds[] = $this->fd[$hostGroupName][$triggerName];
+                }
                 $timeout = 600;
                 $w = [];
                 $e = [];
                 if ($this->debug) {
-                    echo "stream_select..." . PHP_EOL;
+                    error_log("stream_select...");
                 }
 
                 // stream select spits a warning when interrupted by a signal, which is not really wanted behaviour.
                 // make it quiet, but actually check the error val, in case something goes really wrong.
                 $numChangedResources = @stream_select($readFds, $w, $e, $timeout);
 
-                // $numChangedResources === 0, timeout happened ==> ok and expected
+                // $numChangedResources === 0, timeout happened _==> ok and expected
                 if ($numChangedResources === false) {
                     // we have been interrupted by a signal (possibly by child, ok as well)
                     $err = error_get_last();
@@ -185,7 +182,7 @@ class InotifyHandler
                 }
                 if ($numChangedResources != 0) {
                     if ($this->debug) {
-                        echo "inotify_read..." . PHP_EOL;
+                        error_log("inotify_read...");
                     }
                     foreach ($hostGroups as $hostGroupName) {
                         $events = inotify_read($this->fd[$hostGroupName][$triggerName]);
@@ -200,12 +197,10 @@ class InotifyHandler
 
     /**
      * Waits for some action.
-     * @param $hostGroupName
-     * @param $triggerName
      */
-    public function wait($hostGroupName, $triggerName)
+    public function wait(string $hostGroupName, string $triggerName)
     {
-        echo __METHOD__ . "HostGroupName: $hostGroupName, Trigger: $triggerName" . PHP_EOL;
+        error_log(__METHOD__ . ": HostGroupName: $hostGroupName, Trigger: $triggerName");
         if (!in_array($triggerName, $this->trigger)) {
             error_log("Cannot wait on unknown trigger  $triggerName");
             return;
@@ -226,7 +221,7 @@ class InotifyHandler
                 $e = [];
                 $timeout = 600;
                 if ($this->debug) {
-                    echo "stream_select..." . PHP_EOL;
+                    error_log("stream_select...");
                 }
 
                 // stream_select spits a warning when interrupted by a signal, which is not really wanted behaviour.
@@ -245,7 +240,7 @@ class InotifyHandler
                 }
                 if ($numChangedResources !== 0) {
                     if ($this->debug) {
-                        echo "inotify_read..." . PHP_EOL;
+                        error_log("inotify_read...");
                     }
                     $events = inotify_read($this->fd[$hostGroupName][$triggerName]);
                     if ($events) {
@@ -258,20 +253,17 @@ class InotifyHandler
 
     /**
      * Returns whether the InotifyHandler is active.
-     * @return bool
      */
-	public function isActive()
+	public function isActive(): bool
 	{
         return $this->active;
     }
 
     /**
      * Gets the corresponding trigger file by given name.
-     * @param $hostGroupName
-     * @param $triggerName
      * @return string
      */
-    public function getTriggerFile($hostGroupName, $triggerName)
+    public function getTriggerFile(string $hostGroupName, string $triggerName)
 	{
         if (!in_array($triggerName, $this->trigger)) {
             error_log("Unknown trigger $triggerName");
@@ -282,11 +274,9 @@ class InotifyHandler
 
     /**
      * Triggers the given trigger by its name.
-     * @param $hostGroupName
-     * @param $triggerName
      * @return bool|string
      */
-	public function trigger($hostGroupName, $triggerName)
+	public function trigger(string $hostGroupName, string $triggerName)
 	{
         if (!in_array($triggerName, $this->trigger)) {
             error_log("Cannot trigger unknown trigger $triggerName");

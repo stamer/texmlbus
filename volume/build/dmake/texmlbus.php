@@ -26,9 +26,9 @@ use Dmake\Dmake;
 use Dmake\DmakeStatus;
 use Dmake\InotifyHandler;
 use Dmake\StatEntry;
-use Dmake\UtilFile;
 use Dmake\UtilHost;
 use Dmake\UtilStage;
+use Dmake\WorkqueueEntry;
 
 // configHosts needs to be included
 $cfg = Config::getConfig(null, true);
@@ -57,7 +57,12 @@ $dmake = new Dmake();
 pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
 pcntl_signal(SIGINT, array($dmake, 'sigInt'));
 
+// check whether hosts are available and possibly
+// disable stages when no corresponding hosts are found.
 UtilHost::checkHosts($cfg->hosts);
+
+// webserver needs to know about current active stages
+UtilStage::saveActiveStages();
 
 $proc_count = count($cfg->hosts);
 $hostGroups = UtilStage::getHostGroups();
@@ -82,7 +87,7 @@ $du->execute();
 
 $ds = new DmakeStatus;
 $ds->directory = '';
-$ds->num_files = StatEntry::wqGetNumEntries();
+$ds->num_files = WorkqueueEntry::getQueuedEntries();
 $ds->num_hosts = count($cfg->hosts);
 
 $str = '';
@@ -103,7 +108,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
     $inotify = new InotifyHandler();
 
     if ($inotify->isActive()) {
-        echo "Setting up inotifyWatcher for $hostGroupName ...\n";
+        echo "Setting up inotifyWatcher for $hostGroupName..." . PHP_EOL;
         $inotify->setupWatcher($hostGroupName, InotifyHandler::wqTrigger);
     }
 
@@ -133,11 +138,11 @@ function mainLoop($hostGroupName, $dmake, $ds)
                     echo $entry->filename . "..." . PHP_EOL;
                 }
 
-                StatEntry::wqRemoveEntry($entry->id);
+                WorkqueueEntry::disableEntry($entry->getId(), $entry->getWqStage());
 
                 // update every 20 entries
                 if (($count % 20) == 0) {
-                    $ds->num_files = StatEntry::wqGetNumEntries();
+                    $ds->num_files = WorkqueueEntry::getQueuedEntries();
                     $ds->save(false);
                 }
 
@@ -170,8 +175,15 @@ function mainLoop($hostGroupName, $dmake, $ds)
                         echo "Make $action $directory...\n";
                     }
                     system($systemCmd);
-                    $entry->wq_action = StatEntry::WQ_ACTION_NONE;
-                    $entry->updateWq();
+
+                    $wqEntry = new WorkqueueEntry();
+                    $wqEntry->setStage($stage);
+                    $wqEntry->setStatisticId($entry->getId());
+                    $wqEntry->setPriority(0);
+                    $wqEntry->setAction(StatEntry::WQ_ACTION_NONE);
+                    $wqEntry->setHostgroup($hostGroupName);
+                    $wqEntry->updateAndStat();
+
                     continue;
                     //UtilFile::cleanupDir($directory, $action);
                 }
@@ -263,7 +275,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
          *
          */
 
-        $ds->num_files = StatEntry::wqGetNumEntries();
+        $ds->num_files = WorkqueueEntry::getQueuedEntries();
         $ds->save(false);
 
         if ($inotify->isActive()) {

@@ -20,11 +20,14 @@ if ($MAINTENANCE) {
     }
 }
 
+/**
+ * @var StdClass $config
+ */
 $config->isCrawler = false;
 
 $config->db->perPage = 50;
 
-$config->ret_class = array(
+$config->ret_class = [
     '' => 'none',
     'unknown' => 'none',
     'not_qualified' => 'none',
@@ -38,9 +41,9 @@ $config->ret_class = array(
     'missing_file' => 'error',
     'warning' => 'success',
     'no_problems' => 'success'
-);
+];
 
-$config->chartColors = array(
+$config->chartColors = [
     'unknown' => 'lightGrey',
     'not_qualified' => 'darkGrey',
     'missing_errlog' => 'brown',
@@ -53,25 +56,25 @@ $config->chartColors = array(
     'missing_file' => 'darkOrange',
     'warning' => 'lightGreen',
     'no_problems' => 'darkGreen'
-);
+];
 
-$config->ret_color = array(
+$config->ret_color = [
     'none' => 'bgwhite',
     'exception' => 'bgpurple',
     'notice' => 'bglightred',
     'error' => 'bgred',
     'success' => 'bggreen'
-);
+];
 
-$config->ret_color_sm = array(
+$config->ret_color_sm = [
     'none' => 'bgwhite-sm',
     'exception' => 'bgpurple-sm',
     'notice' => 'bglightred-sm',
     'error' => 'bgred-sm',
     'success' => 'bggreen-sm'
-);
+];
 
-$config->tt_class = array(
+$config->tt_class = [
     'unknown' => 'The conversion finished with unknown state. This might happen if the conversion has been manually interrupted or because of some unknown error. For reruns files may also be set manually to this state, so they do not contribute to statistics.',
     'not_qualified' => 'The source file does not seem to be a valid LaTeX file.',
     'missing_errlog' => 'Due to some error, an error log has not been created.',
@@ -84,15 +87,15 @@ $config->tt_class = array(
     'missing_file' => 'The conversion completed, but referenced files are missing.',
     'warning' => 'The conversion successfully completed, however minor issues have been detected, which might affect the display quality.',
     'no_problems' => 'The conversion has successfully completed, without any problems at all.'
-);
+];
 
-$config->tt_cat = array(
+$config->tt_cat = [
     'none' => 'This status is applied to non-tex files, and does not contribute to statistics.',
     'notice' => 'The converter has been able to produce XHTML, minor difficulties have been encountered',
     'exception' => 'A fatal error, the conversion broke up and was unable to produce XHTML.',
     'error' => 'The converter has produced XHTML, but the conversion process registered errors. This might or might not affect display quality.',
     'success' => 'The converter has been able to produce XHTML, No or minor difficulties have been encountered during conversion.'
-);
+];
 
 // controls what to show in menu or page
 $config->show = new StdClass();

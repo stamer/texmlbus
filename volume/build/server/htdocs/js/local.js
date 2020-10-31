@@ -128,7 +128,7 @@ function rerunById(id, stage, target)
         headers: { "Authorization": token }
     });
     $.post('/api/rerun',
-        { 'id':id, 'stage': stage, 'target':target},
+        { 'id':id, 'stage':stage, 'target':target},
         function(data) {
             if (data.success) {
                 var msg_class = 'success';

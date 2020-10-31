@@ -13,6 +13,14 @@ services:
             texmlbus_net:
                 aliases:
                     - dbserver
+
+        # Uncomment, if you want to access db via local connection (e.g. IDE)
+        # you might need to explicitly set 127.0.0.1 in your configuration 
+        # and not localhost there. Please also note the different port 3307 to 
+        # not interfere with a local database installation.
+        #ports:
+            # - "127.0.0.1:${TEXMLBUS_MYSQL:-3307}:3306"
+
         volumes:
             - ./volume/db/init:/docker-entrypoint-initdb.d
             # shared data volumes for mysql does still not work reliably
@@ -48,33 +56,6 @@ services:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
             - optdata:/opt
-
-    latexml_edge:
-        build:
-            context: src/LaTeXML_edge
-            dockerfile: ../LaTeXML-Dockerfile_edge
-            #dockerfile: release/docker/Dockerfile
-            target: latexml_base_edge
-            args:
-                - WITH_TEXLIVE=yes
-                - WITH_TESTS=no
-        command: 'echo "OK, that this container exits."'
-
-    latexml_dmake_edge:
-        build:
-            context: src/latexml_dmake_edge
-            dockerfile: Dockerfile
-            target: latexml_dmake_edge
-        environment:
-            DOCKERIZED: 1
-        networks:
-            texmlbus_net:
-                aliases:
-                    - worker_edge
-        volumes:
-            - ./volume/articles:/srv/texmlbus/articles
-            - ./volume/build:/srv/texmlbus/build
-            - optdata_edge:/opt_edge
 
     texmlbus:
         build:
@@ -134,7 +115,6 @@ networks:
 volumes:
     # shared by latexml-dmake and texmlbus
     optdata:
-    optdata_edge:
     # mysql database
     data-mysql:
 

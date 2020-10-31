@@ -1,2 +1,2 @@
-alter table statistic rename column hostname to hostgroup;
+ALTER TABLE statistic RENAME COLUMN hostname TO hostgroup;
 

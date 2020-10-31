@@ -8,6 +8,7 @@ require_once "../include/IncFiles.php";
 use Dmake\RetvalDao;
 use Dmake\StatEntry;
 use Dmake\UtilSort;
+use Dmake\UtilStage;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -24,6 +25,8 @@ $min = max(0, (int) $min);
 
 $set = $page->getRequest()->getQueryParam('set', '');
 
+$collapse = $page->getRequest()->getQueryParam('collapse', '');
+
 $requestDir = $page->getRequest()->getQueryParam('dir', 'DESC');
 // possible SqlInjection, explicitly set variable
 if ($requestDir == 'asc') {
@@ -35,9 +38,11 @@ if ($requestDir == 'asc') {
 // possible SqlInjection, explicitly set variable directly
 $requestSort = $page->getRequest()->getQueryParam('sort', 's.date_modified');
 if ($requestSort == 'name') {
-    $sqlOrderBy = 's.filename';
+    $sqlOrderBy1 = 's.filename';
+    $sqlOrderBy2 = 's.filename';
 } else {
-    $sqlOrderBy = 's.date_modified';
+    $sqlOrderBy1 = 'wq.date_modified';
+    $sqlOrderBy2 = 's.date_modified';
 }
 
 $stages = array_keys($cfg->stages);
@@ -62,33 +67,34 @@ $urlSortNameDesc = $phpSelf .'?' . http_build_query($query_data, '', '&amp;');
 ?>
 
 <h4>Current Statistics <?=$page->info('lastStat') ?></h4>
+<a href="lastStat.php?collapse=1">Show document only once</a>&nbsp;&nbsp;&nbsp;<a href="lastStat.php">Show all entries</a>
 
 <?php
 
 $max_pp = $cfg->db->perPage;
 
-$types = array_keys($cfg->stages);
+$stages = array_keys($cfg->stages);
 
-foreach ($types as $type) {
-    if (in_array($type, $stages)) {
-        $joinTable = $cfg->stages[$type]->dbTable;
-        $tableTitle = $cfg->stages[$type]->tableTitle;
-        if (!empty($cfg->stages[$type]->destFile)) {
-            $cfgDestFile[$type] = $cfg->stages[$type]->destFile;
+foreach ($stages as $stage) {
+    if (in_array($stage, $stages)) {
+        $joinTable = $cfg->stages[$stage]->dbTable;
+        $tableTitle = $cfg->stages[$stage]->tableTitle;
+        if (!empty($cfg->stages[$stage]->destFile)) {
+            $cfgDestFile[$stage] = $cfg->stages[$stage]->destFile;
         } else {
-            $cfgDestFile[$type] = '';
+            $cfgDestFile[$stage] = '';
         }
-        $cfgStdoutLog[$type] = $cfg->stages[$type]->stdoutLog;
-        $cfgStderrLog[$type] = $cfg->stages[$type]->stderrLog;
+        $cfgStdoutLog[$stage] = $cfg->stages[$stage]->stdoutLog;
+        $cfgStderrLog[$stage] = $cfg->stages[$stage]->stderrLog;
     } else {
-        echo "Unknown type: " . htmlspecialchars($type);
+        echo "Unknown stage: " . htmlspecialchars($stage);
         exit;
     }
 }
 
-$numrows = StatEntry::getCountLastStat($joinTable);
+$numrows = StatEntry::getCountLastStat($stage, $joinTable);
 
-$rows = StatEntry::getLastStat($sqlOrderBy, $sqlSortBy, $min, $max_pp);
+$rows = StatEntry::getLastStat($sqlOrderBy1, $sqlSortBy, $min, $max_pp);
 
 $types = array();
 foreach ($rows as $row) {
@@ -100,19 +106,28 @@ foreach ($rows as $row) {
 $stat = array();
 
 foreach ($types as $stage => $ids) {
-    $rows = RetvalDao::getByIds($ids, $stage, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
+    $rows = RetvalDao::getByIds($ids, $stage, $sqlOrderBy2, $sqlSortBy, $min, $max_pp);
 
     foreach ($rows as $row) {
-        // will be set several times, not a problem...
-        $stat[$row['id']] = $row;
+        if (!$collapse) {
+            // each entry is shown
+            $stat[] = $row;
+        } else {
+            // only newest entry of given document is shown
+            if (empty($stat[$row['id']])
+                || $stat[$row['id']['date_modified']] < $row['data_modified']
+            ) {
+                $stat[$row['id']] = $row;
+            }
+        }
     }
 }
 
-// We need to sort the merged array by tstamp again
-if ($sqlOrderBy == 'name') {
+// We need to sort the merged array by filename or date_modified again
+if ($requestSort == 'name') {
     $key = 'filename';
 } else {
-    $key = 'tstamp';
+    $key = 'date_modified';
 }
 $stat = UtilSort::sortByKey($stat, $key, $sqlSortBy);
 
@@ -124,14 +139,16 @@ $stat = UtilSort::sortByKey($stat, $key, $sqlSortBy);
     <th>Date&nbsp;&nbsp;<a title="Sort by ascending date" href="<?=$urlSortDateAsc ?>">&#9662;</a><a title="Sort by descending date" href="<?=$urlSortDateDesc ?>">&#9652;</a></th>
     <th>Directory&nbsp;&nbsp;<a title="Sort by ascending name" href="<?=$urlSortNameAsc ?>">&#9662;</a><a title="Sort by descending name" href="<?=$urlSortNameDesc ?>">&#9652;</a></th>
 <?php
-	echo '<th><small>Typ</small></th>';
+	echo '<th>Stage / Target</th>';
 ?>
 
 </tr>
 <?php
 $count = 0;
-foreach ($stat as $id => $entry) {
-    $type = str_replace('clean', '', $entry['type']);
+foreach ($stat as $key => $entry) {
+    $target = str_replace('clean', '', $entry['wq_prev_action']);
+    $stage = $entry['stage'];
+    $id = $entry['id'];
 
     $directory = 'files/'.$entry['filename'].'/';
     if (!preg_match('/\.tex$/', $entry['sourcefile'])) {
@@ -143,7 +160,6 @@ foreach ($stat as $id => $entry) {
     }
 
     $prefix = basename($entry['sourcefile'], '.tex');
-
 
 	echo "<tr>\n";
 	$count++;
@@ -158,23 +174,21 @@ foreach ($stat as $id => $entry) {
 	} else {
 		$filename = '';
 	}
-    if ($row['wq_priority'] && $row['wq_action'] === $type) {
+    if ($row['wq_priority']) {
         $queued = 'queued';
     } else {
         $queued = '';
     }
 
-
-
 	echo '<td align="right" rowspan="2">'.$no."</td>\n";
 	echo '<td rowspan="2">'.$date_modified."</td>\n";
 	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename."</a></td>\n";
 
-
+    $directory = UtilStage::getSourceDir('files', $entry['filename'], $cfg->stages[$stage]->hostGroup) . '/';
     //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
-    $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$type]);
-    $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$type]);
-    $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog[$type]);
+    $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
+    $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$stage]);
+    $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog[$stage]);
 
     if ($destFile != '') {
         $destFileLink = $directory.$destFile;
@@ -188,19 +202,19 @@ foreach ($stat as $id => $entry) {
 
         $color = $cfg->ret_color[$cfg->ret_class[$entry['retval']]];
         echo '<td class="'.$color.'" style="font-size: 11px">'.PHP_EOL;
-        echo $entry['type'].'<br />'.PHP_EOL;
+        echo $stage . ' / ' . $entry['wq_prev_action'].'<br />'.PHP_EOL;
         echo $entry['retval'].'<br />'.PHP_EOL;
         echo '<a href="'.htmlspecialchars($stderrFileLink).'">ErrFile</a><br />'.PHP_EOL;
         echo '<a href="'.htmlspecialchars($destFileLink).'">DestFile</a><br />'.PHP_EOL;
         echo $entry['date_modified'].'<br />'.PHP_EOL;
-        echo '<a href="javascript:rerunById('.$id.',\''.$type.'\')">queue</a>'.PHP_EOL;
-        echo '<span id="rerun_'.$id.'_'.$type.'">' . $queued .'</span>'.PHP_EOL;
+        echo '<a href="javascript:rerunById('.$id.',\''.$stage.'\',\''.$target.'\')">queue</a>'.PHP_EOL;
+        echo '<span id="rerun_'.$id.'_'.$stage.'">' . $queued .'</span>'.PHP_EOL;
         echo '</td>'.PHP_EOL;
     } else {
         $color = $cfg->ret_color[$cfg->ret_class['unknown']];
         echo '<td class="'.$color.'" style="font-size: 11px">'.PHP_EOL;
-        echo '<a href="javascript:rerunById('.$id.',\''.$type.'\')">queue</a>'.PHP_EOL;
-        echo '<span id="rerun_'.$id.'_'.$type.'">' . $queued .'</span>'.PHP_EOL;
+        echo '<a href="javascript:rerunById('.$id.',\''.$stage.'\',\''.$target.'\')">queue</a>'.PHP_EOL;
+        echo '<span id="rerun_'.$id.'_'.$stage.'">' . $queued .'</span>'.PHP_EOL;
         echo '</td>'.PHP_EOL;
     }
     echo '</tr>'.PHP_EOL;

@@ -20,7 +20,6 @@ ini_set("memory_limit", "512M");
 
 require_once "IncFiles.php";
 
-
 class Dmake
 {
     /**
@@ -192,7 +191,7 @@ class Dmake
     /*
      * the code the child runs
      */
-    public function childMain($hostGroup, $host, $entry, $stage, $action, $timeout)
+    public function childMain($hostGroup, $host, StatEntry $entry, $stage, $action, $timeout)
     {
         // this variable should be unique for each child
         global $cpid;
@@ -288,10 +287,13 @@ class Dmake
                     die ("Action: $action, Trying to load $classname, but it does not exist");
                 }
 
-                $entry->wq_priority = 0;
-                $entry->wq_action = StatEntry::WQ_ACTION_NONE;
-                $entry->hostgroup = $hostGroup;
-                $entry->updateWq();
+                $wqEntry = new WorkqueueEntry();
+                $wqEntry->setStage($stage);
+                $wqEntry->setStatisticId($entry->getId());
+                $wqEntry->setPriority(0);
+                $wqEntry->setAction(StatEntry::WQ_ACTION_NONE);
+                $wqEntry->setHostgroup($hostGroup);
+                $wqEntry->updateAndStat();
 
                 if (DBG_LEVEL & DBG_CHILD) {
                     echo "$cpid child_main: Finishing" . PHP_EOL;

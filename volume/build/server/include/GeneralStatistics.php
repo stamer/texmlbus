@@ -8,6 +8,7 @@
 namespace Server;
 
 use Dmake\Dao;
+use Dmake\WorkqueueEntry;
 
 class GeneralStatistics
 {
@@ -94,24 +95,7 @@ class GeneralStatistics
 
     public static function wqGetNumEntries()
     {
-        $dao = Dao::getInstance();
-
-        $query = "
-            SELECT
-                count(*) as num
-            FROM
-                statistic
-            WHERE
-                wq_priority > 0";
-
-        $stmt = $dao->prepare($query);
-
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-
-        return $row['num'];
-
+        WorkqueueEntry::getQueuedEntries();
     }
 
     public static function getDmakeStatus()

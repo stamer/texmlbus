@@ -3,8 +3,9 @@ volume/articles/
 !volume/articles/upload
 !volume/articles/upload/tmp
 volume/build/doc/manual.pdf
-volume/build/vendor
+volume/build/run/activestages.json
 volume/build/server/samples/samples/
+volume/build/vendor
 volume/db/mysql/
 *.swp
 *.kate-swp

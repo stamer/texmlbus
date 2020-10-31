@@ -14,7 +14,9 @@
 
 use Dmake\UtilHost;
 use Dmake\UtilStage;
-
+/**
+ * @var StdClass $config
+ */
 define('MAKE_DEFAULT', $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile');
 define(
     'MAKE_PDF',
@@ -43,14 +45,14 @@ if ($dockerized) {
     foreach ($hostnames as $hostGroupName => $hostGroup) {
         foreach ($hostGroup as $index => $hostname) {
             $hosts[$hostGroupName][$hostGroupName . '_' . $index] =
-                array(
+                [
                     'hostname' => $hostname,
                     'enabled' => true, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                );
+                ];
         }
     }
     $config->hosts = $hosts;
@@ -59,25 +61,25 @@ if ($dockerized) {
     $config->hosts =
         array(
             'local_0' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => true, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_1' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => true, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_2' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
@@ -87,51 +89,51 @@ if ($dockerized) {
                     'make_xml' => MAKE_XML,
                     'make_xhtml' => MAKE_XHTML,
                     'make_jats' => MAKE_JATS,
-                ),
+                ],
             'local_3' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_4' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_5' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_6' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_7' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
         );
 }

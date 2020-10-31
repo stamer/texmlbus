@@ -1,11 +1,16 @@
 <?php
 /**
+ * MIT License
+ * (c) 2019 - 2020 Heinrich Stamerjohanns
+ *
  * Updates a row in retval_detail.php
  */
 
 require_once "../../include/IncFiles.php";
 
+use Dmake\Config;
 use Dmake\InotifyHandler;
+use Dmake\RetvalDao;
 use Dmake\StatEntry;
 use Dmake\UtilStage;
 use Server\RequestFactory;
@@ -31,6 +36,7 @@ $stages = array_keys($cfg->stages);
 
 $columns = View::getColumnsByRetval($stage, $retval);
 if (in_array($stage, $stages)) {
+    $target = $cfg->stages[$stage]->target;
     $joinTable = $cfg->stages[$stage]->dbTable;
     $tableTitle = $cfg->stages[$stage]->tableTitle;
     if (!empty($cfg->stages[$stage]->destFile)) {
@@ -61,7 +67,7 @@ if ($inotify->isActive()) {
 
 
 while (1) {
-    $curDate = date(DATE_ISO8601);
+    $curDate = date(DATE_ATOM);
     echo "event: ping\n",
         'data: {"time": "' . $curDate . '"}', "\n\n";
     while (ob_get_level() > 0) {
@@ -77,14 +83,14 @@ while (1) {
         sleep($wqSleepSeconds);
     }
 
-    $statEntries = StatEntry::getLastStat('s.date_modified', 'DESC', 0, 5);
+    $statEntries = StatEntry::getLastStat('wq.date_modified', 'DESC', 0, 5);
 
     $ids = [];
     foreach ($statEntries as $entry) {
         $ids[] = $entry['id'];
     }
 
-    $rows = RetvalDao::getDetailsByIdsAndRetval($ids, $retval, $joinTable, $columns);
+    $rows = RetvalDao::getDetailsByIdsAndRetval($ids, $retval, $stage, $joinTable, $columns);
 
     //error_log(print_r($cfg->stages, 1));
 
@@ -120,6 +126,7 @@ while (1) {
                 '__COUNT__',
                 $directory,
                 $stage,
+                $target,
                 $retval,
                 $stderrFileLink,
                 $destFileLink,

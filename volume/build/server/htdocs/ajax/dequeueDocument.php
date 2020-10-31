@@ -21,9 +21,10 @@ $request = RequestFactory::create();
 $response = ResponseFactory::create();
 
 $id = $request->getQueryParam('id', '');
+$stage = $request->getQueryParam('stage', '');
 
 if (!empty($id)) {
-    $success = StatEntry::addToWorkqueueById($id, '', 'none', 0);
+    $success = StatEntry::addToWorkqueueById($id, '', $stage, 'none', 0);
     $out['success'] = $success;
     if ($success) {
         $out['message'] = 'Success.';

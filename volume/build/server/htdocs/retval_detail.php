@@ -7,6 +7,7 @@
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\RetvalDao;
+use Dmake\UtilStage;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -102,7 +103,7 @@ if (!empty($set)) {
 
 $columns = View::getColumnsByRetval($stage, $retval);
 
-$numRows = RetvalDao::getCountByRetval($retval, $joinTable, $set, $detail);
+$numRows = RetvalDao::getCountByRetval($retval, $stage, $joinTable, $set, $detail);
 
 $max_pp = $cfg->db->perPage;
 $max_pp = 10;
@@ -152,6 +153,7 @@ foreach ($rows as $row) {
 
     $prefix = basename($row['sourcefile'], '.tex');
 
+    $directory = UtilStage::getSourceDir('files', $row['filename'], $cfg->stages[$stage]->hostGroup) . '/';
     //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
     $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile);
     $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog);

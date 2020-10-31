@@ -29,6 +29,7 @@ define("STAT_DEACTIVATED", 3);
 
 /**
  * Timeout
+ * @var StdClass $config
  */
 $config->timeout = new stdClass();
 $timeoutSeconds = getenv('TIMEOUT_SECONDS');

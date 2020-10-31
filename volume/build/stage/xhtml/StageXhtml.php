@@ -24,47 +24,44 @@ class StageXhtml extends AbstractStage implements StageInterface
 
     public static function register()
     {
-        $config = array(
+        $config = [
             'stage' => 'xhtml',
             'classname' => __CLASS__,
             'target' => 'xhtml',
             'hostGroup' => 'worker',
-            'timeout' => 1200,
             'dbTable' => 'retval_xhtml',
+            'tableTitle' => 'xhtml',
+            'toolTip' => 'Xhtml creation.',
+            'timeout' => 1200,
             'destFile' => '%MAINFILEPREFIX%.xhtml',
             'stdoutLog' => 'xhtml.stdout.log',  // this needs to match entry in Makefile
             'stderrLog' => 'xhtml.stderr.log',  // needs to match entry in Makefile
             // which log files need to be parsed?
             // the dependent stage needs to have the same hostGroup as this stage
-            'dependentStages' => array('xml'),
-            'showRetval' =>
-                array(
-                    'unknown'           => false,
-                    'not_qualified'     => false,
-                    'missing_errlog'    => true,
-                    'fatal_error'       => true,
-                    'timeout'           => true,
-                    'error'             => true,
-                    'missing_macros'    => true,
-                    'missing_figure'    => true,
-                    'missing_bib'       => true,
-                    'missing_file'      => true,
-                    'warning'           => true,
-                    'no_problems'       => true
-                ),
-            'showTopErrors' =>
-                array(
-                    'error'             => true,
-                    'fatal_error'       => true,
-                    'missing_macros'    => false,
-                ),
-            'showDetailErrors' =>
-                array(
-                    'error'             => false,
-                ),
-            'tableTitle' => 'xhtml',
-            'toolTip' => 'Xhtml creation.'
-        );
+            'dependentStages' => ['xml'],
+            'showRetval' => [
+                'unknown' => false,
+                'not_qualified' => false,
+                'missing_errlog' => true,
+                'fatal_error' => true,
+                'timeout' => true,
+                'error' => true,
+                'missing_macros' => true,
+                'missing_figure' => true,
+                'missing_bib' => true,
+                'missing_file' => true,
+                'warning' => true,
+                'no_problems' => true
+            ],
+            'showTopErrors' => [
+                'error' => true,
+                'fatal_error' => true,
+                'missing_macros' => false,
+            ],
+            'showDetailErrors' => [
+                'error' => false,
+            ],
+        ];
 
         return $config;
     }
@@ -76,7 +73,7 @@ class StageXhtml extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-		$query = '
+		$query = /** @lang ignore */ '
 			REPLACE	INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -160,7 +157,7 @@ class StageXhtml extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-		$query = '
+		$query = /** @lang ignore */ '
 			INSERT INTO
 				'.$this->config['dbTable'].'
 			SET

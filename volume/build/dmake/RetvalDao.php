@@ -139,7 +139,7 @@ class RetvalDao
      * @param $max_pp
      * @return array
      */
-    public static function getEntries($joinTable, $set, $orderBy, $sortBy, $min, $max_pp)
+    public static function getEntries($stage, $joinTable, $set, $orderBy, $sortBy, $min, $max_pp)
     {
         $dao = Dao::getInstance();
 
@@ -158,10 +158,14 @@ class RetvalDao
                 s.id,
                 s.sourcefile,
                 s.filename,
-                s.wq_priority,
-                s.wq_action
-           FROM
+                wq.priority as wq_priority,
+                wq.action as wq_action
+            FROM
                 statistic as s
+            LEFT JOIN
+                workqueue as wq
+            ON s.id = wq.statistic_id   
+               AND wq.stage = :stage     
             LEFT JOIN
                 $joinTable as j
             ON
@@ -175,6 +179,7 @@ class RetvalDao
                 $min, $max_pp";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':stage', $stage);
 
         if ($set != '') {
             $stmt->bindValue(':set', $set);
@@ -211,14 +216,19 @@ class RetvalDao
                 j.date_modified,
                 s.date_modified as s_date_modified,
                 unix_timestamp(s.date_modified) as tstamp,
-                wq_prev_action as type,
                 s.id,
                 s.sourcefile,
                 s.filename,
-                s.wq_priority,   
-                s.wq_action
+                wq.priority as wq_priority,
+                wq.prev_action as wq_prev_action,
+                wq.action as wq_action
            FROM
                 statistic as s
+           LEFT JOIN
+                workqueue as wq
+           ON
+                s.id = wq.statistic_id
+                AND wq.stage = :stage     
            LEFT JOIN
                 $joinTable as j
            ON
@@ -231,6 +241,7 @@ class RetvalDao
                 $min, $max";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':stage', $stage);
         $stmt->execute();
 
         return $stmt->fetchAll();
@@ -354,7 +365,7 @@ class RetvalDao
      * @param $detail
      * @return int
      */
-    public static function getCountByRetval($retval, $joinTable, $set, $detail)
+    public static function getCountByRetval($retval, $stage, $joinTable, $set, $detail)
     {
         $dao = Dao::getInstance();
 
@@ -366,7 +377,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                AND j.retval = :retval
+                j.retval = :retval
             ';
         } else {
             $join = "
@@ -376,7 +387,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                AND j.id is NULL
+                j.id is NULL
             ';
         }
 
@@ -385,9 +396,13 @@ class RetvalDao
                 count(*) as numrows
             FROM
                 statistic as s
+            LEFT JOIN
+                workqueue as wq
+            ON s.id = wq.statistic_id
+               AND wq.stage = :stage    
+               AND wq.priority = 0    
             $join
             WHERE
-                s.wq_priority = 0
                 $joinWhere";
 
         $ext_query = '';
@@ -423,6 +438,7 @@ class RetvalDao
         $query .= $ext_query;
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':stage', $stage);
         if ($retval != 'unknown') {
             $stmt->bindValue(':retval', $retval);
         }
@@ -496,9 +512,7 @@ class RetvalDao
                 j.date_modified,
                 s.id,
                 s.sourcefile,
-                s.filename,
-                s.wq_priority,   
-                s.wq_action
+                s.filename
             FROM
                 statistic as s
             $join
@@ -532,11 +546,12 @@ class RetvalDao
     /**
      * @param array $ids
      * @param $retval
+     * @param $stage
      * @param $joinTable
      * @param $columns
      * @return array
      */
-    public static function getDetailsByIdsAndRetval($ids, $retval, $joinTable, $columns)
+    public static function getDetailsByIdsAndRetval($ids, $retval, $stage, $joinTable, $columns)
     {
         if (!is_array($ids)) {
             $ids = array($ids);
@@ -585,10 +600,14 @@ class RetvalDao
                 s.id,
                 s.sourcefile,
                 s.filename,
-                s.wq_priority,   
-                s.wq_action
+                wq.priority as wq_priority,   
+                wq.action as wq_action
             FROM
                 statistic as s
+            LEFT JOIN
+                workqueue as wq
+            ON s.id = wq.statistic_id
+               AND wq.stage = :stage
             $join
             WHERE
                 1 " .
@@ -596,6 +615,7 @@ class RetvalDao
             $ext_query;
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':stage', $stage);
         if ($retval != 'unknown') {
             $stmt->bindValue(':retval', $retval);
         }
