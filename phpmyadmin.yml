@@ -1,0 +1,21 @@
+# docker-compose.yml
+version: '3.4'
+services:
+    phpmyadmin:
+        image: phpmyadmin
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: buildsysdb
+            MYSQL_USER: webuser
+            MYSQL_PASSWORD: websecret
+            PMA_ABSOLUTE_URI: http://phpmyadmin.yy
+            PMA_HOST: dbserver
+        networks:
+            texmlbus_net:
+                aliases:
+                    - phpmyadmin.yy
+        ports:
+            - 8081:80
+networks:
+    texmlbus_net:
+
