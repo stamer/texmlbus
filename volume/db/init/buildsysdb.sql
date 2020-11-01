@@ -345,6 +345,32 @@ CREATE TABLE `retval_pdf` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `retval_pdf_edge`
+--
+
+DROP TABLE IF EXISTS `retval_pdf_edge`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `retval_pdf_edge` (
+  `id` int(11) NOT NULL,
+  `date_created` datetime DEFAULT NULL,
+  `date_modified` datetime DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `timeout` smallint(6) DEFAULT NULL,
+  `num_warning` smallint(6) DEFAULT NULL,
+  `num_error` smallint(6) DEFAULT NULL,
+  `num_macro` smallint(6) DEFAULT NULL,
+  `missing_macros` varchar(1000) DEFAULT NULL,
+  `warnmsg` text DEFAULT NULL,
+  `errmsg` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ret` (`retval`),
+  KEY `dc` (`date_created`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `retval_xhtml`
 --
 
@@ -432,10 +458,11 @@ CREATE TABLE `statistic` (
   `wq_priority` tinyint(4) DEFAULT NULL,
   `wq_prev_action` varchar(16) DEFAULT NULL,
   `wq_action` varchar(64) DEFAULT NULL,
+  `wq_stage` varchar(32) DEFAULT NULL,
   `set` varchar(128) DEFAULT NULL,
   `filename` varchar(768) DEFAULT NULL,
   `sourcefile` varchar(512) DEFAULT NULL,
-  `hostname` varchar(256) DEFAULT NULL,
+  `hostgroup` varchar(256) DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `errmsg` text DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -500,6 +527,33 @@ CREATE TABLE `styusage` (
   KEY `styfilename` (`styfilename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `workqueue`
+--
+
+DROP TABLE IF EXISTS `workqueue`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `workqueue` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `statistic_id` int(11) DEFAULT NULL,
+  `date_created` datetime DEFAULT NULL,
+  `date_modified` datetime DEFAULT NULL,
+  `priority` tinyint(4) DEFAULT NULL,
+  `prev_action` varchar(16) DEFAULT NULL,
+  `action` varchar(64) DEFAULT NULL,
+  `stage` varchar(32) DEFAULT NULL,
+  `hostgroup` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`,`statistic_id`),
+  UNIQUE KEY `sistage` (`statistic_id`,`stage`),
+  KEY `si` (`statistic_id`),
+  KEY `dc` (`date_created`),
+  KEY `wq` (`priority`),
+  KEY `wqdc` (`priority`,`date_created`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -510,7 +564,7 @@ CREATE TABLE `styusage` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-30 21:26:46
+-- Dump completed on 2020-11-01 16:34:59
 -- MariaDB dump 10.17  Distrib 10.5.3-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
@@ -580,7 +634,7 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-30 21:26:46
+-- Dump completed on 2020-11-01 16:34:59
 -- MariaDB dump 10.17  Distrib 10.5.3-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
@@ -616,7 +670,7 @@ CREATE TABLE `dbversion` (
 
 LOCK TABLES `dbversion` WRITE;
 /*!40000 ALTER TABLE `dbversion` DISABLE KEYS */;
-INSERT INTO `dbversion` VALUES (2);
+INSERT INTO `dbversion` VALUES (5);
 /*!40000 ALTER TABLE `dbversion` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -629,4 +683,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-30 21:26:47
+-- Dump completed on 2020-11-01 16:34:59
