@@ -6,6 +6,8 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\StatEntry;
+use Dmake\WorkqueueEntry;
+
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -88,15 +90,15 @@ foreach ($stages as $stage) {
     }
 }
 
-$numrows = StatEntry::wqGetNumEntries();
+$numrows = WorkqueueEntry::getQueuedEntries();
 
-$stat = StatEntry::wqGetNextEntries(20, false);
+$stat = StatEntry::wqGetNextEntries('', 20, false);
 
 ?>
 <table border="1">
 <tr>
 	<th style="min-width:70px">No.</th>
-    <th>Date&nbsp;&nbsp;<a title="Sort by ascending date" href="<?=$urlSortDateAsc ?>">&#9662;</a><a title="Sort by descending date" href="<?=$urlSortDateDesc ?>">&#9652;</a></th>
+    <th>Date&nbsp;queued&nbsp;<a title="Sort by ascending date" href="<?=$urlSortDateAsc ?>">&#9662;</a><a title="Sort by descending date" href="<?=$urlSortDateDesc ?>">&#9652;</a></th>
     <th>Directory&nbsp;&nbsp;<a title="Sort by ascending name" href="<?=$urlSortNameAsc ?>">&#9662;</a><a title="Sort by descending name" href="<?=$urlSortNameDesc ?>">&#9652;</a></th>
 <?php
 	echo '<th>Stage</th>';
@@ -105,8 +107,8 @@ $stat = StatEntry::wqGetNextEntries(20, false);
 </tr>
 <?php
 $count = 0;
-foreach ($stat as $id => $entry) {
-    $stage = str_replace('clean', '', $entry->getWqPrevAction());
+foreach ($stat as $wq_id => $entry) {
+    $stage = $entry->getWqStage();
 
     $directory = 'files/'.$entry->getFilename().'/';
     if (!preg_match('/\.tex$/', $entry->getSourcefile())) {
@@ -135,7 +137,7 @@ foreach ($stat as $id => $entry) {
 	}
 
 	echo '<td align="right" rowspan="1">'.$no;
-    echo '<button type="button" class="btn btn-warning warning queue_warning" onclick="dequeueDocument(this, ' . $id . ')">';
+    echo '<button type="button" class="btn btn-warning warning queue_warning" onclick="dequeueDocument(this, ' . $entry->getId() . ', \'' . $stage .'\')">';
     echo '<i class="fas fa-ban" title="dequeue document"></i>';
     echo '<span></span></button>';
     echo '</td>' . PHP_EOL;

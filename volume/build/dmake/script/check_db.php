@@ -31,7 +31,7 @@ foreach ($dirs as $directory) {
 	echo "Trying $directory... ";
 	if (!is_dir("$prefix$directory")) {
 		echo "$prefix$directory not found!\n";
-		StatEntry::delete($directory);
+		StatEntry::deleteByDir($directory);
 	}
 	else {
 		echo " OK.\n";

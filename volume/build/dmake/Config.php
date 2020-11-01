@@ -8,8 +8,6 @@
  */
 namespace Dmake;
 
-use Dmake\BaseConfig;
-
 class Config extends BaseConfig
 {
     private static $config = null;
@@ -25,9 +23,9 @@ class Config extends BaseConfig
     /**
      * @param string|null $subobj
      * @param bool $useConfigHosts
-     * @return stdClass|null
+     * @return \stdClass
      */
-    public static function getConfig($subobj = null, $useConfigHosts = false)
+    public static function getConfig($subobj = null, $useConfigHosts = false): \stdClass
     {
         if (self::$config === null) {
             $config = BaseConfig::getConfig();

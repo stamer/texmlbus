@@ -7,16 +7,16 @@
 
 /**
  * Database
+ * @var StdClass $config
  */
-// running inside docker?
 $config->db = new StdClass();
-$config->db->charset	= 'utf8';
+$config->db->charset = 'utf8';
 
 // See errortext below.
-$config->db->username	= getenv('MYSQL_USER');
-$config->db->password	= getenv('MYSQL_PASSWORD');
-$config->db->host		= getenv('MYSQL_HOST');
-$config->db->dbname		= getenv('MYSQL_DATABASE');
+$config->db->username = getenv('MYSQL_USER');
+$config->db->password = getenv('MYSQL_PASSWORD');
+$config->db->host = getenv('MYSQL_HOST');
+$config->db->dbname	= getenv('MYSQL_DATABASE');
 
 if (empty($config->db->username)
     || empty($config->db->password)

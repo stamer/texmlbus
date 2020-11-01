@@ -6,6 +6,7 @@ use Dmake\Dao;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StagePagelimit extends AbstractStage implements StageInterface
 {
@@ -15,58 +16,55 @@ class StagePagelimit extends AbstractStage implements StageInterface
 
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     public static function register()
     {
-        $config = array(
+        $config = [
             'stage' => 'pagelimit',
             'classname' => __CLASS__,
+            'target' => 'pagelimit',
+            'hostGroup' => 'worker',
+            'dbTable' => 'retval_pagelimit',
+            'tableTitle' => 'pagelimit',
+            'toolTip' => 'pagelimit',
             'parseXml' => false,
             'timeout' => 1200,
-            'dbTable' => 'retval_pagelimit',
             'destFile' => '%MAINFILEPREFIX%.pagelimit.html',
             'stdoutLog' => 'pagelimit.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'pagelimit.stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array(), // which log files need to be parsed?
+            'dependentStages' => [], // which log files need to be parsed?
             /* retvals to be shown */
-            'showRetval' =>
-                array(
-                    'unknown'           => true,
-                    'not_qualified'     => true,
-                    'missing_errlog'    => true,
-                    'fatal_error'       => true,
-                    'timeout'           => true,
-                    'error'             => true,
-                    'missing_macros'    => false,
-                    'missing_figure'    => true,
-                    'missing_bib'       => true,
-                    'missing_file'      => true,
-                    'warning'           => true,
-                    'no_problems'       => true
-                ),
-            'showTopErrors' =>
-                array(
-                    'error'             => false,
-                    'fatal_error'       => false,
-                    'missing_macros'    => false,
-                ),
-            'showDetailErrors' =>
-                array(
-                    'error'             => false,
-                ),
+            'showRetval' => [
+                'unknown' => true,
+                'not_qualified' => true,
+                'missing_errlog' => true,
+                'fatal_error' => true,
+                'timeout' => true,
+                'error' => true,
+                'missing_macros' => false,
+                'missing_figure' => true,
+                'missing_bib' => true,
+                'missing_file' => true,
+                'warning' => true,
+                'no_problems' => true
+            ],
+            'showTopErrors' => [
+                'error' => false,
+                'fatal_error' => false,
+                'missing_macros' => false,
+            ],
+            'showDetailErrors' => [
+                'error' => false,
+            ],
             /* column configuration for retval_detail.php */
-            'retvalDetail' => array(
-                'error' =>
-                    array(0 =>
-                        array('sql' => ['errmsg', 'warnmsg'], 'html' => 'Error message', 'align' => 'left')
-                    ),
-            ),
-            'tableTitle' => 'pagelimit',
-            'toolTip' => 'pagelimit'
-
-        );
+            'retvalDetail' => [
+                'error' => [
+                    ['sql' => ['errmsg', 'warnmsg'], 'html' => 'Error message', 'align' => 'left']
+                ],
+            ],
+        ];
 
         return $config;
     }
@@ -78,7 +76,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-        $query = '
+        $query = /** @lang ignore */ '
             REPLACE	INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -162,7 +160,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-        $query = '
+        $query = /** @lang ignore */ '
 			INSERT INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -192,17 +190,18 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $stmt->execute();
     }
 
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static();
         $res->id = $entry->id;
 
-        $stdErrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $stdErrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
 
         $destFile = str_replace('%MAINFILEPREFIX%', $texSourcefilePrefix, $res->config['destFile']);
 
@@ -257,7 +256,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
         }
         $res->errmsg .= implode("\n", $matches[4]);
 
-        echo __CLASS__ . ": Setting retval to " . $res->retval . PHP_EOL;
+        echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
         $res->updateRetval();
     }

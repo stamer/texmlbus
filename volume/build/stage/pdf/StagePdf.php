@@ -12,6 +12,7 @@ use Dmake\ErrDetEntry;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
  /**
   * Class StagePdf
@@ -33,7 +34,7 @@ class StagePdf extends AbstractStage implements StageInterface
      */
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     const FOUND_MISSING_MACROS = 1 << 3;
@@ -46,68 +47,72 @@ class StagePdf extends AbstractStage implements StageInterface
      */
     public static function register()
     {
-        $config = array(
+        $config = [
+            // the name of the stage
             'stage' => 'pdf',
+            // the name of the class
             'classname' => __CLASS__,
-            'parseXml' => false,
+            // the target of makefile, most times same as stage, but
+            // pdf and pdf_edge have the same target pdf
+            'target' => 'pdf',
+            // the hostGroup
+            // pdf has worker as hostGroup, pdf_edge has worker_edge
+            // therefore two different pdf environments can be used
+            'hostGroup' => 'worker',
+            // the name of the table where target specific results are stored
             'dbTable' => 'retval_pdf',
+            // titles on statistic page
+            'tableTitle' => 'pdf',
+            'toolTip' => 'PDF creation.',
+            // whether xml needs to be parsed
+            'parseXml' => false,
+            // the timeout in seconds
             'timeout' => 240,
             /* use %MAINFILEPREFIX%, if the logfile use same prefix as the main tex file */
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
-            'dependentTargets' => array(), // which log files need to be parsed?
-            'showRetval' =>
-                array(
-                    'unknown'           => true,
-                    'not_qualified'     => true,
-                    'missing_errlog'    => true,
-                    'fatal_error'       => true,
-                    'timeout'           => true,
-                    'error'             => true,
-                    'missing_macros'    => true,
-                    'missing_figure'    => true,
-                    'missing_bib'       => true,
-                    'missing_file'      => true,
-                    'warning'           => true,
-                    'no_problems'       => true
-                ),
-            'retvalDetail' => array(
-                'missing_figures' =>
-                    array(0 =>
-                        array('sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left')
-                    ),
-                'missing_bib' =>
-                    array(0 =>
-                        array('sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left')
-                    ),
-                'missing_file' =>
-                    array(0 =>
-                        array('sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left')
-                    ),
-                'missing_macros' =>
-                    array(0 =>
-                        array('sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left')
-                    ),
-                'error' =>
-                    array(0 =>
-                        array('sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left')
-                    ),
-            ),
-            'showTopErrors' =>
-                array(
-                    'error'             => true,
-                    'fatal_error'       => false,
-                    'missing_macros'    => false,
-                ),
-            'showDetailErrors' =>
-                array(
-                    'error'             => false,
-                ),
-            'tableTitle' => 'pdf',
-            'toolTip' => 'PDF creation.'
-
-        );
+            'dependentStages' => [], // which log files need to be parsed?
+            'showRetval' => [
+                'unknown' => true,
+                'not_qualified' => true,
+                'missing_errlog' => true,
+                'fatal_error' => true,
+                'timeout' => true,
+                'error' => true,
+                'missing_macros' => true,
+                'missing_figure' => true,
+                'missing_bib' => true,
+                'missing_file' => true,
+                'warning' => true,
+                'no_problems' => true
+            ],
+            'retvalDetail' => [
+                'missing_figures' => [
+                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                ],
+                'missing_bib' => [
+                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                ],
+                'missing_file' => [
+                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                ],
+                'missing_macros' => [
+                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                ],
+                'error' => [
+                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                ],
+            ],
+            'showTopErrors' => [
+                'error' => true,
+                'fatal_error' => false,
+                'missing_macros' => false,
+            ],
+            'showDetailErrors' => [
+                'error' => false,
+            ],
+        ];
 
         return $config;
     }
@@ -122,7 +127,7 @@ class StagePdf extends AbstractStage implements StageInterface
 
         $dao = Dao::getInstance();
 
-		$query = '
+		$query = /** @lang ignore */ '
 			REPLACE	INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -213,7 +218,8 @@ class StagePdf extends AbstractStage implements StageInterface
 
         $dao = Dao::getInstance();
 
-		$query = '
+        echo "Updating " . $this->config['dbTable'] . PHP_EOL;
+		$query = /** @lang ignore */ '
 			INSERT INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -249,15 +255,16 @@ class StagePdf extends AbstractStage implements StageInterface
      * @param $childAlarmed
      * @return mixed|void
      */
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static;
         $res->id = $entry->id;
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
         $logfile = $texSourcefilePrefix.'.log';
         echo "parsing Logfile $logfile ..." . PHP_EOL;
 
@@ -346,7 +353,7 @@ class StagePdf extends AbstractStage implements StageInterface
             }
         }
 
-        echo __CLASS__ . ": Setting retval to " . $res->retval . PHP_EOL;
+        echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
         $res->updateRetval();
     }
@@ -354,13 +361,14 @@ class StagePdf extends AbstractStage implements StageInterface
     /**
      * @param StatEntry $entry
      */
-    public function parseDetail(StatEntry $entry)
+    public function parseDetail($hostGroup, StatEntry $entry)
     {
         $directory = $entry->getFilename();
         $datestamp = date("Y-m-d H:i:s", time());
 
-        $texSourcefilePrefix = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefilePrefix();
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
         $logfile = $texSourcefilePrefix.'.log';
 
         $this->debug('Logfile: ' . $logfile);
@@ -369,7 +377,6 @@ class StagePdf extends AbstractStage implements StageInterface
 
         $content = file_get_contents($logfile);
 
-        $err_pattern = '@(.*?)(Warning|Error):(\S*)\s+(.*)@m';
         $err_pattern = '@^!(.*?)(Warning|Error):\s+(.*)@m';
         if (preg_match_all($err_pattern, $content, $matches)) {
             // $matches[1] = errclass

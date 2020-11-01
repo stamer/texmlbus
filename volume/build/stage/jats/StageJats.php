@@ -13,54 +13,54 @@ use Dmake\Dao;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StageJats extends AbstractStage implements StageInterface
 {
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
     }
 
     public static function register()
     {
-        $config = array(
+        $config = [
             'stage' => 'jats',
             'classname' => __CLASS__,
+            'target' => 'jats',
+            'hostGroup' => 'worker',
             'parseXml' => true,
             'timeout' => 1200,
             'dbTable' => 'retval_jats',
+            'tableTitle' => 'plain jats',
+            'toolTip' => 'Plain Jats conversion.',
             'destFile' => '%MAINFILEPREFIX%.jats.xml',
             'stdoutLog' => 'jats.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'jats.stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array('xml'), // which log files need to be parsed?
-            'showRetval' =>
-                array(
-                    'unknown'           => false,
-                    'not_qualified'     => false,
-                    'missing_errlog'    => true,
-                    'fatal_error'       => true,
-                    'timeout'           => true,
-                    'error'             => false,
-                    'missing_macros'    => false,
-                    'missing_figure'    => true,
-                    'missing_bib'       => true,
-                    'missing_file'      => true,
-                    'warning'           => false,
-                    'no_problems'       => true
-                ),
-            'showTopErrors' =>
-                array(
-                    'error'             => true,
-                    'fatal_error'       => true,
-                    'missing_macros'    => false,
-                ),
-            'showDetailErrors' =>
-                array(
-                    'error'             => false,
-                ),
-            'tableTitle' => 'plain jats',
-            'toolTip' => 'Plain Jats conversion.'
-        );
+            'dependentStages' => ['xml'], // which log files need to be parsed?
+            'showRetval' => [
+                'unknown' => false,
+                'not_qualified' => false,
+                'missing_errlog' => true,
+                'fatal_error' => true,
+                'timeout' => true,
+                'error' => false,
+                'missing_macros' => false,
+                'missing_figure' => true,
+                'missing_bib' => true,
+                'missing_file' => true,
+                'warning' => false,
+                'no_problems' => true
+            ],
+            'showTopErrors' => [
+                'error' => true,
+                'fatal_error' => true,
+                'missing_macros' => false,
+            ],
+            'showDetailErrors' => [
+                'error' => false,
+            ],
+        ];
 
         return $config;
     }
@@ -72,7 +72,8 @@ class StageJats extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-		$query = '
+		$query = /** @lang ignore */
+            '
 			REPLACE	INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -156,7 +157,7 @@ class StageJats extends AbstractStage implements StageInterface
 
         $dao = DAO::getInstance();
 
-		$query = '
+		$query = /** @lang ignore */ '
 			INSERT INTO
 				'.$this->config['dbTable'].'
 			SET
@@ -186,15 +187,16 @@ class StageJats extends AbstractStage implements StageInterface
         $stmt->execute();
 	}
 
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
-        $res = new self;
+        $res = new static();
         $res->id = $entry->id;
 
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
         if ($childAlarmed) {
             $res->retval = 'timeout';

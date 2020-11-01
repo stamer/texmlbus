@@ -1,4 +1,4 @@
-function dequeueDocument(element, id)
+function dequeueDocument(element, id, stage)
 {
     var debug = false;
 
@@ -8,7 +8,7 @@ function dequeueDocument(element, id)
     });
 
     $.ajax({
-        url: "/ajax/dequeueDocument.php?id=" + id,
+        url: "/ajax/dequeueDocument.php?id=" + id + "&stage=" + stage,
         method: "GET",
         dataType: 'json',
         success: function(data) {

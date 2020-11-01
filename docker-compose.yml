@@ -13,6 +13,14 @@ services:
             texmlbus_net:
                 aliases:
                     - dbserver
+
+        # Uncomment, if you want to access db via local connection (e.g. IDE)
+        # you might need to explicitly set 127.0.0.1 in your configuration 
+        # and not localhost there. Please also note the different port 3307 to 
+        # not interfere with a local database installation.
+        #ports:
+            # - "127.0.0.1:${TEXMLBUS_MYSQL:-3307}:3306"
+
         volumes:
             - ./volume/db/init:/docker-entrypoint-initdb.d
             # shared data volumes for mysql does still not work reliably
@@ -48,7 +56,7 @@ services:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
             - optdata:/opt
-        
+
     texmlbus:
         build:
             context: src/texmlbus

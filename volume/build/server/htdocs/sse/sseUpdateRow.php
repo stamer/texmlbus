@@ -1,12 +1,18 @@
 <?php
 /**
+ * MIT License
+ * (c) 2019 - 2020 Heinrich Stamerjohanns
+ *
  * Updates a row in retval_detail.php
  */
 
 require_once "../../include/IncFiles.php";
 
+use Dmake\Config;
 use Dmake\InotifyHandler;
+use Dmake\RetvalDao;
 use Dmake\StatEntry;
+use Dmake\UtilStage;
 use Server\RequestFactory;
 use Server\View;
 
@@ -26,23 +32,11 @@ $stage = $request->getQueryParam('stage', 'xml');
 
 $debug = false;
 
-$inotify = new InotifyHandler();
-if ($inotify->isActive()) {
-    if ($debug) {
-        error_log("Setting up inotifyWatcher...");
-    }
-    $inotify->setupWatcher(InotifyHandler::doneTrigger);
-    if ($debug) {
-        error_log("...Done");
-    }
-} else {
-    $wqSleepSeconds = 60;
-}
-
 $stages = array_keys($cfg->stages);
 
 $columns = View::getColumnsByRetval($stage, $retval);
 if (in_array($stage, $stages)) {
+    $target = $cfg->stages[$stage]->target;
     $joinTable = $cfg->stages[$stage]->dbTable;
     $tableTitle = $cfg->stages[$stage]->tableTitle;
     if (!empty($cfg->stages[$stage]->destFile)) {
@@ -52,13 +46,28 @@ if (in_array($stage, $stages)) {
     }
     $cfgStdoutLog = $cfg->stages[$stage]->stdoutLog;
     $cfgStderrLog = $cfg->stages[$stage]->stderrLog;
+    $hostGroupName = $cfg->stages[$stage]->hostGroup;
 } else {
     exit;
 }
 
+$inotify = new InotifyHandler();
+if ($inotify->isActive()) {
+    if ($debug) {
+        error_log("Setting up inotifyWatcher for $hostGroupName...");
+    }
+    $inotify->setupWatcher($hostGroupName, InotifyHandler::doneTrigger);
+    if ($debug) {
+        error_log("...Done");
+    }
+} else {
+    $wqSleepSeconds = 60;
+}
+
+
 
 while (1) {
-    $curDate = date(DATE_ISO8601);
+    $curDate = date(DATE_ATOM);
     echo "event: ping\n",
         'data: {"time": "' . $curDate . '"}', "\n\n";
     while (ob_get_level() > 0) {
@@ -67,21 +76,21 @@ while (1) {
     flush();
     if ($inotify->isActive()) {
         if ($debug) {
-            error_log("Waiting on inotify trigger: " . $inotify->getTriggerFile(InotifyHandler::doneTrigger));
+            error_log("Waiting on inotify trigger: " . $inotify->getTriggerFile($hostGroupName, InotifyHandler::doneTrigger));
         }
-        $inotify->wait(InotifyHandler::doneTrigger);
+        $inotify->wait($hostGroupName, InotifyHandler::doneTrigger);
     } else {
         sleep($wqSleepSeconds);
     }
 
-    $statEntries = StatEntry::getLastStat('s.date_modified', 'DESC', 0, 5);
+    $statEntries = StatEntry::getLastStat('wq.date_modified', 'DESC', 0, 5);
 
     $ids = [];
     foreach ($statEntries as $entry) {
         $ids[] = $entry['id'];
     }
 
-    $rows = RetvalDao::getDetailsByIdsAndRetval($ids, $retval, $joinTable, $columns);
+    $rows = RetvalDao::getDetailsByIdsAndRetval($ids, $retval, $stage, $joinTable, $columns);
 
     //error_log(print_r($cfg->stages, 1));
 
@@ -97,7 +106,9 @@ while (1) {
         $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog);
         $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog);
 
-        $directory = 'files/' . $row['filename'] . '/';
+        // $directory = 'files/' . $row['filename'] . '/';
+        $directory = UtilStage::getSourceDir('files', $row['filename'], $hostGroupName) . '/';
+
         if ($destFile != '') {
             $destFileLink = $directory.$destFile;
         }
@@ -115,6 +126,7 @@ while (1) {
                 '__COUNT__',
                 $directory,
                 $stage,
+                $target,
                 $retval,
                 $stderrFileLink,
                 $destFileLink,

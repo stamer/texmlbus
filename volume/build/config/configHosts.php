@@ -13,7 +13,10 @@
  */
 
 use Dmake\UtilHost;
-
+use Dmake\UtilStage;
+/**
+ * @var StdClass $config
+ */
 define('MAKE_DEFAULT', $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile');
 define(
     'MAKE_PDF',
@@ -31,47 +34,52 @@ define('MAKE_JATS', $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Ma
 $dockerized = getenv('DOCKERIZED');
 
 if ($dockerized) {
+    // Determine the active HostGroups or registered stages
+    $hostGroups = UtilStage::getHostGroups();
+
     // Determine the number of workers and dynamically create the
     // appropriate host entries.
-    $hostnames = UtilHost::getDockerWorkers();
+    $hostnames = UtilHost::getDockerWorkers($hostGroups);
 
     $hosts = [];
-    foreach ($hostnames as $index => $hostname) {
-        $hosts['worker_' . $index] =
-            array(
-                'hostname' => $hostname,
-                'enabled' => true, // whether host should be used at all
-                'status' => STAT_IDLE,
-                'dir' => ARTICLEDIR,
-                'make_default' => MAKE_DEFAULT,
-                'make_pdf' => MAKE_PDF,
-            );
+    foreach ($hostnames as $hostGroupName => $hostGroup) {
+        foreach ($hostGroup as $index => $hostname) {
+            $hosts[$hostGroupName][$hostGroupName . '_' . $index] =
+                [
+                    'hostname' => $hostname,
+                    'enabled' => true, // whether host should be used at all
+                    'status' => STAT_IDLE,
+                    'dir' => ARTICLEDIR,
+                    'make_default' => MAKE_DEFAULT,
+                    'make_pdf' => MAKE_PDF,
+                ];
+        }
     }
-
     $config->hosts = $hosts;
+
 } else {
     $config->hosts =
         array(
             'local_0' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => true, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_1' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => true, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_2' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
@@ -81,51 +89,51 @@ if ($dockerized) {
                     'make_xml' => MAKE_XML,
                     'make_xhtml' => MAKE_XHTML,
                     'make_jats' => MAKE_JATS,
-                ),
+                ],
             'local_3' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_4' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_5' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_6' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
             'local_7' =>
-                array(
+                [
                     'hostname' => 'localhost',
                     'enabled' => false, // whether host should be used at all
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
                     'make_pdf' => MAKE_PDF,
-                ),
+                ],
         );
 }

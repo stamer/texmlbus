@@ -29,6 +29,7 @@ define("STAT_DEACTIVATED", 3);
 
 /**
  * Timeout
+ * @var StdClass $config
  */
 $config->timeout = new stdClass();
 $timeoutSeconds = getenv('TIMEOUT_SECONDS');
@@ -75,3 +76,4 @@ $config->auth = new StdClass();
 // as access is limited to localhost, this is not necessary.
 $config->auth->useJwToken = false;
 
+$config->linkSourceFiles = true;

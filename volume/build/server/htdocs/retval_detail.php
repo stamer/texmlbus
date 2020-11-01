@@ -7,6 +7,7 @@
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\RetvalDao;
+use Dmake\UtilStage;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -53,10 +54,10 @@ if ($requestSort == 'name') {
 
 // via bindParam, safe
 $stage = $page->getRequest()->getQueryParam('stage', 'xml');
-
 $stages = array_keys($cfg->stages);
 
 if (in_array($stage, $stages)) {
+    $target = $cfg->stages[$stage]->target;
     $joinTable = $cfg->stages[$stage]->dbTable;
     $tableTitle = $cfg->stages[$stage]->tableTitle;
     if (!empty($cfg->stages[$stage]->destFile)) {
@@ -102,7 +103,7 @@ if (!empty($set)) {
 
 $columns = View::getColumnsByRetval($stage, $retval);
 
-$numRows = RetvalDao::getCountByRetval($retval, $joinTable, $set, $detail);
+$numRows = RetvalDao::getCountByRetval($retval, $stage, $joinTable, $set, $detail);
 
 $max_pp = $cfg->db->perPage;
 $max_pp = 10;
@@ -127,7 +128,7 @@ if (!$numRows) {
     <th><?= htmlspecialchars($stage) ?><br />
     <?php
     $ids = array_keys($rows);
-    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids). '],\''.$stage.'\'); return false">queue</a>'.PHP_EOL;
+    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids) . '],\'' . $stage . '\',\'' . $target . '\'); return false">queue</a>'.PHP_EOL;
     ?>
     </th>
 <?php
@@ -152,6 +153,7 @@ foreach ($rows as $row) {
 
     $prefix = basename($row['sourcefile'], '.tex');
 
+    $directory = UtilStage::getSourceDir('files', $row['filename'], $cfg->stages[$stage]->hostGroup) . '/';
     //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
     $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile);
     $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog);
@@ -171,6 +173,7 @@ foreach ($rows as $row) {
         $no,
         $directory,
         $stage,
+        $target,
         $retval,
         $stderrFileLink,
         $destFileLink,

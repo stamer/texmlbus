@@ -1,13 +1,14 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007 - 2020 Heinrich Stamerjohanns
  *
  * A class to handle entries in the statistic database.
  *
  */
 namespace Dmake;
 
+use \Dmake\WorkqueueEntry;
 use \PDO;
 
 class StatEntry
@@ -30,13 +31,15 @@ class StatEntry
     public $id = 0;
     public $date_created = '';
     public $date_modified = '';
+    public $wq_id = 0;
     public $wq_priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
     public $wq_action = self::WQ_ACTION_NONE;
+    public $wq_stage = '';
     public $set = '';
     public $filename = '';
     public $sourcefile = '';
     public $timeout = -1;
-    public $hostname = '';
+    public $hostgroup = '';
     public $errmsg = '';
 
     /**
@@ -90,6 +93,22 @@ class StatEntry
     /**
      * @return int
      */
+    public function getWqId()
+    {
+        return $this->wq_id;
+    }
+
+    /**
+     * @param int $wq_id
+     */
+    public function setWqId($wq_id)
+    {
+        $this->wq_id = $wq_id;
+    }
+
+    /**
+     * @return int
+     */
     public function getWqPriority()
     {
         return $this->wq_priority;
@@ -133,6 +152,22 @@ class StatEntry
     public function setWqPrevAction($wq_prev_action)
     {
         $this->wq_prev_action = $wq_prev_action;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWqStage()
+    {
+        return $this->wq_stage;
+    }
+
+    /**
+     * @param string $wq_stage
+     */
+    public function setWqStage($wq_stage)
+    {
+        $this->wq_stage = $wq_stage;
     }
 
     /**
@@ -186,17 +221,17 @@ class StatEntry
     /**
      * @return string
      */
-    public function getHostname()
+    public function getWqHostGroup()
     {
-        return $this->hostname;
+        return $this->wq_hostgroup;
     }
 
     /**
-     * @param string $hostname
+     * @param string $hostgroup
      */
-    public function setHostname($hostname)
+    public function setWqHostgroup($hostGroup)
     {
-        $this->hostname = $hostname;
+        $this->wq_hostgroup = $hostGroup;
     }
 
     /**
@@ -226,6 +261,16 @@ class StatEntry
     }
 
     /**
+     * sets raw filename (possibly with or without .tex)
+     *
+     * @return string
+     */
+    public function setSourcefile($sourcefile)
+    {
+        $this->sourcefile = $sourcefile;
+    }
+
+    /**
      * returns the TeX source (it is guaranteed to have a .tex suffix).
      *
      * @return string
@@ -250,9 +295,8 @@ class StatEntry
     }
 
     /**
-     * @param $hostname
      */
-    public function save($hostname)
+    public function save()
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -277,10 +321,11 @@ class StatEntry
                 wq_priority     = :i_wq_priority,
                 wq_prev_action  = NULL,
                 wq_action       = :i_wq_action,
+                wq_stage        = :i_wq_stage,
                 `set`           = :i_set,
                 filename        = :i_filename,
                 sourcefile      = :i_sourcefile,
-                hostname        = :i_hostname,
+                hostgroup       = :i_hostgroup,
                 timeout         = :i_timeout,
                 errmsg          = :i_errmsg
             ON DUPLICATE KEY UPDATE
@@ -288,10 +333,11 @@ class StatEntry
                 wq_priority     = :u_wq_priority,
                 wq_prev_action  = wq_action,
                 wq_action       = :u_wq_action,
+                wq_stage        = :u_wq_stage,
                 `set`           = :u_set,
                 filename        = :u_filename,
                 sourcefile      = :u_sourcefile,
-                hostname        = :u_hostname,
+                hostgroup       = :u_hostgroup,
                 timeout         = :u_timeout,
                 errmsg          = :u_errmsg';
 
@@ -304,20 +350,26 @@ class StatEntry
         $stmt->bindValue(':u_wq_priority', $this->wq_priority);
         $stmt->bindValue(':i_wq_action', $this->wq_action);
         $stmt->bindValue(':u_wq_action', $this->wq_action);
+        $stmt->bindValue(':i_wq_stage', $this->wq_stage);
+        $stmt->bindValue(':u_wq_stage', $this->wq_stage);
         $stmt->bindValue(':i_set', $this->set);
         $stmt->bindValue(':u_set', $this->set);
         $stmt->bindValue(':i_filename', $this->filename);
         $stmt->bindValue(':u_filename', $this->filename);
         $stmt->bindValue(':i_sourcefile', $this->sourcefile);
         $stmt->bindValue(':u_sourcefile', $this->sourcefile);
-        $stmt->bindValue(':i_hostname', $this->hostname);
-        $stmt->bindValue(':u_hostname', $this->hostname);
+        $stmt->bindValue(':i_hostgroup', $this->wq_hostgroup);
+        $stmt->bindValue(':u_hostgroup', $this->wq_hostgroup);
         $stmt->bindValue(':i_timeout', $this->timeout);
         $stmt->bindValue(':u_timeout', $this->timeout);
         $stmt->bindValue(':i_errmsg', $this->errmsg);
         $stmt->bindValue(':u_errmsg', $this->errmsg);
 
         $stmt->execute();
+
+        if ($this->id == 0) {
+            $this->id = $dao->lastInsertId();
+        }
     }
 
     /**
@@ -328,71 +380,48 @@ class StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
-            $se->id = $row['id'];
+            $se->setId($row['id']);
         }
         if (isset($row['date_created'])) {
-            $se->date_created = $row['date_created'];
+            $se->setDateCreated($row['date_created']);
         }
         if (isset($row['date_modified'])) {
-            $se->date_modified = $row['date_modified'];
+            $se->setDateModified($row['date_modified']);
         }
         if (isset($row['wq_priority'])) {
-            $se->wq_priority = $row['wq_priority'];
+            $se->setWqPriority($row['wq_priority']);
         }
         if (isset($row['wq_prev_action'])) {
-            $se->wq_prev_action = $row['wq_prev_action'];
+            $se->setWqPrevAction($row['wq_prev_action']);
         }
         if (isset($row['wq_action'])) {
-            $se->wq_action = $row['wq_action'];
+            $se->setWqAction($row['wq_action']);
+        }
+        if (isset($row['wq_stage'])) {
+            $se->setWqStage($row['wq_stage']);
         }
         if (isset($row['set'])) {
-            $se->set = $row['set'];
+            $se->setSet($row['set']);
         }
         if (isset($row['filename'])) {
-            $se->filename = $row['filename'];
+            $se->setFilename($row['filename']);
         }
         if (isset($row['sourcefile'])) {
-            $se->sourcefile = $row['sourcefile'];
+            $se->setSourcefile($row['sourcefile']);
         }
-        if (isset($row['hostname'])) {
-            $se->hostname = $row['hostname'];
+        if (isset($row['wq_hostgroup'])) {
+            $se->setWqHostgroup($row['wq_hostgroup']);
         }
         if (isset($row['timeout'])) {
-            $se->timeout = $row['timeout'];
+            $se->setTimeout($row['timeout']);
         }
         if (isset($row['errmsg'])) {
-            $se->errmsg = $row['errmsg'];
+            $se->setErrmsg($row['errmsg']);
         }
 
         return $se;
     }
 
-    public function updateWq()
-    {
-        $cfg = Config::getConfig();
-        $cfg->now->datestamp = date("Y-m-d H:i:s", time());
-
-        $dao = Dao::getInstance();
-
-        $query = '
-            UPDATE
-                statistic
-            SET
-                wq_priority = :wq_priority,
-                wq_prev_action = wq_action,
-                wq_action = :wq_action,
-                date_modified = :date_modified
-            WHERE
-                id = :id';
-
-        $stmt = $dao->prepare($query);
-        $stmt->bindValue(':wq_priority', $this->wq_priority);
-        $stmt->bindValue(':wq_action', $this->wq_action);
-        $stmt->bindValue(':date_modified', $cfg->now->datestamp);
-        $stmt->bindValue(':id', $this->id);
-
-        $stmt->execute();
-    }
 
     public static function exists($filename)
     {
@@ -525,14 +554,14 @@ class StatEntry
      * @param $action
      * @return bool|null
      */
-    public static function getRetval($filename, $action)
+    public static function getRetval($filename, $stage, $action)
     {
         $dao = Dao::getInstance();
         $cfg = Config::getConfig();
 
         $stages = array_keys($cfg->stages);
-        if (in_array($action, $stages)) {
-            $retvalTable = $cfg->stages[$action]->dbTable;
+        if (in_array($stage, $stages)) {
+            $retvalTable = $cfg->stages[$stage]->dbTable;
         } else {
             error_log(__METHOD__ . ": Unknown action: $action");
             return false;
@@ -765,30 +794,26 @@ class StatEntry
      * @param $filename
      * @return bool
      */
-    public static function delete($filename)
+    public static function deleteByDirectory($directory)
     {
         $dao = Dao::getInstance();
+
+        $entry = self::getByDir($directory);
 
         $query = "
             DELETE FROM
                 statistic
             WHERE
-                filename = :filename";
+                filename = :directory";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':filename', $filename);
+        $stmt->bindValue(':filename', $directory);
 
         $result = $stmt->execute();
-        return $result;
-    }
 
-    /**
-     * @param $filename
-     * @return bool
-     */
-    public static function deleteByFilename($filename)
-    {
-        return self::delete($filename);
+        WorkqueueEntry::deleteByStatisticId($entry->getId());
+
+        return $result;
     }
 
     /**
@@ -809,6 +834,9 @@ class StatEntry
         $stmt->bindValue(':id', $id);
 
         $result = $stmt->execute();
+
+        WorkqueueEntry::deleteByStatisticId($id);
+
         return $result;
     }
 
@@ -816,7 +844,7 @@ class StatEntry
      * @param $filename
      * @param $action
      */
-    public static function markRerun($filename, $action)
+    public static function markRerun($filename, $stage, $action)
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -826,94 +854,82 @@ class StatEntry
         echo $action . PHP_EOL;
         echo $filename . PHP_EOL . PHP_EOL;
 
-        $retval = StatEntry::getRetval($filename, $action);
+        $retval = StatEntry::getRetval($filename, $stage, $action);
 
         if (strpos($retval, 'rerun') === false) {
             $retval = 'rerun_' . $retval;
         }
 
-        // wq_prev_action = wq_action must be set before wq_action is set
-        $query = "
-            UPDATE
-                statistic
-            SET
-                date_modified = :date_modified,
-                wq_priority = 1,
-                wq_prev_action = wq_action,
-                wq_action = :wq_action
-            WHERE
-                filename = :filename";
+        $entry = self::getByDir($filename);
 
-
-        $stmt = $dao->prepare($query);
-        $stmt->bindValue(':date_modified', $cfg->now->datestamp);
-        $stmt->bindValue(':wq_action', $action);
-        $stmt->bindValue(':filename', $filename);
-
-        $stmt->execute();
+        $wqEntry = new WorkqueueEntry();
+        $wqEntry->setStatisticId($entry->getId());
+        $wqEntry->setPriority(1);
+        $wqEntry->setStage($stage);
+        $wqEntry->setDateModified($cfg->now->datestamp);
+        $wqEntry->setAction($action);
+        $wqEntry->updateButHostgroup();
     }
 
-    /**
-     * @param $id
-     */
-    public static function wqRemoveEntry($id)
-    {
-        $dao = Dao::getInstance();
-
-        $query = "
-            UPDATE
-                statistic
-            SET
-                wq_priority = " . StatEntry::WQ_ENTRY_DISABLED . "
-            WHERE
-                id = :id";
-
-        $stmt = $dao->prepare($query);
-        $stmt->bindValue(':id', $id);
-
-        $stmt->execute();
-    }
 
     /**
      * Get next entries
-     * @return type
+     * @return ?StatEntry[]
      */
-    public static function wqGetNextEntries($limit = 10, $toStdout = true)
+    public static function wqGetNextEntries($hostGroupName = '', $limit = 10, $toStdout = true)
     {
         // here we might get "server has gone away message"
         // therefore explicitly check, whether connection is still there
         $dao = Dao::checkAndGetInstance();
 
         if ($toStdout) {
-            echo($limit == 1 ? "Getting next entry... " : "Getting next $limit entries... ");
+            echo($limit == 1 ? "$hostGroupName: Getting next entry... " : "$hostGroupName: Getting next $limit entries... ");
+        }
+
+        $where = 'wq.priority > 0';
+
+        if ($hostGroupName !== '') {
+            $where .= ' AND wq.hostgroup = :hostGroupName';
         }
 
         $query = "
             SELECT
-                id,
-                date_created,
-                date_modified,
-                date_modified as s_date_modified,
-                wq_priority,
-                wq_action,
-                filename,
-                sourcefile,
-                wq_prev_action
+                s.id,
+                s.date_created,
+                s.date_modified,
+                s.date_modified as s_date_modified,
+                s.filename,
+                s.sourcefile,
+                wq.id as wq_id,   
+                wq.priority as wq_priority,
+                wq.prev_action as wq_prev_action,
+                wq.action as wq_action,
+                wq.stage as wq_stage,
+                wq.hostgroup as wq_hostgroup
             FROM
-                statistic
+                statistic as s
+            JOIN
+                workqueue as wq
+            ON 
+                s.id = wq.statistic_id
             WHERE
-                wq_priority > 0
+                $where
             ORDER BY
-                wq_priority DESC, date_modified
-            LIMIT $limit";
+                wq.priority DESC, 
+                wq.date_modified
+            LIMIT :limit";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':limit', $limit);
+        if ($hostGroupName !== '') {
+            $stmt->bindValue(':hostGroupName', $hostGroupName);
+        }
 
         $stmt->execute();
 
         $dbEntries = array();
         while ($row = $stmt->fetch()) {
-            $dbEntries[$row['id']] = self::fillEntry($row);
+            $dbEntries[$row['wq_id']] = self::fillEntry($row);
         }
 
         $count = count($dbEntries);
@@ -923,28 +939,6 @@ class StatEntry
         return $dbEntries;
     }
 
-    /**
-     * @return mixed
-     */
-    public static function wqGetNumEntries()
-    {
-        $dao = Dao::getInstance();
-
-        $query = "
-            SELECT
-                count(*) as num
-            FROM
-                statistic
-            WHERE
-                wq_priority > 0";
-
-        $stmt = $dao->prepare($query);
-
-        $stmt->execute();
-
-        $row = $stmt->fetch();
-        return $row['num'];
-    }
 
     /**
      * @param $directory
@@ -952,47 +946,36 @@ class StatEntry
      * @param $priority
      * @return bool|void
      */
-    public static function addToWorkqueue($directory, $action, $priority)
+    public static function addToWorkqueue($directory, $hostGroupName, $stage, $action, $priority)
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
 
         $dao = Dao::getInstance();
 
-        if (StatEntry::exists($directory)) {
+        $entry = StatEntry::getByDir($directory);
+        if ($entry) {
             if ($action == StatEntry::WQ_ACTION_FORCE) {
                 UtilFile::cleanupDir($directory);
             }
-            $query = "
-                UPDATE
-                    statistic
-                SET
-                    date_modified = :date_modified,
-                    wq_priority = :priority,
-                    wq_prev_action = wq_action,
-                    wq_action = :action
-                WHERE
-                    filename = :directory
-                ";
-
-            $stmt = $dao->prepare($query);
-            $stmt->bindValue(':date_modified', $cfg->now->datestamp);
-            $stmt->bindValue(':priority', $priority);
-            $stmt->bindValue(':action', $action);
-            $stmt->bindValue(':directory', $directory);
-
-            $result = $stmt->execute();
-            return $result;
-
         } else {
             $entry = new StatEntry;
-            $entry->wq_priority = $priority;
-            $entry->wq_action = $action;
             $entry->filename = $directory;
-
-            $result = $entry->save('');
-            return $result;
+            $result = $entry->save();
         }
+
+        $wqe = new WorkqueueEntry();
+        $wqe->setStatisticId($entry->getId());
+        $wqe->setStage($stage);
+        $wqe->setDateModified($cfg->now->datestamp);
+        $wqe->setPriority($priority);
+        $wqe->setAction($action);
+        $wqe->setStage($stage);
+        $wqe->setHostGroup($hostGroupName);
+
+        $result = $wqe->save();
+        return $result;
+
     }
 
     /**
@@ -1001,7 +984,7 @@ class StatEntry
      * @param $priority
      * @return bool
      */
-    public static function addToWorkqueueById($id, $action, $priority)
+    public static function addToWorkqueueById($id, $hostGroupName, $stage, $action, $priority)
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -1009,32 +992,22 @@ class StatEntry
         $dao = Dao::getInstance();
 
         if (StatEntry::existsById($id)) {
-            $query = "
-                UPDATE
-                    statistic
-                SET
-                    date_modified = :date_modified,
-                    wq_priority = :priority,
-                    wq_prev_action = wq_action,
-                    wq_action = :action
-                WHERE
-                    id = :id
-                ";
+            $wqe = new WorkqueueEntry();
+            $wqe->setStatisticId($id);
+            $wqe->setStage($stage);
+            $wqe->setDateModified($cfg->now->datestamp);
+            $wqe->setPriority($priority);
+            $wqe->setAction($action);
+            $wqe->setStage($stage);
+            $wqe->setHostGroup($hostGroupName);
 
-            $stmt = $dao->prepare($query);
-            $stmt->bindValue(':date_modified', $cfg->now->datestamp);
-            $stmt->bindValue(':priority', $priority);
-            $stmt->bindValue(':action', $action);
-            $stmt->bindValue(':id', $id);
-
-            $stmt->execute();
-
-            return true;
-
+            $result = $wqe->save();
+            return $result;
         } else {
             return false;
         }
     }
+
 
     /**
      * @param $directory
@@ -1044,19 +1017,30 @@ class StatEntry
      * @param string $retval
      * @return bool
      */
-    public static function addNew($directory, $sourcefile, $minDepth, $action = 'none', $retval = 'unknown')
+    public static function addNew($directory, $sourcefile, $minDepth, $hostGroupName = '', $stage = '', $action = 'none', $retval = 'unknown')
     {
+        $cfg = Config::getConfig();
+        $cfg->now->datestamp = date("Y-m-d H:i:s", time());
+
         // we want only one file for given subdirectory of $minDepth
         // therefore check for matching subpath, not the exact file
         if (!StatEntry::pathMatches($directory, $minDepth)) {
             $entry = new StatEntry;
             $entry->filename = $directory;
             $entry->sourcefile = $sourcefile;
-            $entry->wq_action = $action;
             $entry->retval = $retval;
-            $entry->wq_priority = 0;
+            $entry->save();
 
-            $entry->save('');
+            $wqe = new WorkqueueEntry();
+            $wqe->setStatisticId($entry->getId()); // id has just been created
+            $wqe->setStage($stage);
+            $wqe->setDateModified($cfg->now->datestamp);
+            $wqe->setPriority(0);
+            $wqe->setAction($action);
+            $wqe->setStage($stage);
+            $wqe->setHostGroup($hostGroupName);
+            $wqe->save();
+
             return true;
         } else {
             return false;
@@ -1278,8 +1262,8 @@ class StatEntry
     /**
      * get the statistic for the given result table
      *
-     * @param type $joinTable
-     * @param type $set
+     * @param string $joinTable
+     * @param string $set
      * @return mixed
      */
     public static function getStats($joinTable, $set = '')
@@ -1396,11 +1380,11 @@ class StatEntry
     }
 
     /**
+     * @param string $stage
      * @param string $joinTable
-     * @param string $set
      * @return mixed
      */
-    public static function getCountLastStat($joinTable = '',  $set = '')
+    public static function getCountLastStat($stage, $joinTable)
     {
         $dao = Dao::getInstance();
 
@@ -1409,17 +1393,22 @@ class StatEntry
                 count(*) as numrows
             FROM
                 statistic as s
+            JOIN
+                workqueue as wq
+            ON
+                s.id = wq.statistic_id  
+                AND wq.stage = :stage    
             LEFT JOIN
                 $joinTable as j
             ON
                 s.id = j.id
             WHERE
-                s.wq_prev_action is NOT NULL 
-                AND wq_priority = 0";
+                wq.prev_action is NOT NULL 
+                AND wq.priority = 0";
 
 
         $stmt = $dao->prepare($query);
-
+        $stmt->bindValue(':stage', $stage);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -1445,16 +1434,21 @@ class StatEntry
 
         $query = "
             SELECT
-                s.date_modified as s_date_modified,
+                wq.date_modified as s_date_modified,
                 s.id,
                 s.sourcefile,
                 s.filename,
-                s.wq_prev_action
+                wq.prev_action as wq_prev_action,
+                wq.stage as wq_stage
             FROM
                 statistic as s
+            JOIN
+                workqueue as wq
+            ON 
+                s.id = wq.statistic_id
             WHERE
-                wq_prev_action IS NOT NULL
-                AND wq_priority = 0
+                wq.prev_action IS NOT NULL
+                AND wq.priority = 0
             ORDER BY
                 $orderBy $sortBy
             LIMIT

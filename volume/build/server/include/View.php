@@ -14,6 +14,7 @@ class View
         $destFileLink,
         $id,
         $stage,
+        $target,
         $date_modified,
         $queued
     ) {
@@ -27,13 +28,13 @@ class View
             $str .= '<a href="'.htmlspecialchars($stderrFileLink).'">ErrFile</a><br />'.PHP_EOL;
             $str .= '<a href="'.htmlspecialchars($destFileLink).'">DestFile</a><br />'.PHP_EOL;
             $str .= $date_modified.'<br />'.PHP_EOL;
-            $str .= '<a href="javascript:rerunById('.$id.',\''.$stage.'\')">queue</a>'.PHP_EOL;
+            $str .= '<a href="javascript:rerunById('.$id.',\''.$stage.'\',\''.$target.'\')">queue</a>'.PHP_EOL;
             $str .= '<span id="rerun_'.$id.'_'.$stage.'">' . $queued .'</span>'.PHP_EOL;
             $str .= '</td>'.PHP_EOL;
         } else {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$retval]];
             $str .= '<td id="td_' . $id . '_' . $stage . '" class="'.$color.'">'.PHP_EOL;
-            $str .= '<a href="javascript:rerunById('.$id.',\''.$stage.'\')">queue</a>'.PHP_EOL;
+            $str .= '<a href="javascript:rerunById('.$id.',\''.$stage.'\',\''.$target.'\')">queue</a>'.PHP_EOL;
             $str .= '<span id="rerun_'.$id.'_'.$stage.'">' . $queued .'</span>'.PHP_EOL;
             $str .= '</td>'.PHP_EOL;
         }
@@ -159,6 +160,7 @@ class View
         $no,
         $directory,
         $stage,
+        $target,
         $retval,
         $stderrFileLink,
         $destFileLink,
@@ -167,7 +169,7 @@ class View
     ) {
         $str = '<tr id="tr_' . $id . '_' . $stage . '">';
 
-        if ($row['wq_priority'] && $row['wq_action'] === $stage) {
+        if ($row['wq_priority'] && $row['wq_action'] === $target) {
             $queued = 'queued';
         } else {
             $queued = '';
@@ -183,6 +185,7 @@ class View
             $destFileLink,
             $id,
             $stage,
+            $target,
             $row['date_modified'],
             $queued
         );

@@ -32,10 +32,10 @@ interface StageInterface
 	public function updateRetval();
 
     /**
-     * @param $hostname
+     * @param $hostGroup
      * @param $entry
      * @param $childAlarmed
      * @return mixed
      */
-	public static function parse($hostname, $entry, $childAlarmed);
+	public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed);
 }

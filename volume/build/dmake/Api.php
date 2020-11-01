@@ -9,15 +9,11 @@ namespace Dmake;
 
 require_once "IncFiles.php";
 
-use Dmake\ApiResult;
-use Dmake\HistoryAction;
-use Dmake\InotifyHandler;
-use Dmake\StatEntry;
 use Server\RequestFactory;
 
 class Api
 {
-    const NO_ACTION = 128;
+    public const NO_ACTION = 128;
 
     protected $path = '';
     protected $action = '';
@@ -49,7 +45,7 @@ class Api
      *
      * @return ApiResult
      */
-    public function execute()
+    public function execute(): void
     {
         switch ((string)$this->action) {
             case '':
@@ -61,12 +57,17 @@ class Api
                 break;
             case 'clean':
                 // cleans up target for articles
+                $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->clean($target);
+                $apiResult = $this->clean($stage, $target);
                 break;
             case 'del':
                 // removes an article from the build system
@@ -77,22 +78,32 @@ class Api
                 // it will not be recreated
                 // this make sense if xml target has already included pdf generation
                 // and now pdf is being queued
+                $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->queue($target);
+                $apiResult = $this->queue($stage, $target);
                 break;
             case 'rerun':
                 // clean + rerun
                 // will for recreation of target and queues target
+                $stage = $this->request->getParam('stage', '');
+                if (empty($stage)) {
+                    $apiResult = new ApiResult(false, 'No stage given.');
+                    break;
+                }
                 $target = $this->request->getParam('target', '');
                 if (empty($target)) {
                     $apiResult = new ApiResult(false, 'No target given.');
                     break;
                 }
-                $apiResult = $this->rerun($target);
+                $apiResult = $this->rerun($stage, $target);
                 break;
             case 'snapshot':
                 // create history snapshot
@@ -114,8 +125,8 @@ class Api
         } else {
             // create debug output in browser
             header("Content-Type: text/plain");
-            echo 'Success: ' . intval($apiResult->getSuccess()) . PHP_EOL;
-            echo 'Output: ' . join(PHP_EOL, $apiResult->getOutput()) . PHP_EOL;
+            echo 'Success: ' . (int) $apiResult->getSuccess() . PHP_EOL;
+            echo 'Output: ' . implode(PHP_EOL, $apiResult->getOutput()) . PHP_EOL;
             echo 'ShellReturn: ' . $apiResult->getShellReturnVar() . PHP_EOL;
         }
     }
@@ -131,7 +142,8 @@ class Api
         if (!empty($directory) && !empty($sourcefile)) {
             $minDepth = 1;
             $result = StatEntry::addNew($directory, $sourcefile, $minDepth);
-            $this->inotify->trigger();
+            // ??
+            // $this->inotify->trigger();
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -150,7 +162,7 @@ class Api
             $result = StatEntry::deleteById($id);
             return new ApiResult($result);
         } elseif ($dir !== '') {
-            $result = StatEntry::deleteByFilename($dir);
+            $result = StatEntry::deleteByDirectory($dir);
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -161,13 +173,13 @@ class Api
      *
      * @return ApiResult
      */
-    public function clean($stage)
+    public function clean($stage, $target)
     {
-        /** @var $statEntry StatEntry */
-        $cfg = Config::getConfig();
-        $possibleTargets = array_keys($cfg->stages);
-        if (!in_array(preg_replace('/clean$/', '', $stage), $possibleTargets)) {
-            return new ApiResult(false, 'Invalid stage.');
+        /** @var StatEntry $statEntry */
+        $possibleTargets = UtilStage::getPossibleTargets();
+        $baseTarget = preg_replace('/clean$/', '', $target);
+        if (!in_array($baseTarget, $possibleTargets)) {
+            return new ApiResult(false, 'Invalid target.');
         }
 
         $id = $this->request->getParam('id', '');
@@ -189,8 +201,9 @@ class Api
         }
 
         // needs to be done via workqueue, so files are deleted in context of dmake
-        $result = StatEntry::addToWorkqueue($directory, $stage, 1);
-        $this->inotify->trigger(InotifyHandler::wqTrigger);
+        $hostGroup = UtilStage::getHostGroupByStage($stage);
+        $result = StatEntry::addToWorkqueue($directory, $hostGroup, $stage, $target,1);
+        $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
         sleep(1);
         $returnVar = 0;
         $success = true;
@@ -208,22 +221,22 @@ class Api
      * Job is queued, if this job has already run before, it will not be recreated.
      * @return ApiResult
      */
-    public function queue($stage)
+    public function queue($stage, $target)
     {
-        $cfg = Config::getConfig();
-        $possibleTargets = array_keys($cfg->stages);
-        if (!in_array($stage, $possibleTargets)) {
-            return new ApiResult(false, 'Invalid stage.');
+        $possibleTargets = UtilStage::getPossibleTargets();
+        if (!in_array($target, $possibleTargets)) {
+            return new ApiResult(false, 'Invalid target.');
         }
         $id = $this->request->getParam('id', '');
         $dir = $this->request->getParam('dir', '');
+        $hostGroup = UtilStage::getHostGroupByStage($stage);
         if ($id !== '') {
-            $result = StatEntry::addToWorkqueueById($id, $stage, $this->priority);
-            $this->inotify->trigger(InotifyHandler::wqTrigger);
+            $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
         } elseif (!empty($dir)) {
-            $result = StatEntry::addToWorkqueue($dir, $stage, $this->priority);
-            $this->inotify->trigger(InotifyHandler::wqTrigger);
+            $result = StatEntry::addToWorkqueue($dir, $hostGroup, $stage, $target, $this->priority);
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
@@ -233,18 +246,17 @@ class Api
     /**
      * Rerun Job is clean + queue
      * @param string $stage
+     * @param string $target
      * @return ApiResult
      */
-    public function rerun($stage)
+    public function rerun($stage, $target)
     {
-        $cfg = Config::getConfig();
-
-        $apiResult = $this->clean($stage . 'clean');
+        $apiResult = $this->clean($stage, $target . 'clean');
         if (!$apiResult->getSuccess()) {
             return $apiResult;
         }
 
-        $apiResult = $this->queue($stage);
+        $apiResult = $this->queue($stage, $target);
         return $apiResult;
     }
 

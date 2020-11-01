@@ -1,14 +1,21 @@
 <?php
-/*
+/**
+ * MIT License
+ * (c) 2019 - 2020 Heinrich Stamerjohanns
+ *
  * updates columns in retval_abc.php
  */
 require_once "../../include/IncFiles.php";
+/**
+ * @var string $buildDir
+ */
 require_once $buildDir . '/dmake/InotifyHandler.php';
 require_once $buildDir . '/dmake/StatEntry.php';
 
 use Dmake\InotifyHandler;
 use Dmake\RetvalDao;
 use Dmake\StatEntry;
+use Dmake\UtilStage;
 use Server\Config;
 use Server\View;
 
@@ -16,14 +23,14 @@ header("Content-Type: text/event-stream");
 
 $cfg = Config::getConfig();
 
-$debug = false;
+$debug = true;
 
 $inotify = new InotifyHandler();
 if ($inotify->isActive()) {
     if ($debug) {
-        error_log("Setting up inotifyWatcher...");
+        error_log("Setting up inotifyWatcher (anyHostGroup)...");
     }
-    $inotify->setupWatcher(InotifyHandler::doneTrigger);
+    $inotify->setupWatcherAnyHostGroup(InotifyHandler::doneTrigger);
     if ($debug) {
         error_log("...Done");
     }
@@ -32,36 +39,46 @@ if ($inotify->isActive()) {
 }
 
 while (1) {
-    $curDate = date(DATE_ISO8601);
+    $curDate = date(DATE_ATOM);
     echo "event: ping\n",
         'data: {"time": "' . $curDate . '"}', "\n\n";
+
     while (ob_get_level() > 0) {
         ob_end_flush();
     }
     flush();
     if ($inotify->isActive()) {
         if ($debug) {
-            error_log("Waiting on inotify trigger: " . $inotify->getTriggerFile(InotifyHandler::doneTrigger));
+            error_log("Waiting on inotify trigger: " . InotifyHandler::doneTrigger);
         }
-        $inotify->wait(InotifyHandler::doneTrigger);
+        $inotify->waitAnyHostGroup(InotifyHandler::doneTrigger);
+        if ($debug) {
+            error_log("triggered: " . InotifyHandler::doneTrigger);
+        }
+
     } else {
         sleep($wqSleepSeconds);
     }
 
-    $statEntries = StatEntry::getLastStat('s.date_modified', 'DESC', 0, 5);
+    $statEntries = StatEntry::getLastStat('wq.date_modified', 'DESC', 0, 5);
 
     // find the columns that should be updated
     // the column of the stage itself and the column of the dependent targets
     $collect = [];
     foreach ($statEntries as $entry) {
-        $stage = $entry['wq_prev_action'];
+        $stage = $entry['wq_stage'];
+        if (empty($stage)) {
+            $stage = $entry['wq_prev_action'];
+        }
+        error_log("Stage: $stage");
+
         if (!in_array($stage, array_keys($cfg->stages))) {
             continue;
         }
         $collect[$stage][] = $entry['id'];
-        foreach ($cfg->stages[$stage]->dependentTargets as $target) {
-            $collect[$target][] = $entry['id'];
-            error_log("Stage: $stage, Target: $target, Id: " . $entry['id']);
+        foreach ($cfg->stages[$stage]->dependentStages as $dependentStage) {
+            $collect[$dependentStage][] = $entry['id'];
+            error_log("Stage: $stage, DependentStage: $dependentStage, Id: " . $entry['id']);
         }
     }
 
@@ -70,14 +87,13 @@ while (1) {
         $entries = array_merge($entries, RetvalDao::getByIds($ids, $stage, 's.date_modified', 'asc', 0, 100));
     }
 
-    //error_log(print_r($entries, 1));
-
     foreach ($entries as $entry) {
         $prefix = basename($entry['sourcefile'], '.tex');
 
         $stage = $entry['stage'];
         $date_modified = $entry['s_date_modified'];
         $id = $entry['id'];
+        $target = $cfg->stages[$stage]->target;
 
         if (!empty($cfg->stages[$stage]->destFile)) {
             $cfgDestFile[$stage] = $cfg->stages[$stage]->destFile;
@@ -92,24 +108,22 @@ while (1) {
         $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$stage]);
         $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog[$stage]);
 
-        $directory = 'files/' . $entry['filename'] . '/';
+        //$directory = 'files/' . $entry['filename'] . '/';
+        $directory = UtilStage::getSourceDir('files', $entry['filename'], $cfg->stages[$stage]->hostGroup) . '/';
+
         if ($destFile != '') {
             $destFileLink = $directory.$destFile;
         }
         $stdoutFileLink = $directory.$stdoutLog;
         $stderrFileLink = $directory.$stderrLog;
 
-        if ($entry['wq_priority'] && $entry['wq_action'] === $stage) {
+        if ($entry['wq_priority'] && $entry['wq_action'] === $target) {
             $queued = 'queued';
         } else {
             $queued = '';
         }
 
-        if (isset($entry[$stage]['retval'])) {
-            $retval = $entry[$stage]['retval'];
-        } else {
-            $retval = 'unknown';
-        }
+        $retval = $entry[$stage]['retval'] ?? 'unknown';
 
         $retvalColumn = View::renderRetvalColumn(
             $entry['retval'],
@@ -117,6 +131,7 @@ while (1) {
             $destFileLink,
             $entry['id'],
             $stage,
+            $target,
             $date_modified,
             $queued
         );

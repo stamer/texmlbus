@@ -81,7 +81,7 @@ abstract class AbstractStage
     /**
      * @param string $message
      */
-	public function debug(string $message)
+	public function debug(string $message): void
     {
 	    if ($this->debug) {
 	        echo $message . PHP_EOL;

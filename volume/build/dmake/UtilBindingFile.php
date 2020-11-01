@@ -8,6 +8,7 @@ namespace Dmake;
 
 require_once 'StatEntry.php';
 require_once 'UtilHost.php';
+require_once 'UtilStage.php';
 
 use Dmake\Config;
 

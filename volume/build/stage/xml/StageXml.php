@@ -12,6 +12,7 @@ use Dmake\ErrDetEntry;
 use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
+use Dmake\UtilStage;
 
 class StageXml extends AbstractStage implements StageInterface
 {
@@ -22,99 +23,92 @@ class StageXml extends AbstractStage implements StageInterface
 
     public function __construct()
     {
-        $this->config = self::register();
+        $this->config = static::register();
         $this->debug = true;
     }
 
     public static function register()
     {
-        $config = array(
+        $config = [
             'stage' => 'xml',
             'classname' => __CLASS__,
+            'target' => 'xml',
+            'hostGroup' => 'worker',
+            'dbTable' => 'retval_xml',
+            'tableTitle' => 'xml',
+            'toolTip' => 'Latexml XML intermediate format creation.',
             'parseXml' => true,
             'timeout' => 1200,
-            'dbTable' => 'retval_xml',
             'destFile' => '%MAINFILEPREFIX%.tex.xml',
             'stdoutLog' => 'stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'stderr.log', // needs to match entry in Makefile
-            'dependentTargets' => array(),
-            'showRetval' =>
-                array(
-                    'unknown'           => true,
-                    'not_qualified'     => true,
-                    'missing_errlog'    => true,
-                    'fatal_error'       => true,
-                    'timeout'           => true,
-                    'error'             => true,
-                    'missing_macros'    => true,
-                    'missing_figure'    => true,
-                    'missing_bib'       => true,
-                    'missing_file'      => true,
-                    'warning'           => true,
-                    'no_problems'       => true
-                ),
-            'retvalDetail' => array(
-                'missing_macros' =>
-                    array(0 =>
-                        array('sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'),
-                        array('sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'),
-                        array('sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'),
-                        array('sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'),
-                        array('sql' => 'missing_macros', 'html' => 'Missing macros', 'align' => 'left'),
-                    ),
-                'warning' =>
-                    array(0 =>
-                        array('sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'),
-                        array('sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'),
-                        array('sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'),
-                        array('sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'),
-                    ),
-                'error' =>
-                    array(0 =>
-                        array('sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'),
-                        array('sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'),
-                        array('sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'),
-                        array('sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'),
-                    ),
-                'fatal_error' =>
-                    array(0 =>
-                        array('sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'),
-                        array('sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'),
-                        array('sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'),
-                        array('sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'),
-                    ),
-                'no_problems' =>
-                    array(0 =>
-                        array('sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'),
-                        array('sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'),
-                        array('sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'),
-                        array('sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'),
-                        array('sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'),
-                    ),
-                ),
-            'showTopErrors' =>
-                array(
-                    'error'             => true,
-                    'fatal_error'       => true,
-                    'missing_macros'    => true,
-                ),
-            'showDetailErrors' =>
-                array(
-                    'error'             => true,
-                ),
-            'tableTitle' => 'xml',
-            'toolTip' => 'Latexml XML intermediate format creation.'
-
-        );
+            'dependentStages' => [],
+            'showRetval' => [
+                'unknown' => true,
+                'not_qualified' => true,
+                'missing_errlog' => true,
+                'fatal_error' => true,
+                'timeout' => true,
+                'error' => true,
+                'missing_macros' => true,
+                'missing_figure' => true,
+                'missing_bib' => true,
+                'missing_file' => true,
+                'warning' => true,
+                'no_problems' => true
+            ],
+            'retvalDetail' => [
+                'missing_macros' => [
+                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                    ['sql' => 'missing_macros', 'html' => 'Missing macros', 'align' => 'left'],
+                ],
+                'warning' => [
+                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                ],
+                'error' => [
+                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                ],
+                'fatal_error' => [
+                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                ],
+                'no_problems' => [
+                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                ],
+            ],
+            'showTopErrors' => [
+                'error' => true,
+                'fatal_error' => true,
+                'missing_macros' => true,
+            ],
+            'showDetailErrors' => [
+                'error' => true,
+            ],
+        ];
 
         return $config;
     }
@@ -291,17 +285,17 @@ class StageXml extends AbstractStage implements StageInterface
         $stmt->execute();
 	}
 
-
-    public static function parse($hostname, $entry, $childAlarmed)
+    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
     {
         $directory = $entry->filename;
 
         $res = new static();
         $res->id = $entry->id;
 
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$res->config['stderrLog'];
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
+        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
 
-        $texSourcefile = ARTICLEDIR.'/'.$directory.'/'.$entry->getSourcefile();
+        $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
@@ -340,7 +334,6 @@ class StageXml extends AbstractStage implements StageInterface
             if (isset($matches[4])) {
                 $res->ok_xmath = $matches[4];
             }
-
 
             $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
             preg_match($fatal_pattern, $content, $matches);
@@ -407,7 +400,7 @@ class StageXml extends AbstractStage implements StageInterface
         $res->updateRetval();
     }
 
-    public function parseDetail(StatEntry $entry)
+    public function parseDetail($hostGroup, StatEntry $entry)
     {
         $directory = $entry->getFilename();
         $datestamp = date("Y-m-d H:i:s", time());

@@ -12,12 +12,7 @@ class UtilFile
 {
     public static $flc = 0;
 
-    /**
-     * @param string $filename
-     * @param bool $clearCache
-     * @return string
-     */
-    public static function getFileOwner($filename, $clearCache = false)
+    public static function getFileOwner(string $filename, bool $clearCache = false): string
     {
         if ($clearCache) {
             clearstatcache();
@@ -25,12 +20,7 @@ class UtilFile
         return posix_getpwuid(fileowner($filename))['name'];
     }
 
-    /**
-     * @param string $filename
-     * @param bool $clearCache
-     * @return string
-     */
-    public static function getFileGroup($filename, $clearCache = false)
+    public static function getFileGroup(string $filename, bool $clearCache = false)
     {
         if ($clearCache) {
             clearstatcache();
@@ -169,7 +159,6 @@ class UtilFile
      * @param bool $only_dirs
      * @param null $pattern
      * @param null $only_depth
-     * @return bool
      */
     public static function listDirR($dir,
                                     &$result_dirs,
@@ -178,7 +167,7 @@ class UtilFile
                                     $only_dirs = true,
                                     $pattern = null,
                                     $only_depth = null
-    )
+    ): bool
     {
         $current_depth++;
         if (
@@ -252,6 +241,8 @@ class UtilFile
         closedir($cdir);
 
         $current_depth--;
+
+        return true;
     }
 
 
@@ -301,7 +292,7 @@ class UtilFile
      * @param $dest
      * @return bool
      */
-    public function copyR($src, $dest)
+    public static function copyR($src, $dest)
     {
         if (is_dir($src)) {
             $success = mkdir($dest);
@@ -344,6 +335,48 @@ class UtilFile
     }
 
     /**
+     * recursively hardlink (or copy) directories and files
+     * @param $src
+     * @param $dest
+     * @param $ignorePattern // pattern of directories/files to ignore
+     * @param $copyPattern // pattern of files to copy
+     */
+    public static function linkR($src, $dest, $ignorePattern, $copyPattern): bool
+    {
+        if (is_dir($src)) {
+            if (preg_match($ignorePattern, $src)) {
+                echo "Ignoring $src..." . PHP_EOL;
+                return true;
+            }
+            $success = mkdir($dest);
+            if (!$success) {
+                error_log(__METHOD__ . ": Failed to create $dest");
+                return false;
+            }
+            $files = scandir($src);
+            foreach ($files as $file)
+                if ($file != "."
+                    && $file != ".."
+                ) {
+                    self::linkR("$src/$file", "$dest/$file", $ignorePattern, $copyPattern);
+                }
+        } elseif (file_exists($src)) {
+            if (preg_match($ignorePattern, $src)) {
+                echo "Ignoring $src..." . PHP_EOL;
+                return true;
+            }
+            if (preg_match($copyPattern, $src)) {
+                echo "Copying $src -> $dest" . PHP_EOL;
+                $result = copy($src, $dest);
+            } else {
+                $result = link($src, $dest);
+            }
+            return $result;
+        }
+        return true;
+    }
+
+    /**
      * write a file atomically
      * @param $filename
      * @param $data
@@ -370,7 +403,7 @@ class UtilFile
             return '';
         }
 
-        $matches = array(); // make netbeans happy
+        $matches = array();
         preg_match('/TARGET.base = (\S+)/m', $contents, $matches);
         // matches[1] is the base file.
         if (!isset($matches[1])) {
@@ -381,6 +414,28 @@ class UtilFile
         return $checkfile;
     }
 
+    /**
+     * Rewrites the PREFIX of a given Makefile. It adds $addLevel ../ subdirectories
+     * to PREFIX (because of hardlinked creation of subdirectories).
+     */
+    public static function adjustMakefilePrefix(string $directory, int $addLevel) : ?string
+    {
+        $filename = $directory . '/Makefile';
+        // we need to get the base from Makefile
+        if (!($contents = @file_get_contents($filename))) {
+            return '';
+        }
+
+        $addDir = str_repeat('../', $addLevel);
+        $replaced = preg_replace('/^PREFIX = (\S+)/m', 'PREFIX = ' . $addDir . '\\1', $contents);
+
+        $result = file_put_contents($filename, $replaced);
+
+        if (!$result) {
+            error_log(__METHOD__ . ': Failed to rewrite ' . $filename . '!');
+        }
+        return $result;
+    }
 
     /**
      * this function expects a directory like
@@ -389,10 +444,9 @@ class UtilFile
      * '/00001/hep-th.0001081'
      * and constructs the appropriate filename for the texfile.
      */
-    public static function getSourcefileInDir($dir, $with_suffix = true)
+    public static function getSourcefileInDir($dir, $with_suffix = true): string
     {
-
-        $subdirs = preg_split('#/#', $dir);
+        $subdirs = explode('/', $dir);
 
         $c = count($subdirs);
 
@@ -625,5 +679,6 @@ class UtilFile
         $result = chmod($filename, 0666);
         return $result;
     }
+
 
 }
