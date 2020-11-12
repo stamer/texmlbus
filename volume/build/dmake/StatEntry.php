@@ -31,16 +31,18 @@ class StatEntry
     public $id = 0;
     public $date_created = '';
     public $date_modified = '';
-    public $wq_id = 0;
-    public $wq_priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
-    public $wq_action = self::WQ_ACTION_NONE;
-    public $wq_stage = '';
     public $set = '';
     public $filename = '';
     public $sourcefile = '';
     public $timeout = -1;
     public $hostgroup = '';
     public $errmsg = '';
+    public $wq_id = 0;
+    public $wq_priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
+    public $wq_action = self::WQ_ACTION_NONE;
+    public $wq_stage = '';
+    public $wq_date_created = '';
+    public $wq_date_modified = '';
 
     /**
      * @return int
@@ -168,6 +170,38 @@ class StatEntry
     public function setWqStage($wq_stage)
     {
         $this->wq_stage = $wq_stage;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWqDateCreated()
+    {
+        return $this->wq_date_created;
+    }
+
+    /**
+     * @param string $wq_date_created
+     */
+    public function setWqDateCreated($wq_date_created)
+    {
+        $this->wq_date_created = $wq_date_created;
+    }
+
+    /**
+     * @return string
+     */
+    public function getWqDateModified()
+    {
+        return $this->wq_date_modified;
+    }
+
+    /**
+     * @param string $wq_date_modified
+     */
+    public function setWqDateModified($wq_date_modified)
+    {
+        $this->wq_date_modified = $wq_date_modified;
     }
 
     /**
@@ -399,6 +433,12 @@ class StatEntry
         }
         if (isset($row['wq_stage'])) {
             $se->setWqStage($row['wq_stage']);
+        }
+        if (isset($row['wq_date_created'])) {
+            $se->setWqDateCreated($row['wq_date_created']);
+        }
+        if (isset($row['wq_date_modified'])) {
+            $se->setWqDateModified($row['wq_date_modified']);
         }
         if (isset($row['set'])) {
             $se->setSet($row['set']);
@@ -883,7 +923,7 @@ class StatEntry
         $dao = Dao::checkAndGetInstance();
 
         if ($toStdout) {
-            echo($limit == 1 ? "$hostGroupName: Getting next entry... " : "$hostGroupName: Getting next $limit entries... ");
+            echo ($limit == 1 ? "$hostGroupName: Getting next entry... " : "$hostGroupName: Getting next $limit entries... ");
         }
 
         $where = 'wq.priority > 0';
@@ -897,7 +937,6 @@ class StatEntry
                 s.id,
                 s.date_created,
                 s.date_modified,
-                s.date_modified as s_date_modified,
                 s.filename,
                 s.sourcefile,
                 wq.id as wq_id,   
@@ -905,7 +944,8 @@ class StatEntry
                 wq.prev_action as wq_prev_action,
                 wq.action as wq_action,
                 wq.stage as wq_stage,
-                wq.hostgroup as wq_hostgroup
+                wq.hostgroup as wq_hostgroup,
+                wq.date_modified as wq_date_modified
             FROM
                 statistic as s
             JOIN

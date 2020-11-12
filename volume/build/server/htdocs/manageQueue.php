@@ -15,6 +15,7 @@ use Server\UtilMisc;
 $page = new Page('Current queue entries');
 $page->addScript('/js/dequeueDocument.js');
 $page->showHeader('general');
+$deferJs[] = 'selfUpdate(5000);';
 
 $cfg = Config::getConfig();
 
@@ -24,40 +25,8 @@ $min = max(0, (int) $min);
 $set = $page->getRequest()->getQueryParam('set', '');
 
 $requestDir = $page->getRequest()->getQueryParam('dir', 'ASC');
-// possible SqlInjection, set $sqlSortBy explicitly
-if ($requestDir == 'desc') {
-    $sqlSortBy = 'DESC';
-} else {
-    $sqlSortBy = 'ASC';
-}
-
-// possible SqlInjection, set $sqlOrderBy explicitly
-$requestSort = $page->getRequest()->getQueryParam('sort', 's.filename');
-if ($requestSort == 'date') {
-    $sqlOrderBy = 's.date_modified';
-} else {
-    $sqlOrderBy = 's.filename';
-}
 
 $stages = array_keys($cfg->stages);
-
-// build Urls
-parse_str($_SERVER['QUERY_STRING'], $query_data);
-
-$query_data['sort'] = 'date';
-$query_data['dir'] = 'asc';
-$urlSortDateAsc = $_SERVER['SCRIPT_NAME'].'?'.http_build_query($query_data, '', '&amp;');
-
-$query_data['dir'] = 'desc';
-$urlSortDateDesc = $_SERVER['SCRIPT_NAME'].'?'.http_build_query($query_data, '', '&amp;');
-
-$query_data['sort'] = 'name';
-$query_data['dir'] = 'asc';
-$urlSortNameAsc = $_SERVER['SCRIPT_NAME'].'?'.http_build_query($query_data, '', '&amp;');
-
-$query_data['dir'] = 'desc';
-$urlSortNameDesc = $_SERVER['SCRIPT_NAME'].'?'.http_build_query($query_data, '', '&amp;');
-
 
 if (!empty($set)) {
 ?>
@@ -98,8 +67,8 @@ $stat = StatEntry::wqGetNextEntries('', 20, false);
 <table border="1">
 <tr>
 	<th style="min-width:70px">No.</th>
-    <th>Date&nbsp;queued&nbsp;<a title="Sort by ascending date" href="<?=$urlSortDateAsc ?>">&#9662;</a><a title="Sort by descending date" href="<?=$urlSortDateDesc ?>">&#9652;</a></th>
-    <th>Directory&nbsp;&nbsp;<a title="Sort by ascending name" href="<?=$urlSortNameAsc ?>">&#9662;</a><a title="Sort by descending name" href="<?=$urlSortNameDesc ?>">&#9652;</a></th>
+    <th>Date&nbsp;queued</th>
+    <th>Directory</th>
 <?php
 	echo '<th>Stage</th>';
 ?>
@@ -125,8 +94,8 @@ foreach ($stat as $wq_id => $entry) {
 	echo "<tr>\n";
 	$count++;
 	$no = $count + $min;
-	if (!empty($entry->getDateModified())) {
-		$date_modified = $entry->getDateModified();
+	if (!empty($entry->getWqDateModified())) {
+		$date_modified = $entry->getWqDateModified();
 	} else {
 		$date_modified = '';
 	}
@@ -165,4 +134,4 @@ foreach ($stat as $wq_id => $entry) {
 
 UtilMisc::navigator($min, $min, $max_pp, $numrows);
 
-$page->showFooter();
+$page->showFooter($deferJs);
