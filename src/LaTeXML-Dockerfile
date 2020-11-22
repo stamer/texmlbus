@@ -37,6 +37,13 @@
 # We start from alpine linux 3.11
 FROM alpine:3.11 as latexml_base
 
+RUN echo -e \
+" ############################################################\n" \
+"If the next command fails, you have not checked out LaTeXML.\n" \
+"Please enter: git submodule update --init --recursive\n" \
+"############################################################\n"
+COPY bin/latexml /dev/null
+
 # Install the dependencies
 RUN apk add --no-cache \
     db-dev \

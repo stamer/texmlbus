@@ -12,12 +12,12 @@
 # | http://dlmf.nist.gov/LaTeXML/                              (o o)    | #
 # \=========================================================ooo==U==ooo=/ #
 
-# This Dockerfile expects the root directory of LaTeXML as a build context. 
+# This Dockerfile expects the root directory of LaTeXML as a build context.
 # To achieve this run the following command from the root directory:
 #
 # > docker build -t latexml -f release/docker/Dockerfile .
 
-# This Dockerfile can include a full TeXLive installation. 
+# This Dockerfile can include a full TeXLive installation.
 # This is enabled by default however it can be disabled by providing a
 # build argument like so:
 #
@@ -25,7 +25,7 @@
 #
 # Please be aware that including a full TeXLive installation can take a
 # significant amount of time (depending on network connection) and will
-# increase the image size to several Gigabytes. 
+# increase the image size to several Gigabytes.
 #
 # Futhermore to speed up the build process, it is also possible to
 # tell docker not to run the tests during the build proess. To achieve
@@ -36,6 +36,13 @@
 
 # We start from alpine linux 3.11
 FROM alpine:edge as latexml_base_edge
+
+RUN echo -e \
+" ############################################################################\n" \
+"If the next command fails, you have not checked out LaTeXML as LaTeXML_edge.\n" \
+"Please enter: git submodule add -b master https://github.com/brucemiller/LaTeXML.git src/LaTeXML_edge\n" \
+"############################################################################\n"
+COPY bin/latexml /dev/null
 
 # Install the dependencies
 RUN apk add --no-cache \
@@ -78,7 +85,7 @@ RUN mkdir -p /opt_edge/latexml
 # Add all of the source files
 ADD bin/            /opt_edge/latexml/bin
 #ADD doc/            /opt/latexml/doc/
-ADD lib/            /opt_edge/latexml/lib 
+ADD lib/            /opt_edge/latexml/lib
 #ADD release/        /opt/latexml/release/
 ADD t/              /opt_edge/latexml/t/
 ADD tools/          /opt_edge/latexml/tools/

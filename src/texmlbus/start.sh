@@ -89,7 +89,7 @@ if [[ "$?" != "0" ]]; then
     chown dmake:dmake /home/dmake/.ssh/known_hosts
 fi
 
-echo "chmod articles..."
+echo "chmod /srv/texmlbus/articles..."
 if [[ ! -d /srv/texmlbus/articles ]]; then
     echo "Unable to find articles volume!"
     echo "Please enable file sharing in docker."
@@ -98,19 +98,23 @@ if [[ ! -d /srv/texmlbus/articles ]]; then
 fi
 chmod ugo+rwx /srv/texmlbus/articles
 if [[ ! -d /srv/texmlbus/articles/upload ]]; then
+    # no directory, but file found?
     if [[ -e /srv/texmlbus/articles/upload ]]; then
         echo "Unable to create directory articles/upload, file exists."
         echo "Please remove or rename the file articles/upload."
         echo "Exiting..."
         exit 1
     fi
-    echo "Creating articles/upload..."
-    mkdir articles/upload
+    echo "Creating /srv/texmlbus/articles/upload..."
+    mkdir /srv/texmlbus/articles/upload
 fi
-echo "chmod articles/upload..."
+echo "chmod /srv/texmlbus/articles/upload..."
 chmod ugo+rwx /srv/texmlbus/articles/upload
 
-mkdir /opt/run || true
+if [[ ! -d /opt/run ]]; then
+    echo "Creating /opt/run..."
+    mkdir /opt/run
+fi
 chmod ugo+rwx /opt/run
 
 cd /srv/texmlbus/build/
