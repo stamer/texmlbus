@@ -25,11 +25,12 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Ma
 Install and start the app as described above.
 
 1. Goto http://localhost:8080
-2. Click on __Create Sample Set__ in the top menu.
-3. Click on __Scan sample set__ to import some sample documents
-4. Goto "Documents alphabetically" to see the documents.
-5. Click on __queue__ to convert a document.
-6. Click on __Destfile__ to see the converted document.
+2. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_home.png" target="_texmlbus">__Create Sample Set__</a> in the top menu.
+2. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_create_samples.png" target="_texmlbus">__Create Samples__</a> button.
+3. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_scan_samples.png" target="_texmlbus">__Scan samples directory__</a> button to import some sample documents
+4. Goto <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_documents_start.png" target="_texmlbus">Documents alphabetically</a> to see the documents.
+5. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_sample_documents.png" target="_texmlbus">__queue__</a> to convert a document.
+6. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_sample_documents.png" target="_texmlbus">__Destfile__</a> to see the converted document.
 
 ## Documentation
 
