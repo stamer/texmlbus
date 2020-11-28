@@ -18,7 +18,7 @@ use Server\Config;
 
 class StyUploadHandler extends UploadHandler
 {
-    private $debug = true;
+    private $debug = false;
 
     /**
      * StyUploadHandler constructor.
