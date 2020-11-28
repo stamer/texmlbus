@@ -198,15 +198,15 @@ class RetvalDao
      * @param $max
      * @return array
      */
-    public function getByIds($ids, $stage, $orderBy, $sortBy, $min, $max)
+    public static function getByIds($ids, $stage, $orderBy, $sortBy, $min, $max)
     {
+        $dao = Dao::getInstance();
+
         if (is_array($ids)) {
             $ids = implode(',', $ids);
         }
 
         $joinTable = 'retval_' . str_replace('clean', '', $stage);
-
-        $dao = Dao::getInstance();
 
         $query = "
             SELECT
