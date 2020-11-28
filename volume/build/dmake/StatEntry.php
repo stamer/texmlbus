@@ -392,8 +392,8 @@ class StatEntry
         $stmt->bindValue(':u_filename', $this->filename);
         $stmt->bindValue(':i_sourcefile', $this->sourcefile);
         $stmt->bindValue(':u_sourcefile', $this->sourcefile);
-        $stmt->bindValue(':i_hostgroup', $this->wq_hostgroup);
-        $stmt->bindValue(':u_hostgroup', $this->wq_hostgroup);
+        $stmt->bindValue(':i_hostgroup', $this->hostgroup);
+        $stmt->bindValue(':u_hostgroup', $this->hostgroup);
         $stmt->bindValue(':i_timeout', $this->timeout);
         $stmt->bindValue(':u_timeout', $this->timeout);
         $stmt->bindValue(':i_errmsg', $this->errmsg);
