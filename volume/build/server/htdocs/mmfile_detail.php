@@ -11,13 +11,14 @@ use Server\UtilMisc;
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
 
+$page = new Page();
 $macro = $page->getRequest()->getQueryParam('macro', '');
 $sty = $page->getRequest()->getQueryParam('styfilename', '');
 $set = $page->getRequest()->getQueryParam('set', '');
 
 $IS_CRAWLER = false;
-$page = new Page('Files that use macro '.htmlspecialchars($macro));
 $page->showHeader('index');
+$page->setTitle('Files that use macro '.htmlspecialchars($macro));
 
 $min = $page->getRequest()->getQueryParam('min', 0);
 // make sure no negatives

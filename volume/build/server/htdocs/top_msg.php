@@ -6,12 +6,16 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
+use Dmake\RetvalDao;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
 
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
+
+$page = new Page();
+$page->showHeader('index');
 
 $min = $page->getRequest()->getQueryParam('min', 0);
 // make sure no negatives
@@ -21,8 +25,7 @@ $stage = $page->getRequest()->getQueryParam('stage', 'xml');
 $set = $page->getRequest()->getQueryParam('set', '');
 $retval = $page->getRequest()->getQueryParam('retval', 'fatal_error');
 
-$page = new Page('Top messages for ' . $retval);
-$page->showHeader('index');
+$page->setTitle('Top messages for ' . htmlspecialchars($retval));
 
 $stages = array_keys($cfg->stages);
 
