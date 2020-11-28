@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.12
 #MAINTAINER Paul Smith <pa.ulsmith.net>
 #See https://hub.docker.com/r/ulsmith/alpine-apache-php7
 
