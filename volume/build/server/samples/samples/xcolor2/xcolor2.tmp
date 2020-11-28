@@ -1,0 +1,6 @@
+\psset{unit=1.75}%
+\begin{pspicture}(0,-1)(2,1)
+\multido{\rHue=0.00+0.01}{100}%
+ {\pscircle[linewidth=0.01,
+            linecolor={[hsb]{\rHue,1,1}}](1,0){\rHue}}
+\end{pspicture}

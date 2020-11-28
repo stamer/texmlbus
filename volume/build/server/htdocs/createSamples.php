@@ -7,7 +7,7 @@
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\UtilManage;
-use Dmake\UtilZipfile;
+use Dmake\UtilFile;
 use Server\Config;
 use Server\Page;
 
@@ -48,7 +48,7 @@ $page->showHeader('samples');
 
 if (isset($_POST['createSamples'])) {
     $documentsDeleted = UtilManage::deleteSet('samples');
-    UtilZipfile::extract(SERVERDIR . '/samples/samples.zip', ARTICLEDIR);
+    UtilFile::copyR(SERVERDIR . '/samples/samples/', ARTICLEDIR . '/samples');
 }
 
 echo '<h3>Create sample set ' . $page->info('sample') . '</h3>';
@@ -62,7 +62,6 @@ echo '<h3>Create sample set ' . $page->info('sample') . '</h3>';
               <?php
               if (!isset($_POST['createSamples'])) {
               ?>
-              <p>The samples have been succesfully created.</p>
               <p>
                   Please press the button to create the samples. If the <em>sample set</em> already exists, it will
                   be deleted and the default samples will be loaded.
