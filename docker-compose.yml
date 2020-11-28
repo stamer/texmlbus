@@ -67,6 +67,7 @@ services:
 
         environment:
             DOCKERIZED: 1
+            APACHE_USER: dmake
             CONTAINER_TIMEZONE: Europe/Berlin
             MYSQL_USER: webuser
             MYSQL_PASSWORD: websecret

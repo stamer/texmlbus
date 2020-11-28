@@ -126,7 +126,7 @@ RUN chown -R dmake:dmake /home/dmake/.ssh \
     && chmod go-rwx /home/dmake/.ssh
 
 RUN mkdir -p /srv/texmlbus/build \
-    && chown -R apache:apache /srv \
+    && chown -R dmake:dmake /srv \
     && chmod -R 755 /srv
 
 VOLUME ["/srv/texmlbus/build"]

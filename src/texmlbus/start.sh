@@ -78,7 +78,6 @@ if [ ! -z "$PHP_XDEBUG_ENABLED" ]
 		echo 'xdebug.remote_enable=1' >> /etc/php7/php.ini;
 		echo 'xdebug.remote_connect_back=1' >> /etc/php7/php.ini;
 		echo 'xdebug.remote_log=/tmp/xdebug.log' >> /etc/php7/php.ini;
-		echo 'xdebug.remote_autostart=true' >> /etc/php7/php.ini;
 fi
 
 # find entry for host
@@ -127,8 +126,9 @@ rm -f /run/apache2/apache2.pid
 rm -f /run/apache2/httpd.pid
 
 echo "Starting apache..."
-#httpd -D FOREGROUND
 httpd
+
+echo "Starting texmlbus..."
 sudo DOCKERIZED=${DOCKERIZED} MYSQL_USER=${MYSQL_USER} MYSQL_PASSWORD=${MYSQL_PASSWORD} MYSQL_HOST=${MYSQL_HOST} MYSQL_DATABASE=${MYSQL_DATABASE} DBG_LEVEL=${DBG_LEVEL} TIMEOUT_SECONDS=${TIMEOUT_SECONDS} MEMLIMIT_PERCENT=${MEMLIMIT_PERCENT} MEMLIMIT_ABSOLUTE=${MEMLIMIT_ABSOLUTE} -u dmake /usr/bin/php /srv/texmlbus/build/dmake/texmlbus.php
 
 
