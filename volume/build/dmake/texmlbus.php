@@ -52,6 +52,7 @@ if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
     declare(ticks=1);
 }
 
+/** @var Dmake $dmake */
 $dmake = new Dmake();
 // install signal handler
 pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
@@ -139,6 +140,9 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 }
 
                 WorkqueueEntry::disableEntry($entry->getId(), $entry->getWqStage());
+
+                // trigger doneTrigger (which is actually as statusTrigger, so running status is set
+                $inotify->trigger($hostGroupName, InotifyHandler::doneTrigger);
 
                 // update every 20 entries
                 if (($count % 20) == 0) {
