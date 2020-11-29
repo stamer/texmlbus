@@ -108,7 +108,7 @@ $numRows = RetvalDao::getCountByRetval($retval, $stage, $joinTable, $set, $detai
 $max_pp = $cfg->db->perPage;
 $max_pp = 10;
 
-$rows = RetvalDao::getDetailsByRetval($retval, $joinTable, $set, $columns, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
+$rows = RetvalDao::getDetailsByRetval($retval, $stage, $joinTable, $set, $columns, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
 
 if (!$numRows) {
     echo "No files found." . PHP_EOL;

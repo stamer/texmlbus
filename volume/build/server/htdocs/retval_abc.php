@@ -188,11 +188,23 @@ foreach ($stat as $id => $entry) {
         $stdoutFileLink = $directory.$stdoutLog;
         $stderrFileLink = $directory.$stderrLog;
 
+        $target = $cfg->stages[$stage]->target;
+
         if ($entry[$stage]['wq_priority']) {
             $queued = 'queued';
         } else {
             $queued = '';
         }
+        if ($entry[$stage]['wq_action'] === $target) {
+            if ($entry[$stage]['wq_priority']) {
+                $queued = 'queued';
+            } else {
+                $queued = 'running';
+            }
+        } else {
+            $queued = '';
+        }
+
 
         if (isset($entry[$stage]['retval'])) {
             $retval = $entry[$stage]['retval'];
@@ -200,7 +212,6 @@ foreach ($stat as $id => $entry) {
             $retval = 'unknown';
         }
         $date_modified = $entry[$stage]['date_modified'];
-        $target = $cfg->stages[$stage]->target;
 
         echo View::renderRetvalColumn(
             $retval,

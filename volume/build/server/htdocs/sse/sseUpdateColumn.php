@@ -117,11 +117,16 @@ while (1) {
         $stdoutFileLink = $directory.$stdoutLog;
         $stderrFileLink = $directory.$stderrLog;
 
-        if ($entry['wq_priority'] && $entry['wq_action'] === $target) {
-            $queued = 'queued';
+        if ($entry['wq_action'] === $target) {
+            if ($entry['wq_priority']) {
+                $queued = 'queued';
+            } else {
+                $queued = 'running';
+            }
         } else {
             $queued = '';
         }
+
 
         $retval = $entry[$stage]['retval'] ?? 'unknown';
 
