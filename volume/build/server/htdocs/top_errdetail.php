@@ -5,6 +5,7 @@
  *
  */
 require_once "../include/IncFiles.php";
+use Dmake\ErrDetEntry;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;

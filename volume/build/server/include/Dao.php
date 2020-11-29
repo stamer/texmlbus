@@ -11,16 +11,16 @@ use \PDO;
 
 class DAO
 {
+    /** @var PDO $instance */
     protected static $instance = null;
 
     protected function __construct() {}
     protected function __clone() {}
 
     /**
-     *
-     * @return PDO
+     * Get a PDO instance, if it not yet exists.
      */
-    public static function getInstance()
+    public static function getInstance() : PDO
     {
         if (self::$instance === null)
         {
@@ -41,15 +41,15 @@ class DAO
         return self::$instance;
     }
 
-    public static function dropInstance()
+    /**
+     * Drop the instance (close connection).
+     */
+    public static function dropInstance() : void
     {
         self::$instance = null;
     }
 
-    /**
-     * @return PDO
-     */
-    public static function renewInstance()
+    public static function renewInstance() : PDO
     {
         self::dropInstance();
         return self::getInstance();
@@ -60,8 +60,6 @@ class DAO
      * exceeded and therefore the query fails with 'mysql server has gone away'.
      * For specific methods, that might be called after long period of time, one can use
      * this method, which will automatically reconnect, if the simple query fails.
-     *
-     * @return PDO
      */
     public static function checkAndGetInstance() : PDO
     {

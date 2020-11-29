@@ -1,0 +1,14 @@
+package LaTeXML::Package::Pool;
+use strict;
+use LaTeXML::Package;
+
+DefMacro('\@pnumwidth', '1em');
+DefMacro('\@tocrmarg', '3em');
+DefMacro('\contentsmargin', '');
+DefMacro('\titlecontents', '');
+DefMacro('\tocsep', '');
+DefMacro('\contentslabel', '');
+DefMacro('\thecontentslabel', '');
+DefMacro('\thecontentspage', '');
+
+1;

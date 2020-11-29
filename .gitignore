@@ -4,7 +4,6 @@ volume/articles/
 !volume/articles/upload/tmp
 volume/build/doc/manual.pdf
 volume/build/run/activestages.json
-volume/build/server/samples/samples/
 volume/build/vendor
 volume/db/mysql/
 *.swp

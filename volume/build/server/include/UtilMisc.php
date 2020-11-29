@@ -6,6 +6,8 @@
  */
 namespace Server;
 
+use Dmake\UtilStage;
+
 class UtilMisc
 {
     /**
@@ -50,8 +52,21 @@ class UtilMisc
         echo '</div>' . PHP_EOL;
     }
 
+    public static function getActiveHostGroups()
+    {
+        // the server does not know the current hosts
+        $activeStages = UtilStage::loadActiveStages();
+        $hosts = [];
+        foreach ($activeStages as $stage) {
+            // automatically remove duplicates
+            $hosts[UtilStage::getHostGroupByStage($stage)] = 1;
+        }
+        $hostGroups = array_keys($hosts);
+        return $hostGroups;
+    }
+
     /**
-     * returns the current version of latexml
+     * get current version of latexml for each HostGroup
      *
      * @return mixed|string
      */
@@ -59,32 +74,22 @@ class UtilMisc
     {
         $cfg = Config::getConfig();
 
+        $hostGroups = self::getActiveHostGroups();
 
-        /* cannot run latexml via webserver
-        $retstr = shell_exec($cfg->app->latexml." --VERSION 2>&1");
+        $retArr = [];
+        foreach ($hostGroups as $hostGroupName) {
+            $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' ' . $cfg->app->latexml . ' --VERSION 2>&1';
+            $retstr = shell_exec($execstr);
 
-        $arr = preg_split("/[\s)]+/", $retstr);
-        if (isset($arr[3])) {
-            return $arr[3];
-        } else {
-            return 'Unknown';
+            $arr = preg_split("/[\s)]+/", $retstr);
+            if (isset($arr[3])) {
+                $retArr[] = $hostGroupName . ': ' . $arr[3];
+            } else {
+                $retArr[] = $hostGroupName . ': Unknown';
+            }
         }
-        */
-        /* retrieve version via MYMETA.yml */
-        $latexmldir = dirname($cfg->server->app->latexml, 2);
-        $metafile = $latexmldir . '/MYMETA.yml';
-        if (!is_readable($metafile)) {
-            return 'Unknown (1)';
-        }
-
-        $content = file_get_contents($metafile);
-        $result = preg_match('/^version:\s*(.+)/m', $content, $matches);
-        if (empty($matches[1])) {
-            return 'Unknown (2)';
-        }
-        return $matches[1];
+        return $retArr;
     }
-
 
     /**
      * expects just filename

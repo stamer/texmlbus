@@ -6,6 +6,7 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
+use Dmake\ErrDetEntry;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -15,10 +16,6 @@ $page->showHeader('stylefiles');
 
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
-
-?>
-
-<?php
 
 $min = $page->getRequest()->getQueryParam('min', 0);
 // make sure no negatives

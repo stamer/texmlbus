@@ -165,7 +165,7 @@ class RetvalDao
             LEFT JOIN
                 workqueue as wq
             ON s.id = wq.statistic_id   
-               AND wq.stage = :stage     
+               AND wq.stage = :stage
             LEFT JOIN
                 $joinTable as j
             ON
@@ -198,15 +198,15 @@ class RetvalDao
      * @param $max
      * @return array
      */
-    public function getByIds($ids, $stage, $orderBy, $sortBy, $min, $max)
+    public static function getByIds($ids, $stage, $orderBy, $sortBy, $min, $max)
     {
+        $dao = Dao::getInstance();
+
         if (is_array($ids)) {
             $ids = implode(',', $ids);
         }
 
         $joinTable = 'retval_' . str_replace('clean', '', $stage);
-
-        $dao = Dao::getInstance();
 
         $query = "
             SELECT
@@ -399,7 +399,7 @@ class RetvalDao
             LEFT JOIN
                 workqueue as wq
             ON s.id = wq.statistic_id
-               AND wq.stage = :stage    
+               AND wq.stage = :stage
                AND wq.priority = 0    
             $join
             WHERE
@@ -463,7 +463,7 @@ class RetvalDao
      * @param $max_pp
      * @return array
      */
-    public static function getDetailsByRetval($retval, $joinTable, $set, $columns, $orderBy, $sortBy, $min, $max_pp)
+    public static function getDetailsByRetval($retval, $stage, $joinTable, $set, $columns, $orderBy, $sortBy, $min, $max_pp)
     {
         $dao = Dao::getInstance();
 
@@ -512,10 +512,16 @@ class RetvalDao
                 j.date_modified,
                 s.id,
                 s.sourcefile,
-                s.filename
+                s.filename,
+                wq.action as wq_action,
+                wq.priority as wq_priority
             FROM
                 statistic as s
             $join
+            LEFT JOIN
+                workqueue as wq
+            ON s.id = wq.statistic_id
+               AND wq.stage = :stage
             WHERE
                 1 " .
                 $joinWhere .
@@ -526,6 +532,8 @@ class RetvalDao
                 $min, $max_pp";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':stage', $stage);
+
         if ($retval != 'unknown') {
             $stmt->bindValue(':retval', $retval);
         }

@@ -169,8 +169,12 @@ class View
     ) {
         $str = '<tr id="tr_' . $id . '_' . $stage . '">';
 
-        if ($row['wq_priority'] && $row['wq_action'] === $target) {
-            $queued = 'queued';
+        if ($row['wq_action'] === $target) {
+            if ($row['wq_priority']) {
+                $queued = 'queued';
+            } else {
+                $queued = 'running';
+            }
         } else {
             $queued = '';
         }

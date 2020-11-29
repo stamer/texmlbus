@@ -115,8 +115,12 @@ while (1) {
         $stdoutFileLink = $directory.$stdoutLog;
         $stderrFileLink = $directory.$stderrLog;
 
-        if ($row['wq_priority'] && $row['wq_action'] === $stage) {
-            $queued = 'queued';
+        if ($row['wq_action'] === $target) {
+            if ($row['wq_priority']) {
+                $queued = 'queued';
+            } else {
+                $queued = 'running';
+            }
         } else {
             $queued = '';
         }

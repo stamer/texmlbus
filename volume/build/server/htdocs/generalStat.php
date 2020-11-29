@@ -58,7 +58,7 @@ $wq_num = GeneralStatistics::wqGetNumEntries();
         <td width="200">Current job started at (UTC)</td><td><?=$dmakeStatus['started']; ?></td>
     </tr>
     <tr>
-        <td width="200">LaTeXML</td><td>Version <b><?=UtilMisc::getLatexmlVersion() ?></b></td>
+        <td width="200">LaTeXML versions</td><td><b><?=implode('<br />', UtilMisc::getLatexmlVersion()) ?></b></td>
     </tr>
     <tr>
         <td>Number of documents in queue</td><td><?=$wq_num; ?></td>

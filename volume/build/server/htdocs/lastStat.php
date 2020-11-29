@@ -174,11 +174,17 @@ foreach ($stat as $key => $entry) {
 	} else {
 		$filename = '';
 	}
-    if ($row['wq_priority']) {
-        $queued = 'queued';
+
+    if ($row['wq_action'] === $target) {
+        if ($row['wq_priority']) {
+            $queued = 'queued';
+        } else {
+            $queued = 'running';
+        }
     } else {
         $queued = '';
     }
+
 
 	echo '<td align="right" rowspan="2">'.$no."</td>\n";
 	echo '<td rowspan="2">'.$date_modified."</td>\n";

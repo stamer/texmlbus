@@ -1,0 +1,184 @@
+\documentclass[a4paper]{article}
+\usepackage[a4paper]{geometry}
+\usepackage{miscdoc}
+%\usepackage[scaled=0.85]{luximono}
+\usepackage{underscore}
+\begin{document}
+\title{The \Package{underscore} package}
+\author{Donald Arseneau\thanks{Documentation file assembled by Robin
+    Fairbairns}}
+\date{13 September 2006, version 1.0}
+\maketitle
+
+\section*{Features}
+
+The package alters the command \cs{_} (which normally prints
+an underscore character or facsimile) so that the hyphenation of
+constituent words is not affected, and hyphenation is permitted after
+the underscore.  For example,
+\begin{quote}
+  \texttt{compound\cs{_}fracture}
+\end{quote}
+hyphenates as
+\begin{quote}
+  \texttt{com- pound\cs{_}- frac- ture}
+\end{quote}
+If you prefer the underscore to break without a hyphen (but still with
+the same rules as for explicit hyphen-breaks) then use the
+\option[nohyphen] package option.
+
+A simple ``\texttt{_}'' acts just like ``\cs{_}'' in text
+mode, but makes a subscript in maths mode, so
+\begin{quote}
+  \ttfamily activation_energy \$E_a\$
+\end{quote}
+is printed as
+\begin{quote}
+  activation_energy $E_a$
+\end{quote}
+
+Both forms use an underscore character if the font encoding contains
+one (e.g., with \cmdinvoke{usepackage}[T1]{fontenc} or typewriter
+fonts in any encoding), but they use a rule if there is no proper
+character (just as unmodified \LaTeX{} does).
+
+\section*{Deficiencies}
+
+The skips and penalties ruin any kerning with the underscore character
+(when a character is used).  However, there doesn't seem to be much, if
+any, such kerning in the EC fonts, and there is never any kerning with
+a rule.
+
+You must avoid ``\texttt{_}'' in file names and in cite or ref tags, or you must
+use the \Package{babel} package, with its active-character controls,
+or you must give the \option[strings] option, which attempts to
+redefine several commands (and may not work perfectly).  Even without
+the \option[strings] option or \Package{babel}, you can use occasional
+underscores like: ``\cmdinvoke{include}{file\string\string_name}''.
+
+\subsection*{Option \protect\option[strings]}
+
+The default operation is quite simple and needs no customization; but
+you must avoid using ``\texttt{_}'' in any place where LaTeX uses an argument
+as a string of characters for some control function or as a name.
+These include the tags for \cs{cite} and \cs{ref}, file names for \cs{input}, 
+\cs{include}, and \cs{includegraphics}, environment names, counter names,
+and placement parameters (like \option[t]).  The problem with these contexts
+is that they are `moving arguments' but LaTeX does not `switch on' the
+``\cs{protect} mechanism'' for them.
+
+If you need to use the underscore character in these places, the
+package option \option[strings] is provided to redefine commands that
+take such a string argument so that protection is applied (with
+\cs{protect} made to be \cs{string}).  The list of commands this
+provision affects is given in \cs{UnderscoreCommands}, with \cs{do}
+before each one; plus several others covering \cs{input},
+\cs{includegraphics}, \cs{cite}, \cs{ref}, and their variants.  Not
+included are many commands regarding font names, anything with counter
+names, environment names, page styles, and versions of \cs{ref} and
+\cs{cite} defined by external packages (e.g., \cs{vref} and
+\cs{citeyear}).
+
+You can add to the list of supported commands by defining \cs{UnderscoreCommands}
+before loading this package; e.g.
+\begin{quote}
+\begin{verbatim}
+\usepackage{chicago}
+\newcommand{\UnderscoreCommands}{%   (\cite already done)
+  \do\citeNP \do\citeA \do\citeANP \do\citeN \do\shortcite
+  \do\shortciteNP \do\shortciteA \do\shortciteANP \do\shortciteN
+  \do\citeyear \do\citeyearNP
+}
+\usepackage[strings]{underscore}
+\end{verbatim}
+\end{quote}
+
+Not all commands can be supported this way!  Only commands that take a
+string argument \emph{first} can be protected.  One optional argument before
+the string argument is also permitted, as exemplified by \cs{cite}: both
+\cmdinvoke{cite}{tags} and \cmdinvoke{cite}[text]{tags} are allowed.
+A command like \cs{@addtoreset} which takes two counter names as
+arguments could not be protected by listing it in \cs{UnderscoreCommands}.
+
+\textit{When you use the \option[strings] option, you must load this
+  package \textbf{last}} (or nearly last).
+There are two reasons for this requirement: 
+\begin{enumerate}
+\item The redefinitions done for protection must come after other
+  packages define their customized versions of those commands.
+\item The \option[strings] option requires the ``\texttt{_}'' character to be
+  activated immediately in order for the cite and ref tags to be read
+  properly from the \texttt{.aux} file as plain strings, and this
+  catcode setting might disrupt other packages.
+\end{enumerate}
+
+The \Package{babel} package implements a protection mechanism for many
+commands, and will be a complete fix for most documents without the
+\option[strings] option.  Many add-on packages are compatible with
+\Package{babel}, so they will get the strings protection also.
+However, there are several commands that are not covered by
+\Package{babel}, but can easily be supported by \option[strings] and 
+\cs{UnderscoreCommands} mechanism.  Beware the potential conflict
+using both \option[strings] and \Package{babel} (though none have been
+reported, yet); load babel last.
+
+\subsection*{Implementation notes}
+
+The first setting of ``\texttt{_}'' to be an active character is
+performed in a local group so as to not interfere with other packages.
+The catcode setting is repeated with ``\cs{AtBeginDocument}'' so the
+definition is in effect for the text.  However, the catcode setting is
+repeated immediately when the \option[strings] option is detected.
+
+The definition of the active ``\texttt{_}'' is essentially:
+\begin{quote}
+  \cs{ifmmode} \cs{sb} \cs{else} \cs{BreakableUnderscore} \cs{fi}
+\end{quote}
+where \cs{sb} retains the normal subscript meaning of \texttt{_} and where
+\cs{BreakableUnderscore} is essentially \cs{_}.  The rest of the definition
+handles the \cs{protect}ion without causing \cs{relax} to be inserted before
+the character.
+
+\cs{BreakableUnderscore} uses \cs{nobreak}\cs{hskip}\cs{z@skip} to separate the
+underscore from surrounding words, thus allowing \TeX{} to hyphenate them,
+but preventing free breaks around the underscore.  Next, it checks the
+current font family, and uses the underscore character from tt fonts or
+otherwise \cs{textunderscore} (which is a character or rule depending on
+the font encoding).  After the underscore, it inserts a discretionary
+hyphenation point as \cs{usc@dischyph}, which is usually just \cs{-}
+except that it still works in the tabbing environment; if the
+\option[nohyphen] option is in effect, the empty discretionary
+\cmdinvoke{discretionary}{}{}{} is used instead.  After
+that, another piece of non-breaking interword glue is inserted. 
+
+Ordinarily, the comparison \cs{ifx}\cs{f@family}\cs{ttdefault} will fail 
+because \cs{ttdefault} is `long' whereas \cs{f@family} is
+not\footnote{the package author says ``boooo hisss'' about this\dots},
+but \cs{ttdefault} is redefined to be non-long \cs{AtBeginDocument}.
+
+The \cs{_} command is then defined to use \cs{BreakableUnderscore}.
+
+If the \option[strings] option has not been given, that is all!
+
+Under the \option[strings] option, the list of special commands is processed to:
+\begin{itemize}
+\item retain the original command as \cs{US_}\meta{command} (e.g., \cs{US_ref})
+\item redefine the command as \cs{US@prot}\cs{US_command} for ordinary
+  commands (\cs{US@prot}\cs{US_ref}) or as
+  \cs{US@protopt}\cs{US_command} when an optional argument is possible
+  (e.g., \cs{US@protopt}\cs{US_bibitem}). 
+\item self-protecting commands (e.g., \cs{cite}) retain their
+  self-protection.
+\end{itemize}
+Diagnosing the state of the pre-existing command is done by painful
+contortions involving \cs{meaning}.
+
+\cs{US@prot} and \cs{US@protopt} read the argument, process it with
+\cs{protect} enabled, then invoke the saved \cs{US_command}.
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

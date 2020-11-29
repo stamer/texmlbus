@@ -18,7 +18,7 @@ use Server\Config;
 
 class CustomUploadHandler extends UploadHandler
 {
-    private $debug = true;
+    private $debug = false;
 
     /**
      * CustomUploadHandler constructor.

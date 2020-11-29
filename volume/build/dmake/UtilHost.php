@@ -33,10 +33,10 @@ class UtilHost
                 $output = array();
                 $return_var = 0;
                 if (isset($val['user'])) {
-                    $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo';
+                    $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
                     echo "Testing availability of " . $hostkey . '[' . $val['user'] . '@' . $val['hostname'] . "]..." . PHP_EOL;
                 } else {
-                    $execstr = $ssh . ' ' . $val['hostname'] . ' echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo';
+                    $execstr = $ssh . ' ' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
                     echo "Testing availability of " . $hostkey . '[' . $val['hostname'] . "]..." . PHP_EOL;
                 }
                 exec($execstr, $output, $return_var);
@@ -129,8 +129,9 @@ class UtilHost
     public static function getDockerWorkers($hostGroups)
     {
         $hostnames = [];
+        echo "Determining active hostGroups..." . PHP_EOL;
         foreach ($hostGroups as $hostGroup) {
-            echo "nslookup $hostGroup. ..." . PHP_EOL;
+            echo "    nslookup $hostGroup. ..." . PHP_EOL;
             // completely safe to ignore
             // nslookup: can't resolve '(null)': Name does not resolve
             // this is the lookup to the DNS server
@@ -143,7 +144,8 @@ class UtilHost
             exec("/usr/bin/nslookup $hostGroup. 2>&1", $output, $return_var);
 
             if ($return_var != 0) {
-                echo __METHOD__ . ': nslookup failed.' . PHP_EOL;
+                echo '    ' . __METHOD__ . ': nslookup failed.' . PHP_EOL;
+                echo '    OK, if that hostGroup is not enabled.' . PHP_EOL;
                 print_r($output);
             }
 

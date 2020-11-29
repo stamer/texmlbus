@@ -1,4 +1,4 @@
-FROM alpine:3.11
+FROM alpine:3.12
 #MAINTAINER Paul Smith <pa.ulsmith.net>
 #See https://hub.docker.com/r/ulsmith/alpine-apache-php7
 
@@ -126,7 +126,7 @@ RUN chown -R dmake:dmake /home/dmake/.ssh \
     && chmod go-rwx /home/dmake/.ssh
 
 RUN mkdir -p /srv/texmlbus/build \
-    && chown -R apache:apache /srv \
+    && chown -R dmake:dmake /srv \
     && chmod -R 755 /srv
 
 VOLUME ["/srv/texmlbus/build"]

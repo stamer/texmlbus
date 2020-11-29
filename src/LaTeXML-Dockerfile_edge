@@ -34,7 +34,7 @@
 # > docker build -t latexml --build-arg WITH_TESTS=no -f release/docker/Dockerfile .
 
 
-# We start from alpine linux 3.11
+# We start from alpine linux edge
 FROM alpine:edge as latexml_base_edge
 
 RUN echo -e \

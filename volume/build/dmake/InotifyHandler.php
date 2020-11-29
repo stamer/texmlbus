@@ -142,7 +142,10 @@ class InotifyHandler
             error_log("Cannot wait on unknown trigger  $triggerName");
             return;
         }
+
         if ($this->active) {
+            // we are going to wait unknown amount of time, close connection
+            Dao::dropInstance();
             // php does not catch signals while inside a blocking read.
             // instead use not blocking reads and use stream_select with timeout
             // wait on all fds of triggerName
@@ -205,7 +208,11 @@ class InotifyHandler
             error_log("Cannot wait on unknown trigger  $triggerName");
             return;
         }
+
         if ($this->active) {
+            // we are going to wait unknown amount of time, close connection
+            Dao::dropInstance();
+
             // php does not catch signals while inside a blocking read.
             // instead use not blocking reads and use stream_select with timeout
             // wait on all fds of triggerName
