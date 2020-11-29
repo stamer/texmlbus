@@ -33,10 +33,10 @@ class UtilHost
                 $output = array();
                 $return_var = 0;
                 if (isset($val['user'])) {
-                    $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo';
+                    $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
                     echo "Testing availability of " . $hostkey . '[' . $val['user'] . '@' . $val['hostname'] . "]..." . PHP_EOL;
                 } else {
-                    $execstr = $ssh . ' ' . $val['hostname'] . ' echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo';
+                    $execstr = $ssh . ' ' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
                     echo "Testing availability of " . $hostkey . '[' . $val['hostname'] . "]..." . PHP_EOL;
                 }
                 exec($execstr, $output, $return_var);
