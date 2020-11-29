@@ -1,13 +1,15 @@
 <?php
 /**
  * Released under MIT License
- * (c) 2007 - 2017 Heinrich Stamerjohanns
+ * (c) 2007 - 2020 Heinrich Stamerjohanns
  *
  */
 require_once "../include/IncFiles.php";
+use Dmake\MacroDao;
 use Dmake\Dao;
 use Server\Config;
 use Server\Page;
+use Server\UtilMisc;
 
 $IS_CRAWLER = false;
 

@@ -5,6 +5,11 @@
  *
  */
 require_once "../include/IncFiles.php";
+use Dmake\Dao;
+use Dmake\RetvalDao;
+use Server\Config;
+use Server\Page;
+use Server\UtilMisc;
 
 $IS_CRAWLER = false;
 $page = new Page('Macro usage');
@@ -30,7 +35,7 @@ if (in_array($stage, $stages)) {
     exit;
 }
 
-$macro = $request->getQueryParam('macro', '');
+$macro = $page->getRequest()->getQueryParam('macro', '');
 
 if (empty($macro)) {
 	echo "No macro given!";
