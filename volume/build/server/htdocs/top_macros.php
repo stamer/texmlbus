@@ -6,6 +6,7 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
+use Dmake\RetvalDao;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;

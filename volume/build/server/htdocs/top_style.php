@@ -5,6 +5,7 @@
  *
  */
 require_once "../include/IncFiles.php";
+use Dmake\MacroDao;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -13,10 +14,6 @@ $page = new Page('Top style files that need some work');
 $page->showHeader('stylefiles');
 
 $cfg = Config::getConfig();
-
-?>
-<h3><a href="/">Back to Homepage</a></h3>
-<?php
 
 $min = $page->getRequest()->getQueryParam('min', 0);
 // make sure no negatives
