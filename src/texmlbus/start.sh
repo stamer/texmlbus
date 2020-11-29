@@ -96,19 +96,47 @@ if [[ ! -d /srv/texmlbus/articles ]]; then
     exit 1
 fi
 chmod ugo+rwx /srv/texmlbus/articles
-if [[ ! -d /srv/texmlbus/articles/upload ]]; then
+
+CURRENTDIR=/srv/texmlbus/articles/upload
+if [[ ! -d ${CURRENTDIR} ]]; then
     # no directory, but file found?
-    if [[ -e /srv/texmlbus/articles/upload ]]; then
-        echo "Unable to create directory articles/upload, file exists."
-        echo "Please remove or rename the file articles/upload."
+    if [[ -e ${CURRENTDIR} ]]; then
+        echo "Unable to create directory ${CURRENTDIR}, file exists."
+        echo "Please remove or rename the file ${CURRENTDIR}."
         echo "Exiting..."
         exit 1
     fi
-    echo "Creating /srv/texmlbus/articles/upload..."
-    mkdir /srv/texmlbus/articles/upload
+    echo "Creating ${CURRENTDIR}..."
+    mkdir ${CURRENTDIR}
+    if [[ "$?" != "0" ]]; then
+        echo "Failed to create ${CURRENTDIR}."
+        exit 1
+    fi
 fi
-echo "chmod /srv/texmlbus/articles/upload..."
-chmod ugo+rwx /srv/texmlbus/articles/upload
+echo "chmod ${CURRENTDIR}..."
+chmod ugo+rwx ${CURRENTDIR}
+
+CURRENTDIR=/srv/texmlbus/articles/upload/tmp
+if [[ ! -d ${CURRENTDIR} ]]; then
+    # no directory, but file found?
+    if [[ -e ${CURRENTDIR} ]]; then
+        echo "Unable to create directory ${CURRENTDIR}, file exists."
+        echo "Please remove or rename the file ${CURRENTDIR}."
+        echo "Exiting..."
+        exit 1
+    fi
+    echo "Creating ${CURRENTDIR}..."
+    mkdir ${CURRENTDIR}
+    if [[ "$?" != "0" ]]; then
+        echo "Failed to create ${CURRENTDIR}."
+        exit 1
+    fi
+fi
+echo "chmod ${CURRENTDIR}..."
+chmod ugo+rwx ${CURRENTDIR}
+
+chown -R dmake:dmake /srv/texmlbus/articles/upload
+chmod -R ugo+rwx /srv/texmlbus/articles/upload
 
 if [[ ! -d /opt/run ]]; then
     echo "Creating /opt/run..."
@@ -130,5 +158,3 @@ httpd
 
 echo "Starting texmlbus..."
 sudo DOCKERIZED=${DOCKERIZED} MYSQL_USER=${MYSQL_USER} MYSQL_PASSWORD=${MYSQL_PASSWORD} MYSQL_HOST=${MYSQL_HOST} MYSQL_DATABASE=${MYSQL_DATABASE} DBG_LEVEL=${DBG_LEVEL} TIMEOUT_SECONDS=${TIMEOUT_SECONDS} MEMLIMIT_PERCENT=${MEMLIMIT_PERCENT} MEMLIMIT_ABSOLUTE=${MEMLIMIT_ABSOLUTE} -u dmake /usr/bin/php /srv/texmlbus/build/dmake/texmlbus.php
-
-
