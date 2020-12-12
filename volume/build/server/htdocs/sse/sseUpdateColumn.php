@@ -23,7 +23,7 @@ header("Content-Type: text/event-stream");
 
 $cfg = Config::getConfig();
 
-$debug = true;
+$debug = false;
 
 $inotify = new InotifyHandler();
 if ($inotify->isActive()) {

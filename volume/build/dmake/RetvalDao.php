@@ -551,15 +551,12 @@ class RetvalDao
         return $rows;
     }
 
-    /**
-     * @param array $ids
-     * @param $retval
-     * @param $stage
-     * @param $joinTable
-     * @param $columns
-     * @return array
-     */
-    public static function getDetailsByIdsAndRetval($ids, $retval, $stage, $joinTable, $columns)
+    public static function getDetailsByIds(
+        array $ids,
+        string $stage,
+        string $joinTable,
+        array $columns
+    ): array
     {
         if (!is_array($ids)) {
             $ids = array($ids);
@@ -577,27 +574,15 @@ class RetvalDao
             }
         }
 
-        if ($retval != 'unknown') {
-            $join = "
-            JOIN
-                $joinTable as j
-            ON
-                s.id = j.id
-            ";
-            $joinWhere = '
-                AND j.retval = :retval
-            ';
-        } else {
-            $join = "
-            LEFT JOIN
-                $joinTable as j
-            ON
-                s.id = j.id
-            ";
-            $joinWhere = '
-                AND j.id is NULL
-            ';
-        }
+        // Do not set any condition on retval, retval might change
+        // and then the entry should be removed from stage.
+        $join = "
+        JOIN
+            $joinTable as j
+        ON
+            s.id = j.id
+        ";
+        $joinWhere = '';
 
         $ext_query = ' AND s.id in (' . implode(',', $ids) . ') ';
 
@@ -605,6 +590,7 @@ class RetvalDao
             SELECT
                 $sqlstr
                 j.date_modified,
+                j.retval,
                 s.id,
                 s.sourcefile,
                 s.filename,
@@ -624,9 +610,6 @@ class RetvalDao
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
-        if ($retval != 'unknown') {
-            $stmt->bindValue(':retval', $retval);
-        }
 
         $stmt->execute();
 
