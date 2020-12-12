@@ -131,7 +131,10 @@ foreach ($stages as $stage) {
 	echo '<small>'.$stage.'</small><br />';
 	$ids = array_keys($stat);
     echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . implode(',', $ids) . '],\'' . $stage . '\', \'' . $target.'\'); return false">queue</a>'.PHP_EOL;
-	echo '</th>';
+    if ($set != '') {
+        echo '&nbsp;&nbsp;<a style="font-size: 60%" href="/#" onclick="javascript:rerunBySet(\'' . $set . '\', \'' . $stage . '\', \'' . $target . '\'); return false">queue set</a>' . PHP_EOL;
+    }
+    echo '</th>';
 }
 ?>
 
@@ -172,7 +175,7 @@ foreach ($stat as $id => $entry) {
     echo '<i class="fas fa-trash"></i>';
     echo '<span></span></button>';
     echo '</td>' . PHP_EOL;
-	echo View::renderDateColumn($id, $date_modified);
+	echo View::renderDateCell($id, $date_modified);
 	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a></td>' . PHP_EOL;
 
     foreach ($stages as $stage) {
@@ -211,9 +214,9 @@ foreach ($stat as $id => $entry) {
         } else {
             $retval = 'unknown';
         }
-        $date_modified = $entry[$stage]['date_modified'];
+        $date_modified = $entry[$stage]['date_modified'] ?? '';
 
-        echo View::renderRetvalColumn(
+        echo View::renderRetvalCell(
             $retval,
             $stderrFileLink,
             $destFileLink,
@@ -235,7 +238,7 @@ foreach ($stat as $id => $entry) {
         } else {
             $prevRetval = 'unknown';
         }
-        echo View::renderPrevRetvalColumn($prevRetval, $id, $stage);
+        echo View::renderPrevRetvalCell($prevRetval, $id, $stage);
     }
     echo '</tr>'.PHP_EOL;
 }

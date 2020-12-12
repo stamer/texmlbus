@@ -8,16 +8,20 @@ namespace Server;
 
 class View
 {
-    public static function renderRetvalColumn(
-        $retval,
-        $stderrFileLink,
-        $destFileLink,
-        $id,
-        $stage,
-        $target,
-        $date_modified,
-        $queued
-    ) {
+    /**
+     * Render a single result cell.
+     */
+    public static function renderRetvalCell(
+        string $retval,
+        string $stderrFileLink,
+        string $destFileLink,
+        string $id,
+        string $stage,
+        string $target,
+        string $date_modified,
+        string $queued
+    ): string
+    {
         $str = '';
         $cfg = Config::getConfig();
         // the current retval for given stage
@@ -41,13 +45,16 @@ class View
         return $str;
     }
 
-    public static function renderPrevRetvalColumn(
-        $prevRetval,
-        $id,
-        $stage
-    ) {
+    /**
+     * Render a previous result cell.
+     */
+    public static function renderPrevRetvalCell(
+        ?string $prevRetval,
+        string $id,
+        string $stage
+    ): string
+    {
         $cfg = Config::getConfig();
-        $str = '';
         if ($prevRetval != 'unknown') {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$prevRetval]];
             $str = '<td id="td_' . $id . '_prev' . $stage . '" class="'.$color.' tdbottomline">'.$prevRetval.'</td>'.PHP_EOL;
@@ -58,12 +65,20 @@ class View
         return $str;
     }
 
-    public static function renderDateColumn($id, $dateModified)
+    /**
+     * Render a date cell.
+     */
+    public static function renderDateCell(string $id, string $dateModified): string
     {
-        return '<td id="td_' . $id . '_date" rowspan="2">'.$dateModified.'</td>' . PHP_EOL;
+        return '<td class="right" id="td_' . $id . '_date" rowspan="2">' . $dateModified
+                . '<br /><br /><span class="grey">' . $id . '</span></td>' . PHP_EOL;
     }
 
-    public static function getColumnsByRetval($stage, $retval)
+    /**
+     * Create columns depending on $stage and $retval.
+     * @return array
+     */
+    public static function getColumnsByRetval(string $stage, string $retval): array
     {
         $cfg = Config::getConfig();
         // use configured columns
@@ -134,7 +149,15 @@ class View
         return $columns;
     }
 
-    public static function renderRetvalResultColumns($stage, $retval, $row, $columns)
+    /**
+     * Render retval result columns.
+     */
+    public static function renderRetvalResultColumns(
+        string $stage,
+        string $retval,
+        string $row,
+        array $columns
+    ): string
     {
         $str = '';
         foreach ($columns as $field) {
@@ -155,18 +178,22 @@ class View
         return $str;
     }
 
+    /**
+     * Render a whole result row.
+     */
     public static function renderDetailRow(
-        $id,
-        $no,
-        $directory,
-        $stage,
-        $target,
-        $retval,
-        $stderrFileLink,
-        $destFileLink,
-        $row,
-        $columns
-    ) {
+        string $id,
+        string $no,
+        string $directory,
+        string $stage,
+        string $target,
+        string $retval,
+        string $stderrFileLink,
+        string $destFileLink,
+        string $row,
+        array $columns
+    ): string
+    {
         $str = '<tr id="tr_' . $id . '_' . $stage . '">';
 
         if ($row['wq_action'] === $target) {
@@ -180,10 +207,10 @@ class View
         }
 
         $str .= '<td id="td_count_' . $id . '" align="right">'.$no."</td>" . PHP_EOL;
-        $str .= '<td>'.$row['date_modified']."</td>" . PHP_EOL;
+        $str .= '<td class="right">'.$row['date_modified'].'<br /><br /><span class="grey">' . $id . '</span></td>' . PHP_EOL;
         $str .= '<td><a href="'.$directory.'">'.$row['filename'].'</a></td>' . PHP_EOL;
 
-        $str .= self::renderRetvalColumn(
+        $str .= self::renderRetvalCell(
             $retval,
             $stderrFileLink,
             $destFileLink,
