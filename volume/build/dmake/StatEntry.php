@@ -18,16 +18,6 @@ class StatEntry
     const WQ_ACTION_FORCE = 'force';
     const WQ_ENTRY_DISABLED = 0;
 
-    const PDF_RETVAL = 'pdf_retval';
-    const XML_RETVAL = 'xml_retval';
-    const XHTML_RETVAL = 'xhtml_retval';
-    const JATS_RETVAL = 'jats_RETVAL';
-
-    const PDF_ERRMSG = 'pdf_errmsg';
-    const XML_ERRMSG = 'xml_errmsg';
-    const XHTML_ERRMSG = 'xhtml_errmsg';
-    const JATS_ERRMSG = 'jats_errmsg';
-
     public $id = 0;
     public $date_created = '';
     public $date_modified = '';
@@ -285,7 +275,7 @@ class StatEntry
     }
 
     /**
-     * returns raw filename (possibly with or without .tex)
+     * Returns raw filename (possibly with or without .tex).
      *
      * @return string
      */
@@ -295,7 +285,7 @@ class StatEntry
     }
 
     /**
-     * sets raw filename (possibly with or without .tex)
+     * Sets raw filename (possibly with or without .tex).
      *
      * @return string
      */
@@ -305,7 +295,7 @@ class StatEntry
     }
 
     /**
-     * returns the TeX source (it is guaranteed to have a .tex suffix).
+     * Returns the TeX source (it is guaranteed to have a .tex suffix).
      *
      * @return string
      */
@@ -319,7 +309,7 @@ class StatEntry
     }
 
     /**
-     * returns the the prefix of the sourcefile (without .tex)
+     * Returns the the prefix of the sourcefile (without .tex).
      *
      * @return string
      */
@@ -406,11 +396,7 @@ class StatEntry
         }
     }
 
-    /**
-     * @param $row
-     * @return StatEntry
-     */
-    public static function fillEntry($row)
+    public static function fillEntry(array $row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -462,8 +448,10 @@ class StatEntry
         return $se;
     }
 
-
-    public static function exists($filename)
+    /**
+     * Determine if entry exists by filename.
+     */
+    public static function exists(string $filename): bool
     {
         $dao = Dao::getInstance();
 
@@ -486,7 +474,7 @@ class StatEntry
         return ($num > 0);
     }
 
-    public static function existsById($id)
+    public static function existsById(int $id): bool
     {
         $dao = Dao::getInstance();
 
@@ -509,12 +497,9 @@ class StatEntry
     }
 
     /**
-     * We only want one file for given subdirectory of depth $mindepth
-     * @param string $filename
-     * @param int $mindepth
-     * @return bool
+     * We only want one file for given subdirectory of depth $mindepth.
      */
-    public static function pathMatches($filename, $minDepth)
+    public static function pathMatches(string $filename, int $minDepth): bool
     {
         $pattern = '#^' . str_repeat('.*/', $minDepth - 1) . '.*[^/]#';
         $matches = [];
@@ -546,12 +531,7 @@ class StatEntry
         return ($num > 0);
     }
 
-    /**
-     * @param $action
-     * @param $id
-     * @return bool
-     */
-    public static function alreadyDone($action, $id)
+    public static function alreadyDone(string $action, int $id): bool
     {
         $dao = Dao::getInstance();
         $cfg = Config::getConfig();
@@ -589,12 +569,7 @@ class StatEntry
         }
     }
 
-    /**
-     * @param $filename
-     * @param $action
-     * @return bool|null
-     */
-    public static function getRetval($filename, $stage, $action)
+    public static function getRetval(string $filename, string $stage, string $action): ?bool
     {
         $dao = Dao::getInstance();
         $cfg = Config::getConfig();
@@ -633,12 +608,7 @@ class StatEntry
         }
     }
 
-    /**
-     * @param $action
-     * @param $restrict
-     * @return array
-     */
-    public static function getFilenamesByRestriction($action, $restrict)
+    public static function getFilenamesByRestriction(string $action, array $restrict): array
     {
         $dao = Dao::getInstance();
         $cfg = Config::getConfig();
@@ -733,11 +703,7 @@ class StatEntry
         return $filenames;
     }
 
-    /**
-     * @param array $restrict
-     * @return array
-     */
-    public static function getFilenamesByRestrictionXml(array $restrict)
+    public static function getFilenamesByRestrictionXml(array $restrict): array
     {
         $dao = Dao::getInstance();
         $cfg = Config::getConfig();
@@ -856,11 +822,7 @@ class StatEntry
         return $result;
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
-    public static function deleteById($id)
+    public static function deleteById(int $id): bool
     {
         $dao = Dao::getInstance();
 
@@ -880,11 +842,7 @@ class StatEntry
         return $result;
     }
 
-    /**
-     * @param $filename
-     * @param $action
-     */
-    public static function markRerun($filename, $stage, $action)
+    public static function markRerun(string $filename, string $stage, string $action): void
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -911,15 +869,14 @@ class StatEntry
         $wqEntry->updateButHostgroup();
     }
 
-
     /**
      * Get next entries
      * @return ?StatEntry[]
      */
-    public static function wqGetNextEntries($hostGroupName = '', $limit = 10, $toStdout = true)
+    public static function wqGetNextEntries(string $hostGroupName = '', int $limit = 10, bool $toStdout = true)
     {
-        // here we might get "server has gone away message"
-        // therefore explicitly check, whether connection is still there
+        // Here we might get "server has gone away message".
+        // Therefore explicitly check, whether connection is still there.
         $dao = Dao::checkAndGetInstance();
 
         if ($toStdout) {
@@ -981,13 +938,15 @@ class StatEntry
 
 
     /**
-     * @param $directory
-     * @param $action
-     * @param $priority
      * @return bool|void
      */
-    public static function addToWorkqueue($directory, $hostGroupName, $stage, $action, $priority)
-    {
+    public static function addToWorkqueue(
+        string $directory,
+        string $hostGroupName,
+        string $stage,
+        string $action,
+        int $priority
+    ) {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
 
@@ -1018,13 +977,12 @@ class StatEntry
 
     }
 
-    /**
-     * @param $id
-     * @param $action
-     * @param $priority
-     * @return bool
-     */
-    public static function addToWorkqueueById($id, $hostGroupName, $stage, $action, $priority)
+    public static function addToWorkqueueById(
+        int $id,
+        string $hostGroupName,
+        string $stage,
+        string $action,
+        int $priority): bool
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -1048,7 +1006,6 @@ class StatEntry
         }
     }
 
-
     /**
      * @param $directory
      * @param $sourcefile
@@ -1062,8 +1019,8 @@ class StatEntry
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
 
-        // we want only one file for given subdirectory of $minDepth
-        // therefore check for matching subpath, not the exact file
+        // We want only one file for given subdirectory of $minDepth.
+        // Therefore check for matching subpath, not the exact file.
         if (!StatEntry::pathMatches($directory, $minDepth)) {
             $entry = new StatEntry;
             $entry->filename = $directory;
@@ -1072,7 +1029,7 @@ class StatEntry
             $entry->save();
 
             $wqe = new WorkqueueEntry();
-            $wqe->setStatisticId($entry->getId()); // id has just been created
+            $wqe->setStatisticId($entry->getId()); // Id has just been created.
             $wqe->setStage($stage);
             $wqe->setDateModified($cfg->now->datestamp);
             $wqe->setPriority(0);
@@ -1087,12 +1044,7 @@ class StatEntry
         }
     }
 
-    /**
-     *
-     * @param string $directory
-     * @return StatEntry
-     */
-    public static function getByDir($directory)
+    public static function getByDir(string $directory): ?StatEntry
     {
         $dao = Dao::getInstance();
 
@@ -1117,11 +1069,60 @@ class StatEntry
     }
 
     /**
-     *
-     * @param string $directory
-     * @return StatEntry
+     * @return StatEntry[]
      */
-    public static function getById($id)
+    public static function getBySet(string $set): ?array
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                statistic
+            WHERE
+                `set` = :set";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':set', $set);
+
+        $stmt->execute();
+
+        $objs = [];
+        while ($row = $stmt->fetch()) {
+            $objs[] = self::fillEntry($row);
+        }
+        return $objs;
+    }
+
+    public static function getByIds(array $ids): array
+    {
+        if (!count($ids)) {
+            return [];
+        }
+
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                statistic
+            WHERE
+                id in (:ids)";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':ids', implode(',', $ids));
+        $stmt->execute();
+
+        $objs = [];
+        while ($row = $stmt->fetch()) {
+            $objs[] = self::fillEntry($row);
+        }
+        return $objs;
+    }
+
+    public static function getById(int $id): ?StatEntry
     {
         $dao = Dao::getInstance();
 
@@ -1146,10 +1147,9 @@ class StatEntry
     }
 
     /**
-     * @param $directory
      * @return mixed
      */
-    public static function getIdByDir($directory)
+    public static function getIdByDir(string $directory)
     {
         $dao = Dao::getInstance();
 
@@ -1170,11 +1170,7 @@ class StatEntry
         return $row['id'];
     }
 
-    /**
-     * @param $directory
-     * @return mixed
-     */
-    public static function getIdsBySet($set)
+    public static function getIdsBySet(string $set): array
     {
         $dao = Dao::getInstance();
 
@@ -1199,11 +1195,7 @@ class StatEntry
         return $ids;
     }
 
-    /**
-     * @param string $pattern
-     * @return array
-     */
-    public static function getSets($pattern = '')
+    public static function getSets(string $pattern = ''): array
     {
         $dao = Dao::getInstance();
 
@@ -1233,18 +1225,14 @@ class StatEntry
         }
         $stmt->execute();
 
-        $rows = array();
+        $rows = [];
         while ($row = $stmt->fetch()) {
             $rows[] = $row;
         }
         return $rows;
     }
 
-    /**
-     * @param string $pattern
-     * @return array
-     */
-    public static function getSetsCount()
+    public static function getSetsCount(): array
     {
         $dao = Dao::getInstance();
 
@@ -1267,18 +1255,14 @@ class StatEntry
         $stmt = $dao->prepare($query);
         $stmt->execute();
 
-        $rows = array();
+        $rows = [];
         while ($row = $stmt->fetch()) {
             $rows[] = $row;
         }
         return $rows;
     }
 
-    /**
-     * @param $directory
-     * @return mixed
-     */
-    public static function getCountByDirPrefix($dirPrefix)
+    public static function getCountByDirPrefix(string $dirPrefix): int
     {
         $dao = Dao::getInstance();
 
@@ -1300,13 +1284,9 @@ class StatEntry
     }
 
     /**
-     * get the statistic for the given result table
-     *
-     * @param string $joinTable
-     * @param string $set
-     * @return mixed
+     * Get the statistic for the given result table.
      */
-    public static function getStats($joinTable, $set = '')
+    public static function getStats(string $joinTable, string $set = ''): array
     {
         $dao = Dao::getInstance();
 
@@ -1318,7 +1298,7 @@ class StatEntry
             $where = '';
         }
 
-        // do a LEFT JOIN, so we also find all files that have not
+        // Do a LEFT JOIN, so we also find all files that have not
         // yet been processed.
         $query = "
             SELECT
@@ -1341,9 +1321,9 @@ class StatEntry
 
         $stmt->execute();
 
-        $rerun = array();
+        $rerun = [];
 
-        $stat = array();
+        $stat = [];
         while ($row = $stmt->fetch()) {
             // reduce retval
             if (is_null($row['retval'])) {
@@ -1365,16 +1345,10 @@ class StatEntry
 
         }
 
-        return array($stat, $rerun);
+        return [$stat, $rerun];
     }
 
-    /**
-     * @param $retval
-     * @param string $joinTable
-     * @param string $set
-     * @return array
-     */
-    public static function getFileNamesByRetval($retval, $joinTable = '',  $set = '')
+    public static function getFileNamesByRetval(string $retval, string $joinTable = '',  string $set = ''): array
     {
         $dao = Dao::getInstance();
 
@@ -1419,12 +1393,7 @@ class StatEntry
         return $stmt->fetchAll();
     }
 
-    /**
-     * @param string $stage
-     * @param string $joinTable
-     * @return mixed
-     */
-    public static function getCountLastStat($stage, $joinTable)
+    public static function getCountLastStat(string $stage, string $joinTable): int
     {
         $dao = Dao::getInstance();
 
@@ -1458,18 +1427,11 @@ class StatEntry
         return $numrows;
     }
 
-    /**
-     * @param $orderBy
-     * @param $sortBy
-     * @param $min
-     * @param $max_pp
-     * @return array
-     */
-    public static function getLastStat($orderBy, $sortBy, $min, $max_pp)
+    public static function getLastStat(string $orderBy, string $sortBy, string $min, string $max_pp): array
     {
-        // due to long running sse script
+        // Due to long running sse script
         // here we might get "server has gone away message"
-        // therefore explicitly check, whether connection is still there
+        // therefore explicitly check, whether connection is still there.
         $dao = Dao::checkAndGetInstance();
 
         $query = "

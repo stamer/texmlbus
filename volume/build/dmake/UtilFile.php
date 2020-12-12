@@ -593,53 +593,16 @@ class UtilFile
             $possibleCleanActions[] = $stage.'clean';
         }
 
-        if (true) {
-            // clean up via make
-            if (in_array($action, $possibleCleanActions)) {
-                echo "Cleaning up...\n";
-                echo "Dir: " . $directory . "\n";
-                // ARTICLEDIR./.$directory need quotes!
-                $systemCmd = 'cd "' . ARTICLEDIR . '/' . $directory . '" && /usr/bin/make ' . $action;
-                if (DBG_LEVEL & DBG_DELETE) {
-                    echo "Make $action $directory...\n";
-                }
-                system($systemCmd);
+        // Cleanup via make.
+        if (in_array($action, $possibleCleanActions)) {
+            echo "Cleaning up...\n";
+            echo "Dir: " . $directory . "\n";
+            // ARTICLEDIR./.$directory need quotes!
+            $systemCmd = 'cd "' . ARTICLEDIR . '/' . $directory . '" && /usr/bin/make ' . $action;
+            if (DBG_LEVEL & DBG_DELETE) {
+                echo "Make $action $directory...\n";
             }
-        } else {
-            switch ($action) {
-                case 'pdf':
-                    $filename = self::getSourcefileInDirViaMake('.');
-                    $pattern = array($filename . '.pdf', "*.aux");
-                    $retval = StatEntry::PDF_RETVAL;
-                    break;
-                case 'xml':
-                    $pattern = array("*.tex.xml", "*.noparse.xml", "*~");
-                    $retval = StatEntry::XML_RETVAL;
-                    break;
-                case 'xhtml':
-                    $pattern = array("*.tex.xml", "*.xhtml", "*.noparse.xml", "*~");
-                    $retval = StatEntry::XHTML_RETVAL;
-                    break;
-                case 'jats':
-                    $pattern = array("*.jats.xml", "*~");
-                    $retval = StatEntry::JATS_RETVAL;
-                    break;
-                default:
-                    $pattern = array("*.tex.xml", "*.noparse.xml", "*~");
-                    $retval = StatEntry::XML_RETVAL;
-
-            }
-
-            foreach ($pattern as $pat) {
-                foreach (glob($pat) as $filename) {
-                    $fullname = $directory . '/' . $filename;
-                    echo $fullname . ' size ' . filesize($filename) . "\n";
-                    if (DBG_LEVEL & DBG_DELETE) {
-                        echo "Deleting file $filename...\n";
-                    }
-                    unlink($filename);
-                }
-            }
+            system($systemCmd);
         }
     }
 

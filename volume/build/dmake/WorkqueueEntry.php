@@ -17,16 +17,6 @@ class WorkqueueEntry
     const WQ_ACTION_FORCE = 'force';
     const WQ_ENTRY_DISABLED = 0;
 
-    const PDF_RETVAL = 'pdf_retval';
-    const XML_RETVAL = 'xml_retval';
-    const XHTML_RETVAL = 'xhtml_retval';
-    const JATS_RETVAL = 'jats_RETVAL';
-
-    const PDF_ERRMSG = 'pdf_errmsg';
-    const XML_ERRMSG = 'xml_errmsg';
-    const XHTML_ERRMSG = 'xhtml_errmsg';
-    const JATS_ERRMSG = 'jats_errmsg';
-
     protected $id = 0;
     protected $statisticId = 0;
     protected $dateCreated = null;
