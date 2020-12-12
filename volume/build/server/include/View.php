@@ -18,7 +18,7 @@ class View
         string $id,
         string $stage,
         string $target,
-        string $date_modified,
+        ?string $date_modified,
         string $queued
     ): string
     {
@@ -155,7 +155,7 @@ class View
     public static function renderRetvalResultColumns(
         string $stage,
         string $retval,
-        string $row,
+        array $row,
         array $columns
     ): string
     {
@@ -190,7 +190,7 @@ class View
         string $retval,
         string $stderrFileLink,
         string $destFileLink,
-        string $row,
+        array $row,
         array $columns
     ): string
     {
