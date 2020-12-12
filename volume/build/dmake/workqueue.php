@@ -206,14 +206,6 @@ if (in_array($action, $possibleActions))
 			if (DBG_LEVEL & DBG_DIRECTORIES) echo $directory."...\n";
 
 			$entry_done = FALSE;
-			/*if ($action == StatEntry::WQ_ACTION_DEFAULT) {
-				$xml_retval = StatEntry::getRetval($directory, StatEntry::XML_RETVAL);
-				$entry_done = StatEntry::xmlAlreadyDone($xml_retval);
-			} elseif ($action == WQ_ACTION_XHTML) {
-				$xhtml_retval = StatEntry::getRetval($directory, StatEntry::XHTML_RETVAL);
-				$entry_done = StatEntry::xhtmlAlreadyDone($xhtml_retval);
-			}
-			*/
 			// only try to make if these conditions are met
 			if (!$entry_done || $action == StatEntry::WQ_ACTION_FORCE) {
 				StatEntry::addToWorkqueue($directory, $action, $priority);

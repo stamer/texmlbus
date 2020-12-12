@@ -22,7 +22,7 @@ class Api
     protected $inotify;
     protected $request;
 
-    public function __construct($uri, $resultAsJson = false)
+    public function __construct(string $uri, bool $resultAsJson = false)
     {
         $this->resultAsJson = $resultAsJson;
         $this->path = parse_url($uri, PHP_URL_PATH);
@@ -31,6 +31,7 @@ class Api
         preg_match('/.*?api\/(.*)$/', $this->path, $matches);
 
         if (empty($matches[1])) {
+            header("Content-Type: text/plain");
             echo 'No action given.' . PHP_EOL;
         }
 
@@ -43,7 +44,6 @@ class Api
 
     /**
      *
-     * @return ApiResult
      */
     public function execute(): void
     {
@@ -132,7 +132,7 @@ class Api
     }
 
     /**
-     *
+     * Add a sourcefile to the system.
      * @return ApiResult
      */
     public function add()
@@ -151,7 +151,7 @@ class Api
     }
 
     /**
-     *
+     * Delete file by id or dir from system.
      * @return ApiResult
      */
     public function del()
@@ -170,10 +170,10 @@ class Api
     }
 
     /**
-     *
+     * Clean entry by id, by dir or by set.
      * @return ApiResult
      */
-    public function clean($stage, $target)
+    public function clean(string $stage, string $target)
     {
         /** @var StatEntry $statEntry */
         $possibleTargets = UtilStage::getPossibleTargets();
@@ -181,63 +181,111 @@ class Api
         if (!in_array($baseTarget, $possibleTargets)) {
             return new ApiResult(false, 'Invalid target.');
         }
+        $hostGroup = UtilStage::getHostGroupByStage($stage);
+        $returnVar = 0;
+        $success = true;
 
         $id = $this->request->getParam('id', '');
+        $ids = $this->request->getParam('ids', []);
         $dir = $this->request->getParam('dir', '');
+        $set = $this->request->getParam('set', '');
         if ($id !== '') {
             $statEntry = StatEntry::getById($id);
             if (!($statEntry instanceof StatEntry)) {
                 return new ApiResult(false, 'Id ' . $id . ' not found.');
             }
-            $directory = $statEntry->filename;
+            $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            $output = $this->cleanTrigger($statEntry, $hostGroup);
+        } elseif (!empty($ids)) {
+            $statEntries = StatEntry::getByIds($ids);
+            if (!count($statEntries)) {
+                return new ApiResult(false, 'No entries for  ' . $set . ' not found.');
+            }
+            foreach ($statEntries as $statEntry) {
+                $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            }
+            // only last is considered
+            $output = $this->cleanTrigger($statEntry, $hostGroup);
         } elseif ($dir !== '') {
             $statEntry = StatEntry::getByDir($dir);
             if (!($statEntry instanceof StatEntry)) {
                 return new ApiResult(false, 'Dir ' . $dir . ' not found.');
             }
-            $directory = $statEntry->filename;
+            $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            $output = $this->cleanTrigger($statEntry, $hostGroup);
+        } elseif ($set !== '') {
+            $statEntries = StatEntry::getBySet($set);
+            if (!count($statEntries)) {
+                return new ApiResult(false, 'No entries for  ' . $set . ' not found.');
+            }
+            foreach ($statEntries as $statEntry) {
+                $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            }
+            // only last is considered
+            $output = $this->cleanTrigger($statEntry, $hostGroup);
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
         }
 
         // needs to be done via workqueue, so files are deleted in context of dmake
-        $hostGroup = UtilStage::getHostGroupByStage($stage);
-        $result = StatEntry::addToWorkqueue($directory, $hostGroup, $stage, $target,1);
+        return new ApiResult($success, $output, $returnVar);
+    }
+
+    protected function cleanTrigger(StatEntry $statEntry, string $hostGroup)
+    {
         $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
+        // if queue is short, this will happen right away, wait short period of time
         sleep(1);
-        $returnVar = 0;
-        $success = true;
         $statEntry = StatEntry::getById($statEntry->id);
-        if ($statEntry->action = StatEntry::WQ_ACTION_NONE) {
+        if ($statEntry->getWqAction() == StatEntry::WQ_ACTION_NONE) {
             $output = "Done.";
         } else {
             $output = "Cleanup queued.";
         }
-
-        return new ApiResult($success, $output, $returnVar);
     }
 
     /**
+     * Queue entry by id, by dir or by set.
      * Job is queued, if this job has already run before, it will not be recreated.
-     * @return ApiResult
+     * @return ApiResult|ApiResultArray
      */
-    public function queue($stage, $target)
+    public function queue(string $stage, string $target)
     {
         $possibleTargets = UtilStage::getPossibleTargets();
         if (!in_array($target, $possibleTargets)) {
             return new ApiResult(false, 'Invalid target.');
         }
         $id = $this->request->getParam('id', '');
+        $ids = $this->request->getParam('ids', []);
         $dir = $this->request->getParam('dir', '');
+        $set = $this->request->getParam('set', '');
+
         $hostGroup = UtilStage::getHostGroupByStage($stage);
         if ($id !== '') {
             $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
+        } elseif (!empty($ids)) {
+            $apiResultArray = new ApiResultArray();
+            foreach ($ids as $id) {
+                $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
+                $apiResultArray->addSuccess($id, $result);
+            }
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
+            return $apiResultArray;
         } elseif (!empty($dir)) {
             $result = StatEntry::addToWorkqueue($dir, $hostGroup, $stage, $target, $this->priority);
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
+        } elseif (!empty($set)) {
+            $ids = StatEntry::getIdsBySet($set);
+            $apiResultArray = new ApiResultArray();
+            foreach ($ids as $id) {
+                $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
+                $apiResultArray->addSuccess($id, $result);
+            }
+            $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
+            return $apiResultArray;
         } else {
             return new ApiResult(false, 'Incomplete Parameters');
         }
@@ -245,11 +293,9 @@ class Api
 
     /**
      * Rerun Job is clean + queue
-     * @param string $stage
-     * @param string $target
-     * @return ApiResult
+     * @return ApiResult|ApiResultArray
      */
-    public function rerun($stage, $target)
+    public function rerun(string $stage, string $target)
     {
         $apiResult = $this->clean($stage, $target . 'clean');
         if (!$apiResult->getSuccess()) {
@@ -261,10 +307,10 @@ class Api
     }
 
     /**
-     * create history snapshot
+     * Create history snapshot by set
      * @return ApiResult
      */
-    public function snapshot($setname)
+    public function snapshot(string $setname)
     {
         if (!empty($setname)) {
             $set['set'] = $setname;

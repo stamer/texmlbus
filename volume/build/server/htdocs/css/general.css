@@ -181,6 +181,9 @@ dt {
 	color: #009900;
 }
 
+.grey {
+	color: #cccccc;
+}
 .lightgrey {
 	color: #dddddd;
 }
@@ -331,6 +334,9 @@ dt {
 
 .bold {
     font-weight: bold;
+}
+.right {
+	text-align: right;
 }
 
 /* initital values */

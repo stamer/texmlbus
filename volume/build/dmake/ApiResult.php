@@ -35,7 +35,7 @@ class ApiResult implements \JsonSerializable
      * @param mixed $output
      * @param int $shellReturnVar
      */
-	public function __construct($success, $output = '', $shellReturnVar = 0)
+	public function __construct($success = true, $output = '', $shellReturnVar = 0)
     {
         $this->success = $success;
 		$this->shellReturnVar = $shellReturnVar;
@@ -101,7 +101,7 @@ class ApiResult implements \JsonSerializable
     {
         return [
             'success' => $this->success,
-            'output' => join("\n", $this->output),
+            'output' => implode("\n", $this->output),
             'shellReturnVar' => $this->shellReturnVar
         ];
     }

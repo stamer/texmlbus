@@ -130,7 +130,7 @@ while (1) {
 
         $retval = $entry[$stage]['retval'] ?? 'unknown';
 
-        $retvalColumn = View::renderRetvalColumn(
+        $retvalColumn = View::renderRetvalCell(
             $entry['retval'],
             $stderrFileLink,
             $destFileLink,
@@ -141,13 +141,13 @@ while (1) {
             $queued
         );
 
-        $prevRetvalColumn = View::renderPrevRetvalColumn(
+        $prevRetvalColumn = View::renderPrevRetvalCell(
             $entry['prev_retval'],
             $entry['id'],
             $stage,
         );
 
-        $dateColumn = View::renderDateColumn(
+        $dateColumn = View::renderDateCell(
             $entry['id'],
             $date_modified
         );

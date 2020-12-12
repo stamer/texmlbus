@@ -28,7 +28,7 @@ function showUrlInModal(url, options){
     options = options || {};
     var tag = $("#myModal");
     if (!tag.length) {
-        tag = $("<div id='myModal'></div>"); //This tag will the hold the dialog content.
+        tag = $("<div id='myModal'></div>"); // This tag will then hold the dialog content.
     }
     $.ajax({
         url: url,
@@ -38,7 +38,7 @@ function showUrlInModal(url, options){
         complete: options.complete,
         success: function(data, textStatus, jqXHR) {
             $('.modal-header').attr('class', 'modal-header bg-info-t');
-            if (typeof data == "object" && data.html) { //response is assumed to be JSON
+            if (typeof data == "object" && data.html) { // Response is assumed to be JSON.
                 $('.modal-title').html(data.title);
                 $('.modal-body').html(data.html);
             } else { //response is assumed to be HTML
@@ -63,7 +63,6 @@ function getMsgXPos(msgwidth)
 
 	return xpos + 'px';
 }
-
 
 function showMessage(title, message, msgClass = 'info', fadeMsec = 0)
 {
@@ -114,7 +113,6 @@ function hideMessageBox()
     $('#myModal').hide();
 }
 
-
 function cleanupID(str)
 {
 	// . and : are valid, but do not work well with jquery.
@@ -128,7 +126,7 @@ function rerunById(id, stage, target)
         headers: { "Authorization": token }
     });
     $.post('/api/rerun',
-        { 'id':id, 'stage':stage, 'target':target},
+        {'id':id, 'stage':stage, 'target':target},
         function(data) {
             if (data.success) {
                 var msg_class = 'success';
@@ -151,9 +149,47 @@ function rerunById(id, stage, target)
 
 function rerunByIds(ids, stage, target)
 {
-       for (var i = 0; i < ids.length; i++) {
-           rerunById(ids[i], stage, target);
-       }
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: {"Authorization": token}
+    });
+    $.post('/api/rerun',
+        {'ids': ids, 'stage': stage, 'target': target},
+        function (data) {
+            if (data.successArray) {
+                Object.entries(data.successArray).forEach(([id, value]) => {
+                    var field = '#rerun_' + id + '_' + stage;
+                    if (value) {
+                        $(field).html('<span class="ok">' + 'queued' + '</span>');
+                    } else {
+                        $(field).html('<span class="error">' + 'error' + '</span>');
+                    }
+                });
+            }
+        }, "json"
+    );
+}
+
+function rerunBySet(set, stage, target) {
+    var token = getCookie('jwToken');
+    $.ajaxSetup({
+        headers: {"Authorization": token}
+    });
+    $.post('/api/rerun',
+        {'set': set, 'stage': stage, 'target': target},
+        function (data) {
+            if (data.successArray) {
+                Object.entries(data.successArray).forEach(([id, value]) => {
+                    var field = '#rerun_' + id + '_' + stage;
+                    if (value) {
+                        $(field).html('<span class="ok">' + 'queued' + '</span>');
+                    } else {
+                        $(field).html('<span class="error">' + 'error' + '</span>');
+                    }
+                });
+            }
+        }, "json"
+    );
 }
 
 function createSnapshotBySet(set)
@@ -197,4 +233,3 @@ function selfUpdate(seconds)
             }
         }, seconds);
 }
-
