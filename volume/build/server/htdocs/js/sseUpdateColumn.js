@@ -1,7 +1,6 @@
 function sseUpdateColumn() {
     if (window.EventSource) {
         var evtSource = new EventSource('/sse/sseUpdateColumn.php');
-        var eventList = document.querySelector('ul');
 
         evtSource.onopen = function () {
             // console.log("Connection to server opened.");

@@ -4,10 +4,12 @@
  * @param stage
  * @param retval
  */
-function sseUpdateRow(set, stage, retval) {
+function sseUpdateRow(set, stage, retval)
+{
+    const delayBeforeRemove = 2000;
+
     if (window.EventSource) {
         var evtSource = new EventSource('/sse/sseUpdateRow.php?set=' + set + '&stage=' + stage + '&retval=' + retval);
-        var eventList = document.querySelector('ul');
 
         evtSource.onopen = function () {
             // console.log("Connection to server opened.");
@@ -57,15 +59,16 @@ function sseUpdateRow(set, stage, retval) {
                     var newhtml = obj.html.replace('__COUNT__', '');
                 }
                 row.outerHTML = newhtml;
-                setTimeout(deleteRow, 2000, obj.fieldid);
+                setTimeout(deleteRow, delayBeforeRemove, obj.fieldid);
             }
         }, false);
     }
 }
 
-function deleteRow(fieldid) {
+function deleteRow(fieldid)
+{
     row = document.getElementById(fieldid);
     if (row) {
-        row.outerHTML = '';
+        row.remove();
     }
 }
