@@ -4,10 +4,12 @@
  * @param stage
  * @param retval
  */
-function sseUpdateRow(set, stage, retval) {
+function sseUpdateRow(set, stage, retval)
+{
+    const delayBeforeRemove = 2000;
+
     if (window.EventSource) {
         var evtSource = new EventSource('/sse/sseUpdateRow.php?set=' + set + '&stage=' + stage + '&retval=' + retval);
-        var eventList = document.querySelector('ul');
 
         evtSource.onopen = function () {
             // console.log("Connection to server opened.");
@@ -39,5 +41,34 @@ function sseUpdateRow(set, stage, retval) {
                 row.outerHTML = newhtml;
             }
         }, false);
+
+        // show the updated status, then, after some time, delete complete row.
+        evtSource.addEventListener("deleterow", function (e) {
+            var obj = JSON.parse(e.data);
+            if (!obj) {
+                console.log("EventSource event failed.");
+                return;
+            }
+            var row = document.getElementById(obj.fieldid);
+            /* get the current countnr and replace it */
+            tdcount = document.getElementById(obj.countid);
+            if (row) {
+                if (tdcount) {
+                    var newhtml = obj.html.replace('__COUNT__', tdcount.textContent);
+                } else {
+                    var newhtml = obj.html.replace('__COUNT__', '');
+                }
+                row.outerHTML = newhtml;
+                setTimeout(deleteRow, delayBeforeRemove, obj.fieldid);
+            }
+        }, false);
+    }
+}
+
+function deleteRow(fieldid)
+{
+    row = document.getElementById(fieldid);
+    if (row) {
+        row.remove();
     }
 }

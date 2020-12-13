@@ -79,6 +79,9 @@ while (1) {
             error_log("Waiting on inotify trigger: " . $inotify->getTriggerFile($hostGroupName, InotifyHandler::doneTrigger));
         }
         $inotify->wait($hostGroupName, InotifyHandler::doneTrigger);
+        if ($debug) {
+            error_log("triggered: " . InotifyHandler::doneTrigger);
+        }
     } else {
         sleep($wqSleepSeconds);
     }
@@ -90,15 +93,15 @@ while (1) {
         $ids[] = $entry['id'];
     }
 
-    $rows = RetvalDao::getDetailsByIdsAndRetval($ids, $retval, $stage, $joinTable, $columns);
-
-    //error_log(print_r($cfg->stages, 1));
+    $rows = RetvalDao::getDetailsByIds($ids, $stage, $joinTable, $columns);
 
     foreach ($rows as $row) {
 
         $prefix = basename($row['sourcefile'], '.tex');
 
         $date_modified = $row['date_modified'];
+        $newRetval = $row['retval'] ?? 'unknown';
+
         $id = $row['id'];
 
         //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
@@ -131,7 +134,7 @@ while (1) {
                 $directory,
                 $stage,
                 $target,
-                $retval,
+                $newRetval,
                 $stderrFileLink,
                 $destFileLink,
                 $row,
@@ -142,7 +145,13 @@ while (1) {
             'countid' => 'td_count_' . $id,
             'html' => $retvalRow
         ];
-        echo 'event: updaterow' . "\n";
+        // The retval changed from e.g unknown to no_problems,
+        // therefore the row should not be listed any more on this page.
+        if ($newRetval != $retval) {
+            echo 'event: deleterow' . "\n";
+        } else {
+            echo 'event: updaterow' . "\n";
+        }
         echo 'data: ' . json_encode($data) .  "\n\n";
     }
 
