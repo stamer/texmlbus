@@ -577,7 +577,7 @@ class RetvalDao
         // Do not set any condition on retval, retval might change
         // and then the entry should be removed from stage.
         $join = "
-        JOIN
+        LEFT JOIN
             $joinTable as j
         ON
             s.id = j.id
