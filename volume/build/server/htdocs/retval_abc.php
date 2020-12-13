@@ -72,6 +72,7 @@ if (!empty($set)) {
 ?>
 
 <h4>Alphabetic list of documents <?=$page->info('retval_abc') ?></h4>
+<script>sseUpdateColumn()</script>
 
 <?php
 
