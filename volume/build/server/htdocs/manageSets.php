@@ -6,7 +6,7 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
-use Dmake\StatEntry;
+use Dmake\Set;
 use Server\Page;
 use Server\Config;
 
@@ -42,7 +42,7 @@ $page->addCss('
 ');
 
 $page->showHeader('import');
-$sets = StatEntry::getSetsCount();
+$sets = Set::getSetsCount();
 
 echo '<h4>Manage Sets ' . $page->info('manageSets') . '</h4>';
 ?>
@@ -57,11 +57,15 @@ echo '<h4>Manage Sets ' . $page->info('manageSets') . '</h4>';
 ?>
     <div style="margin-bottom: 10px;">
 
-    <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSet(this, '<?=htmlspecialchars($set['set'])?>')">
-         <i class="fas fa-trash"></i>
+        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSet(this, '<?=htmlspecialchars($set->getName())?>')">
+            <i class="fas fa-trash"></i>
               <span></span>
-         </button>
-        <?=htmlspecialchars($set['set']) ?> (<?=$set['num_documents'] ?> documents)</div>
+        </button>
+        <?=htmlspecialchars($set->getName())
+        . ' (' . $set->getNumDocuments() . ' '
+        . ($set->getNumDocuments() === 1 ? 'document' : 'documents')
+        . ')' ?>
+    </div>
 <?php
     }
 ?>

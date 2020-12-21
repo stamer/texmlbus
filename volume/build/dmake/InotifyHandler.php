@@ -13,22 +13,24 @@
 
 namespace Dmake;
 
+use RuntimeException;
+
 /**
  * Class InotifyHandler
  */
 class InotifyHandler
 {
-    const wqTrigger = 'wq';
-    const doneTrigger = 'done';
+    public const wqTrigger = 'wq';
+    public const doneTrigger = 'done';
 
     // triggers need to be on docker-managed volume.
     // docker on windows wsl2 cannot handle inotify events on shared volumes
 
     // write queue trigger
-    const wqTriggerFilePrefix = '/opt/run/wq_trigger';
+    public const wqTriggerFilePrefix = '/opt/run/wq_trigger';
 
     // write done trigger to inform about finished jobs
-    const doneTriggerFilePrefix = '/opt/run/done_trigger';
+    public const doneTriggerFilePrefix = '/opt/run/done_trigger';
 
     private $debug = false;
 
@@ -135,7 +137,7 @@ class InotifyHandler
     /**
      * Waits for some action.
      */
-	public function waitAnyHostGroup(string $triggerName)
+	public function waitAnyHostGroup(string $triggerName): void
     {
         $hostGroups = UtilStage::getHostGroups();
         if (!in_array($triggerName, $this->trigger)) {
@@ -155,7 +157,7 @@ class InotifyHandler
             while (1) {
                 // if we work with declare ticks, the interrupted system call might just
                 // restart, call pcntl_signal_dispatch to handle signals
-                if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+                if (PHP_VERSION_ID < 70100) {
                     pcntl_signal_dispatch();
                 }
                 $readFds = [];
@@ -180,7 +182,7 @@ class InotifyHandler
                     if (!isset($err['message'])
                         || stripos($err['message'], 'interrupted system call') === false
                     ) {
-                        throw new \RuntimeException(sprintf('Error waiting in execution loop: %s', $err['message']));
+                        throw new RuntimeException(sprintf('Error waiting in execution loop: %s', $err['message']));
                     }
                 }
                 if ($numChangedResources != 0) {
@@ -201,7 +203,7 @@ class InotifyHandler
     /**
      * Waits for some action.
      */
-    public function wait(string $hostGroupName, string $triggerName)
+    public function wait(string $hostGroupName, string $triggerName): void
     {
         error_log(__METHOD__ . ": HostGroupName: $hostGroupName, Trigger: $triggerName");
         if (!in_array($triggerName, $this->trigger)) {
@@ -220,7 +222,7 @@ class InotifyHandler
             while (1) {
                 // if we work with declare ticks, the interrupted system call might just
                 // restart, call pcntl_signal_dispatch to handle signals
-                if (version_compare(PHP_VERSION, '7.1.0', '<')) {
+                if (PHP_VERSION_ID < 70100) {
                     pcntl_signal_dispatch();
                 }
                 $readFds = [$this->fd[$hostGroupName][$triggerName]];
@@ -242,7 +244,7 @@ class InotifyHandler
                     if (!isset($err['message'])
                         || stripos($err['message'], 'interrupted system call') === false
                     ) {
-                        throw new \RuntimeException(sprintf('Error waiting in execution loop: %s', $err['message']));
+                        throw new RuntimeException(sprintf('Error waiting in execution loop: %s', $err['message']));
                     }
                 }
                 if ($numChangedResources !== 0) {
@@ -268,9 +270,8 @@ class InotifyHandler
 
     /**
      * Gets the corresponding trigger file by given name.
-     * @return string
      */
-    public function getTriggerFile(string $hostGroupName, string $triggerName)
+    public function getTriggerFile(string $hostGroupName, string $triggerName): string
 	{
         if (!in_array($triggerName, $this->trigger)) {
             error_log("Unknown trigger $triggerName");

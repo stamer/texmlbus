@@ -111,9 +111,9 @@ class Api
                 if (!empty($set)) {
                     $apiResult = $this->snapshot($set);
                     break;
-                } else {
-                    $apiResult = $this->snapshot(null);
                 }
+
+                $apiResult = $this->snapshot(null);
                 break;
             default:
                 $apiResult = new ApiResult(self::NO_ACTION, 'Invalid action ' . htmlspecialchars($this->action) . '.');
@@ -135,7 +135,7 @@ class Api
      * Add a sourcefile to the system.
      * @return ApiResult
      */
-    public function add()
+    public function add(): ApiResult
     {
         $directory = $this->request->getParam('dir', '');
         $sourcefile = $this->request->getParam('sourcefile', '');
@@ -145,35 +145,36 @@ class Api
             // ??
             // $this->inotify->trigger();
             return new ApiResult($result);
-        } else {
-            return new ApiResult(false, 'Incomplete Parameters');
         }
+
+        return new ApiResult(false, 'Incomplete Parameters');
     }
 
     /**
      * Delete file by id or dir from system.
      * @return ApiResult
      */
-    public function del()
+    public function del(): ApiResult
     {
         $id = $this->request->getParam('id', '');
         $dir = $this->request->getParam('dir', '');
         if ($id !== '') {
             $result = StatEntry::deleteById($id);
             return new ApiResult($result);
-        } elseif ($dir !== '') {
+        }
+
+        if ($dir !== '') {
             $result = StatEntry::deleteByDirectory($dir);
             return new ApiResult($result);
-        } else {
-            return new ApiResult(false, 'Incomplete Parameters');
         }
+
+        return new ApiResult(false, 'Incomplete Parameters');
     }
 
     /**
      * Clean entry by id, by dir or by set.
-     * @return ApiResult
      */
-    public function clean(string $stage, string $target)
+    public function clean(string $stage, string $target): ApiResult
     {
         /** @var StatEntry $statEntry */
         $possibleTargets = UtilStage::getPossibleTargets();
@@ -194,7 +195,7 @@ class Api
             if (!($statEntry instanceof StatEntry)) {
                 return new ApiResult(false, 'Id ' . $id . ' not found.');
             }
-            $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            $success = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
             $output = $this->cleanTrigger($statEntry, $hostGroup);
         } elseif (!empty($ids)) {
             $statEntries = StatEntry::getByIds($ids);
@@ -202,7 +203,7 @@ class Api
                 return new ApiResult(false, 'No entries for  ' . $set . ' not found.');
             }
             foreach ($statEntries as $statEntry) {
-                $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+                $success = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
             }
             // only last is considered
             $output = $this->cleanTrigger($statEntry, $hostGroup);
@@ -211,7 +212,7 @@ class Api
             if (!($statEntry instanceof StatEntry)) {
                 return new ApiResult(false, 'Dir ' . $dir . ' not found.');
             }
-            $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+            $success = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
             $output = $this->cleanTrigger($statEntry, $hostGroup);
         } elseif ($set !== '') {
             $statEntries = StatEntry::getBySet($set);
@@ -219,7 +220,7 @@ class Api
                 return new ApiResult(false, 'No entries for  ' . $set . ' not found.');
             }
             foreach ($statEntries as $statEntry) {
-                $result = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
+                $success = StatEntry::addToWorkqueue($statEntry->filename, $hostGroup, $stage, $target, 1);
             }
             // only last is considered
             $output = $this->cleanTrigger($statEntry, $hostGroup);
@@ -231,7 +232,7 @@ class Api
         return new ApiResult($success, $output, $returnVar);
     }
 
-    protected function cleanTrigger(StatEntry $statEntry, string $hostGroup)
+    protected function cleanTrigger(StatEntry $statEntry, string $hostGroup): string
     {
         $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
         // if queue is short, this will happen right away, wait short period of time
@@ -242,6 +243,7 @@ class Api
         } else {
             $output = "Cleanup queued.";
         }
+        return $output;
     }
 
     /**
@@ -265,7 +267,9 @@ class Api
             $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
-        } elseif (!empty($ids)) {
+        }
+
+        if (!empty($ids)) {
             $apiResultArray = new ApiResultArray();
             foreach ($ids as $id) {
                 $result = StatEntry::addToWorkqueueById($id, $hostGroup, $stage, $target, $this->priority);
@@ -273,11 +277,15 @@ class Api
             }
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return $apiResultArray;
-        } elseif (!empty($dir)) {
+        }
+
+        if (!empty($dir)) {
             $result = StatEntry::addToWorkqueue($dir, $hostGroup, $stage, $target, $this->priority);
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return new ApiResult($result);
-        } elseif (!empty($set)) {
+        }
+
+        if (!empty($set)) {
             $ids = StatEntry::getIdsBySet($set);
             $apiResultArray = new ApiResultArray();
             foreach ($ids as $id) {
@@ -286,9 +294,9 @@ class Api
             }
             $this->inotify->trigger($hostGroup, InotifyHandler::wqTrigger);
             return $apiResultArray;
-        } else {
-            return new ApiResult(false, 'Incomplete Parameters');
         }
+
+        return new ApiResult(false, 'Incomplete Parameters');
     }
 
     /**
@@ -308,12 +316,12 @@ class Api
 
     /**
      * Create history snapshot by set
-     * @return ApiResult
      */
-    public function snapshot(string $setname)
+    public function snapshot(?string $setname): ApiResult
     {
         if (!empty($setname)) {
-            $set['set'] = $setname;
+            $set = new Set();
+            $set->setName($setname);
             HistoryAction::createHistorySumEntry($set);
         } else {
             HistoryAction::createHistorySumEntries();

@@ -10,19 +10,18 @@
 use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\Dao;
-use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
 use Dmake\UtilStage;
 
-class StageJats extends AbstractStage implements StageInterface
+class StageJats extends AbstractStage
 {
     public function __construct()
     {
         $this->config = static::register();
     }
 
-    public static function register()
+    public static function register(): array
     {
         $config = [
             'stage' => 'jats',
@@ -65,12 +64,12 @@ class StageJats extends AbstractStage implements StageInterface
         return $config;
     }
 
-    public function save()
+    public function save(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = /** @lang ignore */
             '
@@ -104,10 +103,10 @@ class StageJats extends AbstractStage implements StageInterface
 		$stmt->bindValue('warnmsg', $this->warnmsg);
 		$stmt->bindValue('errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function fillEntry($row)
+    public static function fillEntry($row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -150,12 +149,12 @@ class StageJats extends AbstractStage implements StageInterface
         return $se;
     }
 
-	public function updateRetval()
+	public function updateRetval(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = /** @lang ignore */ '
 			INSERT INTO
@@ -184,10 +183,13 @@ class StageJats extends AbstractStage implements StageInterface
 		$stmt->bindValue('i_errmsg', $this->errmsg);
 		$stmt->bindValue('u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
+    public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed): bool
     {
         $directory = $entry->filename;
 
@@ -207,7 +209,7 @@ class StageJats extends AbstractStage implements StageInterface
             $res->retval = 'missing_errlog';
         } else {
             $content = file_get_contents($stderrlog);
-            $matches = array();
+            $matches = [];
 
             $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
             preg_match($fatal_pattern, $content, $matches);
@@ -271,6 +273,6 @@ class StageJats extends AbstractStage implements StageInterface
             }
         }
 
-        $res->updateRetval();
+        return $res->updateRetval();
     }
 }

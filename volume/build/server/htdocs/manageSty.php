@@ -6,7 +6,7 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
-use Dmake\StatEntry;
+use Dmake\Set;
 use Dmake\UtilFile;
 use Server\Page;
 use Server\Config;
@@ -43,7 +43,7 @@ $page->addCss('
 ');
 
 $page->showHeader('import');
-$sets = StatEntry::getSetsCount();
+$sets = Set::getSetsCount();
 
 $result_dirs = [];
 $current_depth = 0;

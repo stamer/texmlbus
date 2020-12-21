@@ -12,7 +12,7 @@ class UtilSort
     /**
      * multi sort an associated array
      */
-    public static function sortByKey($array, $key, $order = '')
+    public static function sortByKey(array $array, string $key, string $order = ''): array
     {
         if ($order == "DESC") {
             $cmp = function ($a, $b) use ($key) {

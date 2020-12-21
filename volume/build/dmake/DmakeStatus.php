@@ -25,11 +25,11 @@ class DmakeStatus
      *
      * @param bool $updateStarted
      */
-	public function save($updateStarted = TRUE)
+	public function save($updateStarted = TRUE): bool
 	{
 		$dao = Dao::getInstance();
 
-		$this->started = date("Y-m-d H:i:s", time());
+		$this->started = date("Y-m-d H:i:s");
 
 		$query = "
 			INSERT INTO
@@ -38,6 +38,7 @@ class DmakeStatus
 			VALUES(0, :started, :directory, :num_files, :num_hosts, :hostnames, :timeout, :errmsg)
 			ON DUPLICATE KEY
 			UPDATE ";
+
 			if ($updateStarted) {
 				$query .= "started = VALUES(started), ";
 			}
@@ -58,13 +59,13 @@ class DmakeStatus
         $stmt->bindValue(':timeout', $this->timeout);
         $stmt->bindValue(':errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
     /**
-     * sets the current status
+     * Gets and sets the current status.
      */
-	public function get()
+	public function get(): self
 	{
         $dao = Dao::getInstance();
 
@@ -81,5 +82,6 @@ class DmakeStatus
 		foreach ($row as $key => $val) {
 			$this->$key = $val;
 		}
+		return $this;
 	}
 }

@@ -70,7 +70,7 @@ $config->now->ts = time();
 $config->now->datestamp = date("Y-m-d H:i:s", $config->now->ts);
 
 // controls authentication options
-$config->auth = new StdClass();
+$config->auth = new stdClass();
 
 // whether API-clients need to use tokens.
 // as access is limited to localhost, this is not necessary.

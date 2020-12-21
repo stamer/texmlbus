@@ -20,7 +20,7 @@ class UtilFile
         return posix_getpwuid(fileowner($filename))['name'];
     }
 
-    public static function getFileGroup(string $filename, bool $clearCache = false)
+    public static function getFileGroup(string $filename, bool $clearCache = false): array
     {
         if ($clearCache) {
             clearstatcache();
@@ -29,10 +29,8 @@ class UtilFile
     }
 
     /**
-     * @param $number
-     * @param bool $first
      */
-    public static function updateNumber($number, $first = false)
+    public static function updateNumber(string $number, bool $first = false): void
     {
         if (!$first) {
             printf("%c%c%c%c%c%c%c%c", 8, 8, 8, 8, 8, 8, 8, 8);
@@ -45,7 +43,7 @@ class UtilFile
      * @param &$dirs
      * @param $restrict_dir
      */
-    public static function getDirectoriesR(&$dirs, $restrict_dir)
+    public static function getDirectoriesR(&$dirs, string $restrict_dir)
     {
         //$output = `cd $makedir; ls -d /papers/*`;
         if ($restrict_dir != '') {
@@ -54,8 +52,7 @@ class UtilFile
             $pattern = null;
         }
 
-        echo $pattern;
-        $result_dirs = array();
+        $result_dirs = [];
         $current_depth = 0;
         self::updateNumber(0, true);
         self::listDirR(ARTICLEDIR, $result_dirs, $current_depth, false, $only_dirs = true, $pattern, 2);
@@ -64,9 +61,11 @@ class UtilFile
         foreach ($result_dirs as $files) {
             $dirs[] = str_replace(ARTICLEDIR . '/', '', $files);
         }
-        //print $output;
-        //$dirs = explode("\n", $output);
-        //if (DBG_LEVEL & 2) ($dirs);
+
+        if (DBG_LEVEL & 2) {
+            $output = explode("\n", $dirs);
+            print_r($output);
+        }
     }
 
     /**
@@ -82,7 +81,7 @@ class UtilFile
         }
         echo "PATTERN $pattern" . PHP_EOL;
 
-        $dirs = array();
+        $dirs = [];
         foreach (glob($pattern, GLOB_ONLYDIR) as $filename) {
             $dirs[] = str_replace(ARTICLEDIR . '/', '', $filename);
         }
@@ -111,7 +110,7 @@ class UtilFile
         $only_dirs = false
     )
     {
-        $files = array();
+        $files = [];
         $cdir = @opendir($dir);
         if (!$cdir) {
             return $files;
@@ -151,29 +150,19 @@ class UtilFile
 
     /**
      * list directories recursively
-     *
-     * @param $dir
-     * @param array &$result_dirs
-     * @param int &$current_depth
-     * @param bool $ignore_error
-     * @param bool $only_dirs
-     * @param null $pattern
-     * @param null $only_depth
      */
-    public static function listDirR($dir,
-                                    &$result_dirs,
-                                    &$current_depth = 0,
-                                    $ignore_error = true,
-                                    $only_dirs = true,
-                                    $pattern = null,
-                                    $only_depth = null
+    public static function listDirR(
+        string $dir,
+        array &$result_dirs,
+        int &$current_depth = 0,
+        bool $ignore_error = true,
+        bool $only_dirs = true,
+        ?string $pattern = null,
+        ?bool $only_depth = null
     ): bool
     {
         $current_depth++;
-        if (
-            false
-            && DBG_LEVEL & DBG_DIRECTORIES
-        ) {
+        if (DBG_LEVEL & DBG_DIRECTORIES) {
             echo "Opening $dir...\n";
         }
 
@@ -248,12 +237,10 @@ class UtilFile
 
     /**
      * recursively delete given directory
-     *
-     * @param $dir
-     * @param bool $ignore_error
-     * @return bool
      */
-    public static function deleteDirR($dir, $ignore_error = true)
+    public static function deleteDirR(
+        string $dir,
+        bool $ignore_error = true): bool
     {
         if (is_file($dir)) {
             $result = unlink($dir);
@@ -292,7 +279,7 @@ class UtilFile
      * @param $dest
      * @return bool
      */
-    public static function copyR($src, $dest)
+    public static function copyR(string $src, string $dest): bool
     {
         if (is_dir($src)) {
             $success = mkdir($dest);
@@ -317,11 +304,8 @@ class UtilFile
     /**
      * On Windows it is still not possible to rename across file-system boundaries. :(
      * Therefore everything is done manually.
-     * @param $src
-     * @param $dest
-     * @return bool success
      */
-    public function rename($src, $dest)
+    public function rename(string $src, string $dest): bool
     {
         $result = rename($src, $dest);
         if (!$result) {
@@ -336,12 +320,13 @@ class UtilFile
 
     /**
      * recursively hardlink (or copy) directories and files
-     * @param $src
-     * @param $dest
-     * @param $ignorePattern // pattern of directories/files to ignore
-     * @param $copyPattern // pattern of files to copy
      */
-    public static function linkR($src, $dest, $ignorePattern, $copyPattern): bool
+    public static function linkR(
+        string $src,
+        string $dest,
+        string $ignorePattern, // pattern of directories/files to ignore
+        string $copyPattern // pattern of files to copy
+        ): bool
     {
         if (is_dir($src)) {
             if (preg_match($ignorePattern, $src)) {
@@ -378,12 +363,11 @@ class UtilFile
 
     /**
      * write a file atomically
-     * @param $filename
-     * @param $data
-     * @param int $flags
-     * @return bool
      */
-    public static function filePutContentsAtomic($filename, $data, $flags = 0)
+    public static function filePutContentsAtomic(
+        string $filename,
+        string $data,
+        int $flags = 0): bool
     {
         if (file_put_contents($filename . "~", $data, $flags) === strlen($data)) {
             return rename($filename . "~", $filename);
@@ -396,7 +380,7 @@ class UtilFile
     /**
      *  this is the old way, used to read TARGET.base from the Makefile.
      */
-    public static function getSourcefileInDirViaMake($directory)
+    public static function getSourcefileInDirViaMake(string $directory): string
     {
         // we need to get the base from Makefile
         if (!($contents = @file_get_contents($directory . '/Makefile'))) {
@@ -417,8 +401,9 @@ class UtilFile
     /**
      * Rewrites the PREFIX of a given Makefile. It adds $addLevel ../ subdirectories
      * to PREFIX (because of hardlinked creation of subdirectories).
+     * @return int|false
      */
-    public static function adjustMakefilePrefix(string $directory, int $addLevel) : ?string
+    public static function adjustMakefilePrefix(string $directory, int $addLevel)
     {
         $filename = $directory . '/Makefile';
         // we need to get the base from Makefile
@@ -444,7 +429,7 @@ class UtilFile
      * '/00001/hep-th.0001081'
      * and constructs the appropriate filename for the texfile.
      */
-    public static function getSourcefileInDir($dir, $with_suffix = true): string
+    public static function getSourcefileInDir(string $dir, bool $with_suffix = true): string
     {
         $subdirs = explode('/', $dir);
 
@@ -461,7 +446,7 @@ class UtilFile
     /**
      * return suffix of an e.g. filename
      */
-    public static function getSuffix($str, $withDot = true)
+    public static function getSuffix(string $str, bool $withDot = true): string
     {
         if ($withDot) {
             return strrchr($str, ".");
@@ -475,7 +460,7 @@ class UtilFile
      * parse makefile to find out whether current is actually a tex file
      *
      */
-    public static function isFileTexfile($checkfile)
+    public static function isFileTexfile(string $checkfile): bool
     {
         $cfg = Config::getConfig();
         $file = $cfg->app->file;
@@ -530,11 +515,8 @@ class UtilFile
 
     /**
      * parse given files to find out whether current is actually a latex file
-     *
-     * @param string $checkfile
-     * @return bool
      */
-    public static function isFileLatexfile($checkfile)
+    public static function isFileLatexfile(string $checkfile): bool
     {
         if (!($contents = @file_get_contents($checkfile))) {
             false;
@@ -553,8 +535,6 @@ class UtilFile
     /**
      * Ensures that a directory exists. If it does not exist, create
      * directory.
-     * @param string $dir
-     * @return bool
      */
     public static function ensureDirExists(string $dir): bool
     {
@@ -566,7 +546,7 @@ class UtilFile
         }
     }
 
-    public static function getSubDirs($directory)
+    public static function getSubDirs(string $directory): array
     {
         $resultDirs = self::listDir($directory, true, true, null, false, true);
         return $resultDirs;
@@ -574,11 +554,8 @@ class UtilFile
 
     /**
      * Removes files in directory
-     *
-     * @param $directory
-     * @param $action
      */
-    public static function cleanupDir($directory, $action)
+    public static function cleanupDir(string $directory, string $action): void
     {
         $cfg = Config::getConfig();
         if (DBG_LEVEL & DBG_DIRECTORIES) {
@@ -606,7 +583,7 @@ class UtilFile
         }
     }
 
-    public static function sanitizeFilename(string $fileName, $removeSuffix = false)
+    public static function sanitizeFilename(string $fileName, $removeSuffix = false): string
     {
         // does not work on Alpine, needs 
         // $asciiName = iconv('UTF-8', 'ASCII//TRANSLIT', $fileName);
@@ -620,7 +597,7 @@ class UtilFile
         return $safeName;
     }
 
-    public static function makeDirWritable($directory)
+    public static function makeDirWritable(string $directory)
     {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
         foreach ($iterator as $item) {
@@ -634,10 +611,8 @@ class UtilFile
 
     /**
      * Makes a file world-writable
-     * @param string $filename
-     * @return bool
      */
-    public static function makeFileWritable(string $filename)
+    public static function makeFileWritable(string $filename): bool
     {
         $result = chmod($filename, 0666);
         return $result;

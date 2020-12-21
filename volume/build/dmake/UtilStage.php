@@ -11,9 +11,8 @@ class UtilStage
 {
     /**
      * Determines all hostGroups that are configured in the current active stages
-     * @return array
      */
-    public static function getHostGroups()
+    public static function getHostGroups(): array
     {
         $cfg = Config::getConfig();
         $hostGroups = [];
@@ -25,7 +24,7 @@ class UtilStage
         return $hostGroups;
     }
 
-    public static function disableStagesByHostGroup($hostGroup)
+    public static function disableStagesByHostGroup(string $hostGroup): array
     {
         $cfg = Config::getConfig();
         $disabled = [];
@@ -38,7 +37,7 @@ class UtilStage
         return $disabled;
     }
 
-    public static function saveActiveStages()
+    public static function saveActiveStages(): bool
     {
         $cfg = Config::getConfig();
         $activeStages = [];
@@ -53,7 +52,7 @@ class UtilStage
         return true;
     }
 
-    public static function loadActiveStages()
+    public static function loadActiveStages(): array
     {
         $json = file_get_contents(ACTIVESTAGESFILE);
         if ($json === false) {
@@ -64,7 +63,7 @@ class UtilStage
         return $activeStages;
     }
 
-    public static function determineActiveStages()
+    public static function determineActiveStages(): void
     {
         $cfg = Config::getConfig();
         $activeStages = self::loadActiveStages();
@@ -79,7 +78,7 @@ class UtilStage
     /**
      * Determines the hostGroup that is configured for given stage
      */
-    public static function getHostGroupByStage($stage): string
+    public static function getHostGroupByStage(string $stage): string
     {
         $cfg = Config::getConfig();
         return $cfg->stages[$stage]->hostGroup;
@@ -97,7 +96,10 @@ class UtilStage
         return $targets;
     }
 
-    public static function setupFiles($articleDir, $directory, $hostGroupName): void
+    public static function setupFiles(
+        string $articleDir,
+        string $directory,
+        string $hostGroupName): void
     {
         $sourceDir = $articleDir . '/' . $directory;
         $destDir = $articleDir . '/' . $directory . '/__texmlbus_' . $hostGroupName;
@@ -108,7 +110,10 @@ class UtilStage
         }
     }
 
-    public static function getSourceDir($articleDir, $directory, $hostGroup): string
+    public static function getSourceDir(
+        string $articleDir,
+        string $directory,
+        string $hostGroup): string
     {
         $cfg = Config::getConfig();
 

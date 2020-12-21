@@ -10,8 +10,6 @@ require_once 'StatEntry.php';
 require_once 'UtilHost.php';
 require_once 'UtilStage.php';
 
-use Dmake\Config;
-
 /**
  * Class UtilBindingFile
  *
@@ -34,10 +32,8 @@ class UtilBindingFile
     /**
      * returns the directory location of the binding file directory of the
      * currently used latexml
-     *
-     * @return string
      */
-    public static function getBindingFilesDir()
+    public static function getBindingFilesDir(): string
     {
         $cfg = Config::getConfig();
 
@@ -70,19 +66,17 @@ class UtilBindingFile
 
     /**
      * returns all binding files of a specific directory
-     * 
-     * @param string $bindingDir
-     * @param bool $useCache
-     * @param string $cacheFile
-     * @param string $pattern
-     * @return array|mixed
      */
-    public static function getBindingFiles($bindingDir, $useCache, $cacheFile, $pattern)
+    public static function getBindingFiles(
+        string $bindingDir,
+        bool $useCache,
+        string $cacheFile,
+        string $pattern): array
     {
         $cacheFile = sys_get_temp_dir() . '/' . $cacheFile;
         $cacheLife = 300; //caching time, in seconds
 
-        $bindingFiles = array();
+        $bindingFiles = [];
         $filemtime = @filemtime($cacheFile);
         if (
             !$useCache

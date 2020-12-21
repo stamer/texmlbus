@@ -13,10 +13,10 @@ use \PDO;
 
 class StatEntry
 {
-    const WQ_ACTION_NONE = 'none';
-    const WQ_ACTION_DEFAULT = 'default';
-    const WQ_ACTION_FORCE = 'force';
-    const WQ_ENTRY_DISABLED = 0;
+    public const WQ_ACTION_NONE = 'none';
+    public const WQ_ACTION_DEFAULT = 'default';
+    public const WQ_ACTION_FORCE = 'force';
+    public const WQ_ENTRY_DISABLED = 0;
 
     public $id = 0;
     public $date_created = '';
@@ -34,226 +34,142 @@ class StatEntry
     public $wq_date_created = '';
     public $wq_date_modified = '';
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     */
-    public function setId($id)
+    public function setId(int $id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return string
-     */
-    public function getDateCreated()
+    public function getDateCreated(): ?string
     {
         return $this->date_created;
     }
 
-    /**
-     * @param string $date_created
-     */
-    public function setDateCreated($date_created)
+    public function setDateCreated(string $date_created): void
     {
         $this->date_created = $date_created;
     }
 
-    /**
-     * @return string
-     */
-    public function getDateModified()
+    public function getDateModified(): ?string
     {
         return $this->date_modified;
     }
 
-    /**
-     * @param string $date_modified
-     */
-    public function setDateModified($date_modified)
+    public function setDateModified(string $date_modified): void
     {
         $this->date_modified = $date_modified;
     }
 
-    /**
-     * @return int
-     */
-    public function getWqId()
+    public function getWqId(): ?int
     {
         return $this->wq_id;
     }
 
-    /**
-     * @param int $wq_id
-     */
-    public function setWqId($wq_id)
+    public function setWqId(int $wq_id): void
     {
         $this->wq_id = $wq_id;
     }
 
-    /**
-     * @return int
-     */
-    public function getWqPriority()
+    public function getWqPriority(): ?int
     {
         return $this->wq_priority;
     }
 
-    /**
-     * @param int $wq_priority
-     */
-    public function setWqPriority($wq_priority)
+    public function setWqPriority(int $wq_priority): void
     {
         $this->wq_priority = $wq_priority;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqAction()
+    public function getWqAction(): ?string
     {
         return $this->wq_action;
     }
 
-    /**
-     * @param string $wq_action
-     */
-    public function setWqAction($wq_action)
+    public function setWqAction(?string $wq_action): void
     {
         $this->wq_action = $wq_action;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqPrevAction()
+    public function getWqPrevAction(): ?string
     {
         return $this->wq_prev_action;
     }
 
-    /**
-     * @param string $wq_prev_action
-     */
-    public function setWqPrevAction($wq_prev_action)
+    public function setWqPrevAction(?string $wq_prev_action): void
     {
         $this->wq_prev_action = $wq_prev_action;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqStage()
+    public function getWqStage(): ?string
     {
         return $this->wq_stage;
     }
 
-    /**
-     * @param string $wq_stage
-     */
-    public function setWqStage($wq_stage)
+    public function setWqStage(?string $wq_stage): void
     {
         $this->wq_stage = $wq_stage;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqDateCreated()
+    public function getWqDateCreated(): ?string
     {
         return $this->wq_date_created;
     }
 
-    /**
-     * @param string $wq_date_created
-     */
-    public function setWqDateCreated($wq_date_created)
+    public function setWqDateCreated(?string $wq_date_created): void
     {
         $this->wq_date_created = $wq_date_created;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqDateModified()
+    public function getWqDateModified(): ?string
     {
         return $this->wq_date_modified;
     }
 
-    /**
-     * @param string $wq_date_modified
-     */
-    public function setWqDateModified($wq_date_modified)
+    public function setWqDateModified(string $wq_date_modified): void
     {
         $this->wq_date_modified = $wq_date_modified;
     }
 
-    /**
-     * @return string
-     */
-    public function getSet()
+    public function getSet(): ?string
     {
         return $this->set;
     }
 
-    /**
-     * @param string $set
-     */
-    public function setSet($set)
+    public function setSet(?string $set): void
     {
         $this->set = $set;
     }
 
-    /**
-     * @return string
-     */
-    public function getFilename()
+    public function getFilename(): ?string
     {
         return $this->filename;
     }
 
-    /**
-     * @param string $filename
-     */
-    public function setFilename($filename)
+    public function setFilename(?string $filename): void
     {
         $this->filename = $filename;
     }
 
-    /**
-     * @return int
-     */
-    public function getTimeout()
+    public function getTimeout(): ?int
     {
         return $this->timeout;
     }
 
-    /**
-     * @param int $timeout
-     */
-    public function setTimeout($timeout)
+    public function setTimeout(int $timeout): void
     {
         $this->timeout = $timeout;
     }
 
-    /**
-     * @return string
-     */
-    public function getWqHostGroup()
+    public function getWqHostGroup(): ?string
     {
         return $this->wq_hostgroup;
     }
 
-    /**
-     * @param string $hostgroup
-     */
-    public function setWqHostgroup($hostGroup)
+    public function setWqHostgroup(string $hostGroup): void
     {
         $this->wq_hostgroup = $hostGroup;
     }
@@ -269,58 +185,51 @@ class StatEntry
     /**
      * @param mixed $errmsg
      */
-    public function setErrmsg($errmsg)
+    public function setErrmsg($errmsg): void
     {
         $this->errmsg = $errmsg;
     }
 
     /**
      * Returns raw filename (possibly with or without .tex).
-     *
-     * @return string
      */
-    public function getSourcefile()
+    public function getSourcefile(): ?string
     {
         return $this->sourcefile;
     }
 
     /**
      * Sets raw filename (possibly with or without .tex).
-     *
-     * @return string
      */
-    public function setSourcefile($sourcefile)
+    public function setSourcefile(string $sourcefile): void
     {
         $this->sourcefile = $sourcefile;
     }
 
     /**
      * Returns the TeX source (it is guaranteed to have a .tex suffix).
-     *
-     * @return string
      */
-    public function getSourcefileTex()
+    public function getSourcefileTex(): ?string
     {
         if (!preg_match('/\.tex$/', $this->sourcefile)) {
             return $this->sourcefile . '.tex';
-        } else {
-            return $this->sourcefile;
         }
+
+        return $this->sourcefile;
     }
 
     /**
      * Returns the the prefix of the sourcefile (without .tex).
-     *
-     * @return string
      */
-    public function getSourcefilePrefix()
+    public function getSourcefilePrefix(): ?string
     {
         return preg_replace('/\.tex$/', '', $this->sourcefile);
     }
 
     /**
+     * Saves entry to DB.
      */
-    public function save()
+    public function save(): bool
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -389,16 +298,20 @@ class StatEntry
         $stmt->bindValue(':i_errmsg', $this->errmsg);
         $stmt->bindValue(':u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        $success = $stmt->execute();
 
         if ($this->id == 0) {
             $this->id = $dao->lastInsertId();
         }
+        return $success;
     }
 
-    public static function fillEntry(array $row): StatEntry
+    /*
+     * Database row to StatEntry.
+     */
+    public static function fillEntry(array $row): self
     {
-        $se = new StatEntry();
+        $se = new self();
         if (isset($row['id'])) {
             $se->setId($row['id']);
         }
@@ -564,9 +477,9 @@ class StatEntry
                 && (($row['retval'] == 'unknown')
                     || strpos($row['retval'], 'rerun') !== false))) {
             return false;
-        } else {
-            return true;
         }
+
+        return true;
     }
 
     public static function getRetval(string $filename, string $stage, string $action): ?bool
@@ -603,9 +516,9 @@ class StatEntry
 
         if (isset($row['retval'])) {
             return $row['retval'];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     public static function getFilenamesByRestriction(string $action, array $restrict): array
@@ -695,7 +608,7 @@ class StatEntry
 
         $stmt->execute();
 
-        $filenames = array();
+        $filenames = [];
         while ($row = $stmt->fetch()) {
             $filenames[$row['id']] = $row['filename'];
         }
@@ -788,7 +701,7 @@ class StatEntry
 
         $stmt->execute();
 
-        $filenames = array();
+        $filenames = [];
         while ($row = $stmt->fetch()) {
             $filenames[$row['id']] = $row['filename'];
         }
@@ -797,10 +710,9 @@ class StatEntry
     }
 
     /**
-     * @param $filename
-     * @return bool
+     * Delete by given directory.
      */
-    public static function deleteByDirectory($directory)
+    public static function deleteByDirectory(string $directory): bool
     {
         $dao = Dao::getInstance();
 
@@ -822,6 +734,9 @@ class StatEntry
         return $result;
     }
 
+    /**
+     * Delete by given id.
+     */
     public static function deleteById(int $id): bool
     {
         $dao = Dao::getInstance();
@@ -842,12 +757,13 @@ class StatEntry
         return $result;
     }
 
-    public static function markRerun(string $filename, string $stage, string $action): void
+    public static function markRerun(
+        string $filename,
+        string $stage,
+        string $action): void
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
-
-        $dao = Dao::getInstance();
 
         echo $action . PHP_EOL;
         echo $filename . PHP_EOL . PHP_EOL;
@@ -873,7 +789,10 @@ class StatEntry
      * Get next entries
      * @return ?StatEntry[]
      */
-    public static function wqGetNextEntries(string $hostGroupName = '', int $limit = 10, bool $toStdout = true)
+    public static function wqGetNextEntries(
+        string $hostGroupName = '',
+        int $limit = 10,
+        bool $toStdout = true)
     {
         // Here we might get "server has gone away message".
         // Therefore explicitly check, whether connection is still there.
@@ -924,7 +843,7 @@ class StatEntry
 
         $stmt->execute();
 
-        $dbEntries = array();
+        $dbEntries = [];
         while ($row = $stmt->fetch()) {
             $dbEntries[$row['wq_id']] = self::fillEntry($row);
         }
@@ -935,7 +854,6 @@ class StatEntry
         }
         return $dbEntries;
     }
-
 
     /**
      * @return bool|void
@@ -955,12 +873,12 @@ class StatEntry
         $entry = StatEntry::getByDir($directory);
         if ($entry) {
             if ($action == StatEntry::WQ_ACTION_FORCE) {
-                UtilFile::cleanupDir($directory);
+                UtilFile::cleanupDir($directory, $action);
             }
         } else {
             $entry = new StatEntry;
             $entry->filename = $directory;
-            $result = $entry->save();
+            $success = $entry->save();
         }
 
         $wqe = new WorkqueueEntry();
@@ -972,8 +890,8 @@ class StatEntry
         $wqe->setStage($stage);
         $wqe->setHostGroup($hostGroupName);
 
-        $result = $wqe->save();
-        return $result;
+        $success = $wqe->save();
+        return $success;
 
     }
 
@@ -999,22 +917,23 @@ class StatEntry
             $wqe->setStage($stage);
             $wqe->setHostGroup($hostGroupName);
 
-            $result = $wqe->save();
-            return $result;
+            return $wqe->save();
         } else {
             return false;
         }
     }
 
     /**
-     * @param $directory
-     * @param $sourcefile
-     * @param $minDepth
-     * @param string $action
-     * @param string $retval
-     * @return bool
+     * Adds new entry.
      */
-    public static function addNew($directory, $sourcefile, $minDepth, $hostGroupName = '', $stage = '', $action = 'none', $retval = 'unknown')
+    public static function addNew(
+        string $directory,
+        string $sourcefile,
+        int $minDepth,
+        string $hostGroupName = '',
+        string $stage = '',
+        string $action = 'none',
+        string $retval = 'unknown'): bool
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -1195,72 +1114,6 @@ class StatEntry
         return $ids;
     }
 
-    public static function getSets(string $pattern = ''): array
-    {
-        $dao = Dao::getInstance();
-
-        if ($pattern != '') {
-            $where = ' WHERE s.`set` LIKE :pattern ';
-        } else {
-            $where = '';
-        }
-
-        $query = "
-            SELECT
-                distinct s.`set`,
-                std.sourcefile
-            FROM
-                statistic as s
-            LEFT JOIN
-                source_to_dir as std
-            ON
-                s.`set` = std.directory
-            $where
-            ORDER BY
-                `set`";
-
-        $stmt = $dao->prepare($query);
-        if ($pattern != '') {
-            $stmt->bindValue(':pattern', '%' . $pattern . '%', PDO::PARAM_STR);
-        }
-        $stmt->execute();
-
-        $rows = [];
-        while ($row = $stmt->fetch()) {
-            $rows[] = $row;
-        }
-        return $rows;
-    }
-
-    public static function getSetsCount(): array
-    {
-        $dao = Dao::getInstance();
-
-        $query = "
-            SELECT
-                s.`set`,
-                count(s.id) as num_documents,                            
-                std.sourcefile
-            FROM
-                statistic as s
-            LEFT JOIN
-                source_to_dir as std
-            ON
-                s.`set` = std.directory
-            GROUP BY
-                `set`
-            ORDER BY
-                `set`";
-
-        $stmt = $dao->prepare($query);
-        $stmt->execute();
-
-        $rows = [];
-        while ($row = $stmt->fetch()) {
-            $rows[] = $row;
-        }
-        return $rows;
-    }
 
     public static function getCountByDirPrefix(string $dirPrefix): int
     {
@@ -1348,7 +1201,10 @@ class StatEntry
         return [$stat, $rerun];
     }
 
-    public static function getFileNamesByRetval(string $retval, string $joinTable = '',  string $set = ''): array
+    public static function getFileNamesByRetval(
+        string $retval,
+        string $joinTable = '',
+        string $set = ''): array
     {
         $dao = Dao::getInstance();
 
@@ -1393,7 +1249,9 @@ class StatEntry
         return $stmt->fetchAll();
     }
 
-    public static function getCountLastStat(string $stage, string $joinTable): int
+    public static function getCountLastStat(
+        string $stage,
+        string $joinTable): int
     {
         $dao = Dao::getInstance();
 
@@ -1427,7 +1285,11 @@ class StatEntry
         return $numrows;
     }
 
-    public static function getLastStat(string $orderBy, string $sortBy, string $min, string $max_pp): array
+    public static function getLastStat(
+        string $orderBy,
+        string $sortBy,
+        int $min,
+        int $max_pp): array
     {
         // Due to long running sse script
         // here we might get "server has gone away message"

@@ -9,53 +9,50 @@
 
 namespace Dmake;
 
-class ChartJs implements \JsonSerializable
+use JsonSerializable;
+
+class ChartJs implements JsonSerializable
 {
     /**
      *
      * @var string[]
      */
-    protected $labels = array();
+    protected $labels = [];
 
     /**
      *
      * @var ChartJsDataset[]
      */
-    protected $datasets = array();
+    protected $datasets = [];
 
     protected $canvasId = 1;
 
-    public function getLabels()
+    public function getLabels(): array
     {
         return $this->labels;
     }
 
-    public function getDatasets()
+    public function getDatasets(): array
     {
         return $this->datasets;
     }
 
-    public function getCanvasId()
+    public function getCanvasId(): int
     {
         return $this->canvasId;
     }
 
-    public function setLabels($labels)
+    public function setLabels(array $labels): void
     {
         $this->labels = $labels;
     }
 
-    public function setDatasets($datasets)
+    public function setDatasets(array $datasets): void
     {
         $this->datasets = $datasets;
     }
 
-    /**
-     * @param $label
-     * @param $yVals
-     * @param string $color
-     */
-    public function addDataset($label, $yVals, $color = '')
+    public function addDataset(string $label, array $yVals, string $color = ''): void
     {
         $dataset = new ChartJsDataset($label);
 
@@ -67,12 +64,12 @@ class ChartJs implements \JsonSerializable
         }
     }
 
-    public function setCanvasId($canvasId)
+    public function setCanvasId(int $canvasId): void
     {
         $this->canvasId = $canvasId;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $data['labels'] = $this->labels;
         $data['datasets'] = $this->datasets;

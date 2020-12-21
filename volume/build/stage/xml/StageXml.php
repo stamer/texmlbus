@@ -9,12 +9,11 @@ use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\Dao;
 use Dmake\ErrDetEntry;
-use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
 use Dmake\UtilStage;
 
-class StageXml extends AbstractStage implements StageInterface
+class StageXml extends AbstractStage
 {
 	public $num_xmarg = 0;
 	public $ok_xmarg = 0;
@@ -27,7 +26,7 @@ class StageXml extends AbstractStage implements StageInterface
         $this->debug = true;
     }
 
-    public static function register()
+    public static function register(): array
     {
         $config = [
             'stage' => 'xml',
@@ -113,12 +112,12 @@ class StageXml extends AbstractStage implements StageInterface
         return $config;
     }
 
-	public function save()
+	public function save(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = '
 			REPLACE	INTO
@@ -158,10 +157,10 @@ class StageXml extends AbstractStage implements StageInterface
 		$stmt->bindValue('warnmsg', $this->warnmsg);
 		$stmt->bindValue('errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function fillEntry($row)
+    public static function fillEntry(array $row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -216,12 +215,12 @@ class StageXml extends AbstractStage implements StageInterface
         return $se;
     }
 
-	public function updateRetval()
+	public function updateRetval(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = '
 			INSERT INTO
@@ -282,10 +281,13 @@ class StageXml extends AbstractStage implements StageInterface
 		$stmt->bindValue('i_errmsg', $this->errmsg);
 		$stmt->bindValue('u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
+    public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed): bool
     {
         $directory = $entry->filename;
 
@@ -310,7 +312,7 @@ class StageXml extends AbstractStage implements StageInterface
             // matches[3] ==> num_xmarg
             // matches[4] ==> ok_xmarg
             $xmarg_pattern = '@(.*?)(^   XMArg: )(\d+)/(\d+)@m';
-            $matches = array();
+            $matches = [];
             preg_match($xmarg_pattern, $content, $matches);
             if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                 print_r($matches);
@@ -397,16 +399,17 @@ class StageXml extends AbstractStage implements StageInterface
             }
         }
 
-        $res->updateRetval();
+        return $res->updateRetval();
     }
 
-    public function parseDetail($hostGroup, StatEntry $entry)
+    public function parseDetail(
+        string $hostGroup,
+        StatEntry $entry): void
     {
         $directory = $entry->getFilename();
-        $datestamp = date("Y-m-d H:i:s", time());
+        $datestamp = date("Y-m-d H:i:s");
 
         $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$this->config['stderrLog'];
-        $i = 0;
 
         $this->debug($stderrlog);
 
@@ -426,9 +429,9 @@ class StageXml extends AbstractStage implements StageInterface
                 $ede->setPos($i);
                 $ede->setDateCreated($datestamp);
                 // ?? does not work here
-                if (isset($matches[1][$i]))
+                if (isset($matches[1][$i])) {
                     $ede->setErrClass($matches[1][$i]);
-                else {
+                } else {
                     $ede->setErrClass('');
                 }
                 if (isset($matches[2][$i])) {
@@ -440,10 +443,10 @@ class StageXml extends AbstractStage implements StageInterface
                 if (isset($matches[3][$i])) {
                     $ede->setErrMsg($matches[3][$i]);
                 } else {
-                    $ede->setErrmsg('');
+                    $ede->setErrMsg('');
                 }
 
-                $ede->setMd5Errmsg(md5($ede->getErrmsg()));
+                $ede->setMd5ErrMsg(md5($ede->getErrMsg()));
 
                 $ede->save();
             }

@@ -11,6 +11,7 @@
  */
 $config->db = new StdClass();
 $config->db->charset = 'utf8';
+$config->db->perPage = 50;
 
 // See errortext below.
 $config->db->username = getenv('MYSQL_USER');

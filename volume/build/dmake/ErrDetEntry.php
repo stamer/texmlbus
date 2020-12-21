@@ -13,153 +13,119 @@ use \PDO;
 
 class ErrDetEntry
 {
-	protected $document_id = 0;
+	protected $documentId = 0;
 	protected $pos = 0;
-	protected $date_created = '';
-	protected $errclass = '';
-	protected $errtype = '';
-	protected $errmsg = '';
-	protected $errobject = '';
-	protected $md5_errmsg = '';
+	protected $dateCreated = '';
+	protected $target;
+	protected $errClass = '';
+	protected $errType = '';
+	protected $errMsg = '';
+	protected $errObject = '';
+	protected $md5ErrMsg = '';
 
-    /**
-     * @return int
-     */
-    public function getDocumentId()
+    public function getDocumentId(): int
     {
-        return $this->document_id;
+        return $this->documentId;
     }
 
-    /**
-     * @param int $document_id
-     */
-    public function setDocumentId($document_id)
+    public function setDocumentId(int $documentId): void
     {
-        $this->document_id = $document_id;
+        $this->documentId = $documentId;
     }
 
-    /**
-     * @return int
-     */
-    public function getPos()
+    public function getPos(): ?int
     {
         return $this->pos;
     }
 
-    /**
-     * @param int $pos
-     */
-    public function setPos($pos)
+    public function setPos(?int $pos): void
     {
         $this->pos = $pos;
     }
 
-    /**
-     * @return string
-     */
-    public function getDateCreated()
+    public function getDateCreated(): ?string
     {
-        return $this->date_created;
+        return $this->dateCreated;
     }
 
-    /**
-     * @param string $date_created
-     */
-    public function setDateCreated($date_created)
+    public function setDateCreated(?string $dateCreated): void
     {
-        $this->date_created = $date_created;
+        $this->dateCreated = $dateCreated;
     }
 
-    /**
-     * @return string
-     */
-    public function getErrclass()
+    public function getTarget(): ?string
     {
-        return $this->errclass;
+        return $this->target;
     }
 
-    /**
-     * @param string $errclass
-     */
-    public function setErrclass($errclass)
+    public function setTarget(string $target): void
     {
-        $this->errclass = $errclass;
+        $this->target = $target;
     }
 
-    /**
-     * @return string
-     */
-    public function getErrtype()
+    public function getErrClass(): ?string
     {
-        return $this->errtype;
+        return $this->errClass;
     }
 
-    /**
-     * @param string $errtype
-     */
-    public function setErrtype($errtype)
+    public function setErrClass(?string $errClass): void
     {
-        $this->errtype = $errtype;
+        $this->errClass = $errClass;
     }
 
-    /**
-     * @return string
-     */
-    public function getErrmsg()
+    public function getErrType(): ?string
     {
-        return $this->errmsg;
+        return $this->errType;
     }
 
-    /**
-     * @param string $errmsg
-     */
-    public function setErrmsg($errmsg)
+    public function setErrType(?string $errType): void
     {
-        $this->errmsg = $errmsg;
+        $this->errType = $errType;
+    }
+
+    public function getErrMsg(): ?string
+    {
+        return $this->errMsg;
+    }
+
+    public function setErrMsg(?string $errMsg): void
+    {
+        $this->errMsg = $errMsg;
     }
 
     /**
      * @return string
      */
-    public function getErrObject()
+    public function getErrObject(): ?string
     {
-        return $this->errobject;
+        return $this->errObject;
     }
 
-    /**
-     * @param string $errobject
-     */
-    public function setErrObject($errobject)
+    public function setErrObject(string $errObject): void
     {
-        $this->errobject = $errobject;
+        $this->errObject = $errObject;
     }
 
-    /**
-     * @return string
-     */
-    public function getMd5Errmsg()
+    public function getMd5ErrMsg(): ?string
     {
-        return $this->md5_errmsg;
+        return $this->md5ErrMsg;
     }
 
-    /**
-     * @param string $md5_errmsg
-     */
-    public function setMd5Errmsg($md5_errmsg)
+    public function setMd5ErrMsg(?string $md5ErrMsg): void
     {
-        $this->md5_errmsg = $md5_errmsg;
+        $this->md5ErrMsg = $md5ErrMsg;
     }
 
-    public function __construct($document_id, $target)
+    public function __construct(int $documentId, string $target)
     {
-        $this->document_id = $document_id;
+        $this->documentId = $documentId;
         $this->target = $target;
     }
 
     /**
      * saves the current instance to db
      */
-    public function save()
+    public function save(): bool
 	{
 		$dao = Dao::getInstance();
 
@@ -167,65 +133,56 @@ class ErrDetEntry
 			REPLACE	INTO
 				errlog_detail
 			SET
-				document_id	= :document_id,
+				document_id	= :documentId,
 				pos	= :pos,
-				date_created = :date_created,
+				date_created = :dateCreated,
 				target = :target,
-				errtype = :errtype,
-				errclass = :errclass,
-				errmsg = :errmsg,
-				errobject = :errobject,
-				md5_errmsg = :md5_errmsg';
+				errtype = :errType,
+				errclass = :errClass,
+				errmsg = :errMsg,
+				errobject = :errObject,
+				md5_errmsg = :md5ErrMsg';
 
 		$stmt = $dao->prepare($query);
-        $stmt->bindValue(':document_id', $this->document_id);
+        $stmt->bindValue(':documentId', $this->documentId);
         $stmt->bindValue(':pos', $this->pos);
-        $stmt->bindValue(':date_created', $this->date_created);
+        $stmt->bindValue(':dateCreated', $this->dateCreated);
         $stmt->bindValue(':target', $this->target);
-        $stmt->bindValue(':errtype', $this->errtype);
-        $stmt->bindValue(':errclass', $this->errclass);
-        $stmt->bindValue(':errmsg', $this->errmsg);
-        $stmt->bindValue(':errobject', $this->errobject);
-        $stmt->bindValue(':md5_errmsg', $this->md5_errmsg);
+        $stmt->bindValue(':errtype', $this->errType);
+        $stmt->bindValue(':errclass', $this->errClass);
+        $stmt->bindValue(':errmsg', $this->errMsg);
+        $stmt->bindValue(':errobject', $this->errObject);
+        $stmt->bindValue(':md5_errmsg', $this->md5ErrMsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
     /**
      * creates an ErrDetEntry from $row
-     *
-     * @param $row
-     * @return ErrDetEntry
      */
-    public static function fillEntry($row)
+    public static function fillEntry(array $row): ErrDetEntry
     {
-        $ede = new self();
-        if (isset($row['document_id'])) {
-            $ede->document_id = $row['document_id'];
-        }
+        $ede = new self($row['document_id'], $row['target']);
         if (isset($row['date_created'])) {
             $ede->pos = $row['pos'];
         }
         if (isset($row['date_modified'])) {
-            $ede->date_created = $row['date_created'];
-        }
-        if (isset($row['target'])) {
-            $ede->target = $row['target'];
+            $ede->dateCreated = $row['date_created'];
         }
         if (isset($row['errtype'])) {
-            $ede->errtype = $row['errtype'];
+            $ede->errType = $row['errtype'];
         }
         if (isset($row['errclass'])) {
-            $ede->errclass = $row['errclass'];
+            $ede->errClass = $row['errclass'];
         }
         if (isset($row['errmsg'])) {
-            $ede->errmsg = $row['errmsg'];
+            $ede->errMsg = $row['errmsg'];
         }
         if (isset($row['errobject'])) {
-            $ede->errobject = $row['errobject'];
+            $ede->errObject = $row['errobject'];
         }
         if (isset($row['md5_errmsg'])) {
-            $ede->md5_errmsg = $row['md5_errmsg'];
+            $ede->md5ErrMsg = $row['md5_errmsg'];
         }
 
         return $ede;
@@ -233,11 +190,8 @@ class ErrDetEntry
 
     /**
      * checks if entries exist for given document_id
-     * @param $document_id
-     * @param $target
-     * @return bool
      */
-	public static function exists($document_id, $target)
+	public static function exists(int $documentId, string $target): bool
 	{
 		$dao = Dao::getInstance();
 
@@ -247,11 +201,11 @@ class ErrDetEntry
 			FROM
 				errlog_detail
 			WHERE
-				document_id = :document_id
+				document_id = :documentId
 				AND target = :target";
 
 		$stmt = $dao->prepare($query);
-        $stmt->bindValue(':document_id', $document_id);
+        $stmt->bindValue(':documentId', $documentId);
         $stmt->bindValue(':target', $target);
         $stmt->execute();
 
@@ -263,11 +217,8 @@ class ErrDetEntry
 
     /**
      * deletes entries by documentId and target
-     *
-     * @param $document_id
-     * @param $target
      */
-	public static function deleteByIdAndTarget($document_id, $target)
+	public static function deleteByIdAndTarget(int $documentId, string $target): bool
 	{
 		$dao = Dao::getInstance();
 
@@ -275,22 +226,19 @@ class ErrDetEntry
 			DELETE FROM
 				errlog_detail
 			WHERE
-				document_id = :document_id
+				document_id = :documentId
 				AND target = :target";
 
 		$stmt = $dao->prepare($query);
-        $stmt->bindValue(':document_id', $document_id);
+        $stmt->bindValue(':documentId', $documentId);
         $stmt->bindValue(':target', $target);
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
     /**
      * Returns the number of entries for given error message.
-     *
-     * @param $md5ErrMsg
-     * @return mixed
      */
-    public static function getCountByMd5ErrMsg($md5ErrMsg)
+    public static function getCountByMd5ErrMsg(int $md5ErrMsg): int
     {
         $dao = Dao::getInstance();
 
@@ -300,28 +248,22 @@ class ErrDetEntry
 	        FROM
 		        errlog_detail
 	        WHERE
-		        md5_errmsg = :errmsg";
+		        md5_errmsg = :md5ErrMsg";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errmsg', $md5ErrMsg);
+        $stmt->bindValue(':md5ErrMsg', $md5ErrMsg);
 
         $stmt->execute();
 
         $row = $stmt->fetch();
 
-        $numRows = $row['numrows'];
-
-        return $numRows;
+        return $row['numrows'];
     }
 
     /**
      * Returns the error messages given by md5ErrMsg.
-     * @param $md5ErrMsg
-     * @param $min
-     * @param $max_pp
-     * @return array
      */
-    public static function getByMd5ErrMsg($md5ErrMsg, $min, $max_pp)
+    public static function getByMd5ErrMsg(string $md5ErrMsg, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -337,14 +279,14 @@ class ErrDetEntry
             ON
                 t1.document_id = t2.id
             WHERE
-                t1.md5_errmsg = :errmsg
+                t1.md5_errmsg = :md5EerrMsg
             ORDER BY
                 t2.date_created DESC
             LIMIT
                 $min, $max_pp";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errmsg', $md5ErrMsg);
+        $stmt->bindValue(':md5ErrMsg', $md5ErrMsg);
 
         $stmt->execute();
 
@@ -353,10 +295,8 @@ class ErrDetEntry
 
     /**
      * Returns the number of entries for given error class.
-     * @param $errClass
-     * @return int
      */
-    public static function getCountByErrClass($errClass)
+    public static function getCountByErrClass(string $errClass): int
     {
         $dao = Dao::getInstance();
 
@@ -366,10 +306,10 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errclass = :errclass";
+                errclass = :errClass";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errclass', $errClass);
+        $stmt->bindValue(':errClass', $errClass);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -378,12 +318,8 @@ class ErrDetEntry
 
     /**
      * Gets the entries by given ErrClass.
-     * @param $errClass
-     * @param $min
-     * @param $max_pp
-     * @return array
      */
-    public static function getByErrClass($errClass, $min, $max_pp)
+    public static function getByErrClass(string $errClass, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -395,7 +331,7 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errclass = :errclass
+                errclass = :errClass
             GROUP BY
                 md5_errmsg
             ORDER BY
@@ -403,7 +339,7 @@ class ErrDetEntry
             LIMIT $min, $max_pp";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errclass', $errClass);
+        $stmt->bindValue(':errClass', $errClass);
 
         $stmt->execute();
         return $stmt->fetchAll();
@@ -411,10 +347,8 @@ class ErrDetEntry
 
     /**
      * Gets the number of files by given errClass.
-     * @param $errClass
-     * @return int
      */
-    public static function getFileCountByErrClass($errClass)
+    public static function getFileCountByErrClass(string $errClass): int
     {
         $dao = Dao::getInstance();
 
@@ -424,10 +358,10 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errclass = :errclass";
+                errclass = :errClass";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errclass', $errClass);
+        $stmt->bindValue(':errClass', $errClass);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -435,13 +369,9 @@ class ErrDetEntry
     }
 
     /**
-     * Gets the file by errClass.
-     * @param $errClass
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Gets the files by errClass.
      */
-    public static function getFileByErrClass($errClass, $min, $max_pp)
+    public static function getFileByErrClass(string $errClass, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
         $query = "
@@ -456,26 +386,23 @@ class ErrDetEntry
 	        ON
 		        t1.document_id = t2.id
 	        WHERE
-		        t1.errclass = :errclass
+		        t1.errclass = :errClass
 	        ORDER BY
 		        t2.date_created DESC
 	        LIMIT
 		        $min, $max_pp";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errclass', $errClass);
+        $stmt->bindValue(':errClass', $errClass);
 
         $stmt->execute();
         return $stmt->fetchAll();
-
     }
 
     /**
      * Gets the number of entries by errType.
-     * @param $errType
-     * @return int
      */
-    public static function getCountByErrType($errType)
+    public static function getCountByErrType(string $errType): int
     {
         $dao = Dao::getInstance();
 
@@ -485,10 +412,10 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errtype = :errtype";
+                errtype = :errType";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errtype', $errType);
+        $stmt->bindValue(':errType', $errType);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -497,10 +424,8 @@ class ErrDetEntry
 
     /**
      * Gets the number of errClass entries by errType.
-     * @param $errType
-     * @return int
      */
-    public static function getCountErrClassByErrType($errType)
+    public static function getCountErrClassByErrType(string $errType): int
     {
         $dao = Dao::getInstance();
 
@@ -510,10 +435,10 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errtype = :errtype";
+                errtype = :errType";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errtype', $errType);
+        $stmt->bindValue(':errType', $errType);
         $stmt->execute();
 
         $row = $stmt->fetch();
@@ -521,13 +446,12 @@ class ErrDetEntry
     }
 
     /**
-     * Gets the number of errClass by errType.
-     * @param $errType
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Gets the number of errClass entries by errType.
      */
-    public static function getErrClassByErrType($errType, $min, $max_pp)
+    public static function getErrClassByErrType(
+        string $errType,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -538,7 +462,7 @@ class ErrDetEntry
 	        FROM
 		        errlog_detail
 	        WHERE
-		        errtype = :errtype
+		        errtype = :errType
 	        GROUP BY
 		        errclass
 	        ORDER BY
@@ -547,7 +471,7 @@ class ErrDetEntry
 
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errtype', $errType);
+        $stmt->bindValue(':errType', $errType);
 
         $stmt->execute();
         return $stmt->fetchAll();
@@ -555,12 +479,11 @@ class ErrDetEntry
 
     /**
      * Gets the number of entries by errType.
-     * @param $errType
-     * @param $min
-     * @param $max_pp
-     * @return array
      */
-    public static function getByErrType($errType, $min, $max_pp)
+    public static function getByErrType(
+        string $errType,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -572,7 +495,7 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                errtype = :errtype
+                errtype = :errType
             GROUP BY
                 md5_errmsg
             ORDER BY
@@ -580,7 +503,7 @@ class ErrDetEntry
             LIMIT $min, $max_pp";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':errtype', $errType);
+        $stmt->bindValue(':errType', $errType);
 
         $stmt->execute();
         return $stmt->fetchAll();
@@ -588,10 +511,8 @@ class ErrDetEntry
 
     /**
      * Gets the corresponding error message for given md5 string.
-     * @param $md5
-     * @return array|mixed
      */
-    public static function getErrMsgByMd5($md5)
+    public static function getErrMsgByMd5(string $md5ErrMsg): array
     {
         $dao = Dao::getInstance();
 
@@ -601,11 +522,11 @@ class ErrDetEntry
             FROM
                 errlog_detail
             WHERE
-                md5_errmsg = :md5
+                md5_errmsg = :md5ErrMsg
             LIMIT 1";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':md5', $md5, PDO::PARAM_STR);
+        $stmt->bindValue(':md5ErrMsg', $md5ErrMsg, PDO::PARAM_STR);
 
         $stmt->execute();
         $row = $stmt->fetch();

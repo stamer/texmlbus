@@ -8,7 +8,7 @@
 
 namespace Dmake;
 
-class ApiResultArray extends ApiResult implements \JsonSerializable
+class ApiResultArray extends ApiResult
 {
     protected $successArray;
 
@@ -20,7 +20,7 @@ class ApiResultArray extends ApiResult implements \JsonSerializable
     /**
      * @return array|mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'success' => true,

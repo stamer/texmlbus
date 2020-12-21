@@ -12,11 +12,10 @@ namespace Dmake;
 class PackageUsageDao
 {
     /**
-     * @param $set
-     * @param $where
+     * Get count by set.
      * @return int
      */
-    public function getCount($set)
+    public function getCount(string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -56,14 +55,13 @@ class PackageUsageDao
     }
 
     /**
-     * @param $set
-     * @param $where
-     * @param $order
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get StyFilenames
      */
-    public function getStyFilenames($set, $order, $min, $max_pp)
+    public function getStyFilenames(
+        string $set,
+        string $order,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 

@@ -9,19 +9,21 @@
 
 namespace Dmake;
 
-class ApiResult implements \JsonSerializable
+use JsonSerializable;
+
+class ApiResult implements JsonSerializable
 {
     /**
      * Success of action
      * @var bool
      */
-    protected $success;
+    protected $success = false;
 
     /**
      * Output of external program
      * @var array
      */
-	protected $output = array();
+	protected $output = [];
 
     /**
      * Return value of shell process
@@ -42,54 +44,39 @@ class ApiResult implements \JsonSerializable
         if (is_array($output)) {
             $this->output = $output;
         } else {
-            $this->output = array($output);
+            $this->output = [$output];
         }
 	}
 
-    /**
-     * @return bool
-     */
-    public function getSuccess()
+    public function getSuccess(): bool
     {
         return $this->success;
     }
 
     /**
-     * @return array
+     * @return string[]
      */
-    public function getOutput()
+    public function getOutput(): array
     {
         return $this->output;
     }
 
-    /**
-     * @return int
-     */
-    public function getShellReturnVar()
+    public function getShellReturnVar(): int
     {
         return $this->shellReturnVar;
     }
 
-    /**
-     * @param $success
-     */
-    public function setSuccess($success)
+    public function setSuccess(bool $success): void
     {
         $this->success = $success;
     }
 
-    /**
-     * @param $output
-     */
-    public function setOutput($output)
+    public function setOutput(array $output): void
     {
         $this->output = $output;
     }
 
-    /**
-     * @param $shellReturnVar
-     */
-    public function setShellReturnVar($shellReturnVar)
+    public function setShellReturnVar(int $shellReturnVar): void
     {
         $this->shellReturnVar = $shellReturnVar;
     }
@@ -97,7 +84,7 @@ class ApiResult implements \JsonSerializable
     /**
      * @return array|mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'success' => $this->success,

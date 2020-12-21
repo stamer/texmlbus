@@ -7,16 +7,19 @@
  *
  */
 namespace Server;
+
 use Dmake\BaseConfig;
+use \RangeException;
+use \stdClass;
 
 class Config extends BaseConfig
 {
 	private static $config = null;
 
 	private function __construct() {}
-	private function __close() {}
+	private function __clone() {}
 
-	public static function getConfig($subobj = null)
+	public static function getConfig(?string $subobj = null): ?stdClass
     {
         if (self::$config === null)
         {

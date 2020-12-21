@@ -11,7 +11,10 @@ namespace Dmake;
 
 class RetvalDao
 {
-    public static function deleteById($joinTable, $id)
+    /**
+     * Delete entry from jointable by id.
+     */
+    public static function deleteById(string $joinTable, int $id): int
     {
         $dao = Dao::getInstance();
 
@@ -31,11 +34,9 @@ class RetvalDao
     }
 
     /**
-     * @param $joinTable
-     * @param $set
-     * @return int
+     * Get number of entries from joinTable by set.
      */
-    public static function getCount($joinTable, $set)
+    public static function getCount(string $joinTable, string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -69,11 +70,9 @@ class RetvalDao
     }
 
     /**
-     * @param $table
-     * @param $errMsg
-     * @return int
+     * Get number of entries from table by matching errMsg.
      */
-    public static function getCountByErrMsg($table, $errMsg)
+    public static function getCountByErrMsg(string $table, string $errMsg)
     {
         $dao = Dao::getInstance();
 
@@ -95,13 +94,13 @@ class RetvalDao
     }
 
     /**
-     * @param $joinTable
-     * @param $errMsg
-     * @param int $min
-     * @param int $max
-     * @return array
+     * Get entries from joinTable by ErrMsg
      */
-    public static function getByErrMsg($joinTable, $errMsg, $min = 0, $max = 100)
+    public static function getByErrMsg(
+        string $joinTable,
+        string $errMsg,
+        int $min = 0,
+        int $max = 100)
     {
         $dao = Dao::getInstance();
 
@@ -131,15 +130,16 @@ class RetvalDao
     }
 
     /**
-     * @param $joinTable
-     * @param $set
-     * @param $orderBy
-     * @param $sortBy
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get entries by stage, joinTable and set.
      */
-    public static function getEntries($stage, $joinTable, $set, $orderBy, $sortBy, $min, $max_pp)
+    public static function getEntries(
+        string $stage,
+        string $joinTable,
+        string $set,
+        string $orderBy,
+        string $sortBy,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -190,15 +190,15 @@ class RetvalDao
     }
 
     /**
-     * @param string|array $ids
-     * @param $stage
-     * @param $orderBy
-     * @param $sortBy
-     * @param $min
-     * @param $max
-     * @return array
+     * Get entries by given ids and stage.
      */
-    public static function getByIds($ids, $stage, $orderBy, $sortBy, $min, $max)
+    public static function getByIds(
+        array $ids,
+        string $stage,
+        string $orderBy,
+        string $sortBy,
+        int $min,
+        int $max): array
     {
         $dao = Dao::getInstance();
 
@@ -248,11 +248,9 @@ class RetvalDao
     }
 
     /**
-     * @param $macro
-     * @param $joinTable
-     * @return int
+     * Get count by given macro.
      */
-    public function getCountByMacro($macro, $joinTable)
+    public function getCountByMacro(string $macro, string $joinTable): int
     {
         $dao = Dao::getInstance();
 
@@ -274,14 +272,14 @@ class RetvalDao
     }
 
     /**
-     * @param $macro
-     * @param $joinTable
-     * @param $set
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get entries by given macro.
      */
-    public static function getByMacro($macro, $joinTable, $set, $min, $max_pp)
+    public static function getByMacro(
+        string $macro,
+        string $joinTable,
+        string $set,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -313,11 +311,9 @@ class RetvalDao
     }
 
     /**
-     * @param $joinTable
-     * @param string $set
-     * @return array
+     * Get missing macros.
      */
-    public static function getMissingMacros($joinTable, $set = '')
+    public static function getMissingMacros(string $joinTable, string $set = ''): array
     {
         $dao = Dao::getInstance();
 
@@ -359,13 +355,14 @@ class RetvalDao
     }
 
     /**
-     * @param $retval
-     * @param $joinTable
-     * @param $set
-     * @param $detail
-     * @return int
+     * Gets the count by given retval and stage.
      */
-    public static function getCountByRetval($retval, $stage, $joinTable, $set, $detail)
+    public static function getCountByRetval(
+        string $retval,
+        string $stage,
+        string $joinTable,
+        string $set,
+        string $detail): int
     {
         $dao = Dao::getInstance();
 
@@ -453,17 +450,18 @@ class RetvalDao
     }
 
     /**
-     * @param $retval
-     * @param $joinTable
-     * @param $set
-     * @param $columns
-     * @param $orderBy
-     * @param $sortBy
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get details by given retval and stage.
      */
-    public static function getDetailsByRetval($retval, $stage, $joinTable, $set, $columns, $orderBy, $sortBy, $min, $max_pp)
+    public static function getDetailsByRetval(
+        string $retval,
+        string $stage,
+        string $joinTable,
+        string $set,
+        array $columns,
+        string $orderBy,
+        string $sortBy,
+        int $min,
+        int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -551,6 +549,9 @@ class RetvalDao
         return $rows;
     }
 
+    /**
+     * Get details by id.
+     */
     public static function getDetailsByIds(
         array $ids,
         string $stage,
@@ -622,12 +623,12 @@ class RetvalDao
     }
 
     /**
-     * @param $retval
-     * @param $joinTable
-     * @param string $set
-     * @return int
+     * Get count by given retval.
      */
-    public static function getCountErrMsgByRetval($retval, $joinTable, $set = '')
+    public static function getCountErrMsgByRetval(
+        string $retval,
+        string $joinTable,
+        string $set = ''): int
     {
         $dao = Dao::getInstance();
 
@@ -668,12 +669,12 @@ class RetvalDao
     }
 
     /**
-     * @param $retval
-     * @param $joinTable
-     * @param string $set
-     * @return array
+     * Ger error messages by retval.
      */
-    public static function getErrMsgByRetval($retval, $joinTable, $set = '')
+    public static function getErrMsgByRetval(
+        string $retval,
+        string $joinTable,
+        string $set = ''): array
     {
         $dao = Dao::getInstance();
 

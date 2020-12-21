@@ -10,9 +10,9 @@ namespace Dmake;
 /**
  * Abstract Class to handle stages
  */
-abstract class AbstractStage
+abstract class AbstractStage implements StageInterface
 {
-    protected $config = array();
+    protected $config = [];
 
     /**
      * @var bool
@@ -87,5 +87,18 @@ abstract class AbstractStage
 	        echo $message . PHP_EOL;
         }
     }
+    abstract public static function register(): array;
+
+    abstract public function save(): bool;
+
+    abstract public static function fillEntry(array $row): StatEntry;
+
+    abstract public function updateRetval(): bool;
+
+    abstract public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed
+    ): bool;
 }
 

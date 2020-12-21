@@ -12,11 +12,7 @@ require_once 'StatEntry.php';
 
 class UtilStylefile
 {
-    /**
-     * @param $checkfile
-     * @return array
-     */
-    public static function getStylefiles($checkfile)
+    public static function getStylefiles(string $checkfile): array
     {
         $stylefiles = array();
 
@@ -102,16 +98,13 @@ class UtilStylefile
             }
         }
 
-        //print_r($stylefiles);
         return $stylefiles;
     }
 
-    /**
-     * @param $set
-     * @param $filename
-     * @param $stylefilesArr
-     */
-    public function saveStylefiles($set, $filename, $stylefilesArr)
+    public function saveStylefiles(
+        string $set,
+        string $filename,
+        array $stylefilesArr): void
     {
         $dao = DAO::getInstance();
 
@@ -163,13 +156,11 @@ class UtilStylefile
         }
     }
 
-    /**
-     * @param $set
-     * @param $filename
-     * @param $macro
-     * @param $stylefilesArr
-     */
-    public function findMacroInStylefiles($set, $filename, $macro, $stylefilesArr)
+    public function findMacroInStylefiles(
+        string $set,
+        string $filename,
+        string $macro,
+        array $stylefilesArr): void
     {
         $dao = DAO::getInstance();
 
@@ -220,13 +211,11 @@ class UtilStylefile
         }
     }
 
-    /**
-     * @param $set
-     * @param $filename
-     * @param $macro
-     * @param $stylefilesArr
-     */
-    public function mmFindMacroInStylefiles($set, $filename, $macro, $stylefilesArr)
+    public function mmFindMacroInStylefiles(
+        string $set,
+        string $filename,
+        string $macro,
+        array $stylefilesArr): void
     {
         $dao = DAO::getInstance();
 

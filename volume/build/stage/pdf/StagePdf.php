@@ -9,7 +9,6 @@ use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\Dao;
 use Dmake\ErrDetEntry;
-use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
 use Dmake\UtilStage;
@@ -17,7 +16,7 @@ use Dmake\UtilStage;
  /**
   * Class StagePdf
   */
-class StagePdf extends AbstractStage implements StageInterface
+class StagePdf extends AbstractStage
 {
     /**
      * @var bool
@@ -37,15 +36,15 @@ class StagePdf extends AbstractStage implements StageInterface
         $this->config = static::register();
     }
 
-    const FOUND_MISSING_MACROS = 1 << 3;
-    const FOUND_MISSING_FIGURE = 1 << 2;
-    const FOUND_MISSING_BIB    = 1 << 1;
-    const FOUND_MISSING_FILE   = 1 << 0;
+    public const FOUND_MISSING_MACROS = 1 << 3;
+    public const FOUND_MISSING_FIGURE = 1 << 2;
+    public const FOUND_MISSING_BIB    = 1 << 1;
+    public const FOUND_MISSING_FILE   = 1 << 0;
 
     /**
      * @return array|mixed
      */
-    public static function register()
+    public static function register(): array
     {
         $config = [
             // the name of the stage
@@ -117,13 +116,10 @@ class StagePdf extends AbstractStage implements StageInterface
         return $config;
     }
 
-    /**
-     * @return mixed|void
-     */
-	public function save()
+	public function save(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
         $dao = Dao::getInstance();
 
@@ -158,14 +154,10 @@ class StagePdf extends AbstractStage implements StageInterface
 		$stmt->bindValue('warnmsg', $this->warnmsg);
 		$stmt->bindValue('errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    /**
-     * @param $row
-     * @return mixed|StatEntry
-     */
-    public static function fillEntry($row)
+    public static function fillEntry(array $row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -208,13 +200,10 @@ class StagePdf extends AbstractStage implements StageInterface
         return $se;
     }
 
-    /**
-     * @return mixed|void
-     */
-	public function updateRetval()
+	public function updateRetval(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
         $dao = Dao::getInstance();
 
@@ -246,7 +235,7 @@ class StagePdf extends AbstractStage implements StageInterface
 		$stmt->bindValue('i_errmsg', $this->errmsg);
 		$stmt->bindValue('u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
     /**
@@ -255,11 +244,14 @@ class StagePdf extends AbstractStage implements StageInterface
      * @param $childAlarmed
      * @return mixed|void
      */
-    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
+    public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed): bool
     {
         $directory = $entry->filename;
 
-        $res = new static;
+        $res = new static();
         $res->id = $entry->id;
 
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
@@ -277,19 +269,17 @@ class StagePdf extends AbstractStage implements StageInterface
             $res->retval = 'not_qualified';
         } elseif (!is_file($logfile)) {
             $res->retval = 'missing_errlog';
+        // have we created a pdf?
+        } elseif (is_file($resultfile)) {
+            $res->retval = 'no_problems';
         } else {
-            // have we created a pdf?
-            if (is_file($resultfile)) {
-                $res->retval = 'no_problems';
-            } else {
-                $res->retval = 'fatal_error';
-            }
+            $res->retval = 'fatal_error';
         }
 
 		$content = file_get_contents($logfile);
 
 		$warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
-        $matches = array();
+        $matches = [];
 		preg_match_all($warnPattern, $content, $matches);
 		if (count($matches[4])) {
             $res->retval = 'warning';
@@ -297,7 +287,7 @@ class StagePdf extends AbstractStage implements StageInterface
 		$res->warnmsg = implode("\n", $matches[4]);
 
 		$errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
-        $matches = array();
+        $matches = [];
 		preg_match_all($errPattern, $content, $matches);
 		if (count($matches[4])) {
             $res->retval = 'error';
@@ -306,7 +296,7 @@ class StagePdf extends AbstractStage implements StageInterface
 
         // Citation undefined considered errors
 		$errPattern = '@(.*?)(Warning:)(\S*)\s+(Citation.{0,100}undefined)@m';
-        $matches = array();
+        $matches = [];
 		preg_match_all($errPattern, $content, $matches);
 		if (count($matches[4])) {
             $res->retval = 'error';
@@ -315,12 +305,12 @@ class StagePdf extends AbstractStage implements StageInterface
 
 		// try to classify in more detail missing files
         if ($res->retval === 'error') {
-            $macroSuffixes = array('sty', 'cls');
-            $figureSuffixes = array('eps', 'jpg', 'jpeg', 'png', 'pdf');
-            $bibSuffixes = array('bib');
+            $macroSuffixes = ['sty', 'cls'];
+            $figureSuffixes = ['eps', 'jpg', 'jpeg', 'png', 'pdf'];
+            $bibSuffixes = ['bib'];
 
             $errPattern = '@(.*?)(Error: File\s)\S(.*?)\S\s(not found)@m';
-            $matches = array();
+            $matches = [];
             preg_match_all($errPattern, $content, $matches);
             if (count($matches[4])) {
                 $filenames = $matches[3];
@@ -355,16 +345,16 @@ class StagePdf extends AbstractStage implements StageInterface
 
         echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
-        $res->updateRetval();
+        return $res->updateRetval();
     }
 
     /**
      * @param StatEntry $entry
      */
-    public function parseDetail($hostGroup, StatEntry $entry)
+    public function parseDetail($hostGroup, StatEntry $entry): void
     {
         $directory = $entry->getFilename();
-        $datestamp = date("Y-m-d H:i:s", time());
+        $datestamp = date("Y-m-d H:i:s");
 
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
@@ -372,8 +362,6 @@ class StagePdf extends AbstractStage implements StageInterface
         $logfile = $texSourcefilePrefix.'.log';
 
         $this->debug('Logfile: ' . $logfile);
-
-        $i = 0;
 
         $content = file_get_contents($logfile);
 
@@ -393,9 +381,9 @@ class StagePdf extends AbstractStage implements StageInterface
                 $ede->setPos($i);
                 $ede->setDateCreated($datestamp);
                 // ?? does not work here
-                if (isset($matches[1][$i]))
+                if (isset($matches[1][$i])) {
                     $ede->setErrClass(trim($matches[1][$i]));
-                else {
+                } else {
                     $ede->setErrClass('');
                 }
                 if (isset($matches[2][$i])) {
@@ -413,10 +401,10 @@ class StagePdf extends AbstractStage implements StageInterface
                     }
                     $ede->setErrMsg($matches[3][$i]);
                 } else {
-                    $ede->setErrmsg('');
+                    $ede->setErrMsg('');
                 }
 
-                $ede->setMd5Errmsg(md5($ede->getErrmsg()));
+                $ede->setMd5ErrMsg(md5($ede->getErrMsg()));
 
                 $ede->save();
             }
