@@ -5,17 +5,13 @@
  *
  */
 
-use Dmake\StageInterface;
 
  /**
   * Class StagePdf
   */
-class StagePdfEdge extends StagePdf implements StageInterface
+class StagePdfEdge extends StagePdf
 {
-    /**
-     * @return array|mixed
-     */
-    public static function register()
+    public static function register(): array
     {
         $config = [
             'stage' => 'pdf_edge',

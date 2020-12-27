@@ -9,16 +9,14 @@ namespace Dmake;
 
 class UtilHost
 {
-    const STAT_DEACTIVATED = 0;
-    const STAT_IDLE = 1;
-    const STAT_ACTIVE = 2;
+    public const STAT_DEACTIVATED = 0;
+    public const STAT_IDLE = 1;
+    public const STAT_ACTIVE = 2;
 
     /**
      * Are the hosts available, is the directory accessible?
-     *
-     * @param $hosts
      */
-    public static function checkHosts(&$hosts)
+    public static function checkHosts(array &$hosts): void
     {
         $cfg = Config::getConfig();
         $ssh = $cfg->app->ssh;
@@ -89,11 +87,9 @@ class UtilHost
     /**
      * compares hosts and active hosts to find next available
      * machine
-     * @param $hosts
-     * @param $active_hosts
      * @return mixed|string
      */
-    public static function getFreeHost(&$hosts, &$active_hosts)
+    public static function getFreeHost(array &$hosts, array &$active_hosts)
     {
         if (!count($hosts)) {
             die ("No more hosts available!");
@@ -123,10 +119,10 @@ class UtilHost
 
     /**
      * finds the current workers in a dockerized environment
-     * @param array $hostGroups list of hostGroups (typically ['worker'])
-     * @return array
      */
-    public static function getDockerWorkers($hostGroups)
+    public static function getDockerWorkers(
+        array $hostGroups // list of hostGroups (typically ['worker'])
+        ): array
     {
         $hostnames = [];
         echo "Determining active hostGroups..." . PHP_EOL;
@@ -250,7 +246,10 @@ class UtilHost
         return $memLimit;
     }
 
-    function parseMemoryValue($value, $destUnit = 'Kb')
+    /**
+     * Returns amount of bytes for given string like "4 G";
+     */
+    function parseMemoryValue(string $value, string $destUnit = 'Kb'): int
     {
         $value = trim($value);
         preg_match('/(\d+)\s*(\w*)/', $value, $matches);

@@ -10,32 +10,17 @@ namespace Dmake;
 
 interface StageInterface
 {
-    /**
-     * @return mixed
-     */
-    public static function register();
+    public static function register(): array;
 
-    /**
-     * @return mixed
-     */
-    public function save();
+    public function save(): bool;
 
-    /**
-     * @param $row
-     * @return mixed
-     */
-	public static function fillEntry($row);
+	public static function fillEntry(array $row): StatEntry;
 
-    /**
-     * @return mixed
-     */
-	public function updateRetval();
+	public function updateRetval(): bool;
 
-    /**
-     * @param $hostGroup
-     * @param $entry
-     * @param $childAlarmed
-     * @return mixed
-     */
-	public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed);
+	public static function parse(
+	    string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed
+    ): bool;
 }

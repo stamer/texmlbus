@@ -16,13 +16,13 @@ require_once "UtilFile.php";
  */
 class PrepareFiles
 {
-    const FILENOTFOUND = 0;
-    const NOTEXFILEFOUND = 1;
-    const TEXFILEEXISTS = 2;
+    public const FILENOTFOUND = 0;
+    public const NOTEXFILEFOUND = 1;
+    public const TEXFILEEXISTS = 2;
     // instead answer will be string of added file.
-    const TEXFILEADDED = 3;
-    const DIRECTORYEXISTS = 4;
-    const MOVEDIRERROR = 5;
+    public const TEXFILEADDED = 3;
+    public const DIRECTORYEXISTS = 4;
+    public const MOVEDIRERROR = 5;
 
     private $debug = true;
 
@@ -148,13 +148,13 @@ class PrepareFiles
      * It uses config variables, therefore it is created in
      * the constructor and not here.
      */
-    public $uncompressMap = array();
+    public $uncompressMap = [];
 
     /**
      * an array of actions for default conversion of graphic files
      * that are done when the source files are imported.
      */
-    public $conversionMap = array();
+    public $conversionMap = [];
 
     /**
      * will be created for pattern matching
@@ -171,10 +171,10 @@ class PrepareFiles
         $this->conversionMap =
             [
                 // .eps to .pdf conversion
-                '.eps' => array(
+                '.eps' => [
                     'app' => $this->cfg->app->epstopdf.' --outfile=__DEST__ __FILE__',
                     'destfile' => '__PREFIX__-eps-converted-to.pdf',
-                ),
+                ],
             ];
         $this->removeDirsPattern = '/('.implode('|', array_map('preg_quote', self::$removeDirs)).')/';
         $this->ignoreDirsPattern = '/('.implode('|', array_map('preg_quote', self::$ignoreDirs)).')/';
@@ -187,7 +187,7 @@ class PrepareFiles
         $this->conversionMapPattern = '/('.implode('|', array_map('preg_quote', array_keys($this->conversionMap))).')$/';
     }
 
-    protected function debugLog($str)
+    protected function debugLog(string $str): void
     {
         if ($this->debug) {
             error_log($str);
@@ -197,7 +197,7 @@ class PrepareFiles
     /**
      * Simple map to handle certain archives.
      */
-    public function setUncompressMap()
+    public function setUncompressMap(): void
     {
         $this->uncompressMap = [
             'application/rar' => $this->cfg->app->unrar.' '.$this->cfg->uncompress->unrar->{$this->uncompressionMode}.' __FILE__ __DIR__',
@@ -213,7 +213,7 @@ class PrepareFiles
      * Determines the uncompressionMode.
      * Interactive in CLI mode, otherwise DefaultUncompressionMode.
      */
-    public function chooseUncompressionMode()
+    public function chooseUncompressionMode(): array
     {
         if (php_sapi_name() == 'cli') {
             stream_set_blocking(STDIN, 1);
@@ -246,35 +246,29 @@ class PrepareFiles
 
     /**
      * Determines whether a given file is a tex file.
-     *
-     * @param $checkfile
-     * @return bool
      */
-    public function isFileTexfile($checkfile)
+    public function isFileTexfile(string $checkfile): bool
     {
         $file = $this->cfg->app->file;
 
         if ($checkfile == '') {
-            return FALSE;
+            return false;
         }
 
         $retstr = `$file -Li '$checkfile'`;
 
         if (strpos($retstr, 'text/') !== FALSE
             || strpos($retstr, 'application/octet-stream') !== FALSE) {
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
     /**
      * Determines whether a given file is a main tex file.
-     *
-     * @param $checkfile
-     * @return bool
      */
-    public function isFileMainTexfile($checkfile)
+    public function isFileMainTexfile(string $checkfile): bool
     {
         if (!($contents = @file_get_contents($checkfile))) {
             return FALSE;
@@ -293,11 +287,8 @@ class PrepareFiles
     /*
      * Uncompresses a given file.
      * Directory or upload files may contain archives within.
-     *
-     * @param $archiveFile
-     * @return bool
      */
-    public function uncompressFile($archiveFile)
+    public function uncompressFile(string $archiveFile): bool
     {
         $dir = dirname($archiveFile);
         $file = basename($archiveFile);
@@ -343,10 +334,8 @@ class PrepareFiles
     /**
      * Converts a given file according to this->conversionMap.
      * E.g. eps -> pdf
-     *
-     * @param $fullfile
      */
-    public function convertFile($fullfile)
+    public function convertFile(string $fullfile): bool
     {
         $dir = dirname($fullfile);
         $file = basename($fullfile);
@@ -383,11 +372,8 @@ class PrepareFiles
 
     /**
      * Tries to find tex files in given directory.
-     *
-     * @param string $dir
-     * @return array of files
      */
-    public function findTexFileInDirectory(string $dir)
+    public function findTexFileInDirectory(string $dir): array
     {
         if (self::$removeDirsEnabled
             && preg_match($this->removeDirsPattern, $dir)
@@ -405,7 +391,6 @@ class PrepareFiles
         $texFiles = [];
         $files = UtilFile::listDir($dir, true, false, null, true);
         foreach ($files as $file) {
-
             if (preg_match($this->ignoreSuffixesTexDetectionPattern, $file)
                 || preg_match($this->ignorePrefixesPattern, $file)) {
                 $this->debugLog("$file ignored ...");
@@ -427,9 +412,8 @@ class PrepareFiles
     /**
      * Tries to find and uncompress archive files.
      * Uncompresses files in the given directory.
-     * @param $directory
      */
-    public function findAndUncompressFiles($directory)
+    public function findAndUncompressFiles(string $directory): void
     {
         // try to find compressed files. They need to be uncompressed, as they
         // may contain images
@@ -460,10 +444,9 @@ class PrepareFiles
     /**
      * Tries to return the content of Makefile.template in given directory.
      * If it does not exist create default Makefile.template.
-     * @param $directory
-     * @return bool|false|string
+     * @return bool|string
      */
-    public function getMakefileContent($directory)
+    public function getMakefileContent(string $directory)
     {
         $template = $directory . '/Makefile.template';
 
@@ -503,9 +486,6 @@ class PrepareFiles
      * If $destDir is not empty, it will be moved to $destDir.
      * It also implicitly assumes that file has been uploaded to UPLOADDIR/tmp ...
      *
-     * @param string $currentDir
-     * @param string $makeFileDir
-     * @param string $destDir
      * @return int|string // int = errorcode, string = filename
      */
     public function importTex(
@@ -694,8 +674,6 @@ class PrepareFiles
      * If $destDir is not empty, it will be moved to $destDir.
      * It also implicitly assumes that file has been uploaded to UPLOADDIR/tmp ...
      *
-     * @param string $currentDir
-     * @param string $destDir
      * @return int|string[] // int errorcode, [] name of filenames
      */
     public function importClsSty(
@@ -767,18 +745,15 @@ class PrepareFiles
 
     /**
      * Returns all direct children of given directory.
-     *
-     * @param $directory
-     * @return array
      */
-    public function getSubDirs($directory)
+    public function getSubDirs(string $directory): array
     {
         $current_depth = 0;
         $resultDirs = UtilFile::listDir($directory, true, true, null, false, true);
         return $resultDirs;
     }
 
-    public function getFilesInDir($directory)
+    public function getFilesInDir(string $directory): array
     {
         $current_depth = 0;
         $resultFiles = UtilFile::listDir($directory, true, true, null, true, false);
@@ -789,7 +764,8 @@ class PrepareFiles
      * @param $directory
      * @return string|string[]|null
      */
-    public function stripArticleDir($directory){
+    public function stripArticleDir(string $directory)
+    {
         return preg_replace('#^' . ARTICLEDIR . '/#', '', $directory);
     }
 }

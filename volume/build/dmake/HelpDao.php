@@ -29,11 +29,9 @@ class HelpDao
     ];
 
     /**
-     * @param $id
-     * @param bool $replacePlaceholder
-     * @return mixed
+     * Gets a help message by given id.
      */
-    public static function getHelpById($id, $replacePlaceholder = true)
+    public static function getHelpById(string $id, bool $replacePlaceholder = true): array
     {
         $dao = Dao::getInstance();
 
@@ -56,15 +54,15 @@ class HelpDao
         if (!empty($row['html'])
             && $replacePlaceholder
         ) {
-            $row['html'] = str_replace(array_keys(self::$placeholder), array_values(self::$placeholder,), $row['html']);
+            $row['html'] = str_replace(array_keys(self::$placeholder), array_values(self::$placeholder), $row['html']);
         }
         return $row;
     }
 
     /**
-     * @return array
+     * Gets all Ids stored in help table.
      */
-    public static function getAllIds()
+    public static function getAllIds(): array
     {
         $dao = Dao::getInstance();
 
@@ -89,11 +87,8 @@ class HelpDao
 
     /**
      * Saves the entry.
-     * @param $id
-     * @param $title
-     * @param $html
      */
-    public static function save($id, $title, $html)
+    public static function save(string $id, string $title, string $html): bool
     {
         $dao = Dao::getInstance();
 
@@ -110,14 +105,13 @@ class HelpDao
         $stmt->bindValue(':title', $title);
         $stmt->bindValue(':html', $html);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
     /**
      * Deletes the entry by given id.
-     * @param $id
      */
-    public static function deleteById($id)
+    public static function deleteById(string $id): array
     {
         $dao = Dao::getInstance();
 
@@ -130,6 +124,6 @@ class HelpDao
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':id', $id);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 }

@@ -9,7 +9,10 @@
 
 namespace Dmake;
 
+use Exception;
 use \PDO;
+use PDOException;
+use PDOStatement;
 
 class Dao
 {
@@ -19,51 +22,56 @@ class Dao
      */
     protected static $instance = null;
 
-    protected function __construct() {}
-    protected function __clone() {}
+    protected function __construct()
+    {
+    }
+
+    protected function __clone()
+    {
+    }
 
     /**
      *
      * @return PDO
      */
-    public static function getInstance($failOnExit = true) : ?PDO
+    public static function getInstance(bool $failOnExit = true): ?PDO
     {
-        if (self::$instance === null)
-        {
-            $opt  = array(
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        if (self::$instance === null) {
+            $opt = [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => FALSE,
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
-            );
+                PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
+            ];
             $db = Config::getConfig('db');
-            $dsn = 'mysql:host='.$db->host.';dbname='.$db->dbname.';charset='.$db->charset;
+            $dsn = 'mysql:host=' . $db->host . ';dbname=' . $db->dbname . ';charset=' . $db->charset;
             try {
                 self::$instance = new PDO($dsn, $db->username, $db->password, $opt);
-	        } catch (\Exception $e) {
-		        if ($failOnExit) {
-		            die("Database running? If docker-compose is starting up, please come back in a few seconds.\n");
-		        } else {
-                    return null;
+            } catch (Exception $e) {
+                if ($failOnExit) {
+                    die("Database running? If docker-compose is starting up, please come back in a few seconds.\n");
                 }
+
+                return null;
             }
         }
-        
+
         return self::$instance;
     }
 
     /**
      * drops the instance
      */
-    public static function dropInstance()
+    public static function dropInstance(): void
     {
         self::$instance = null;
     }
 
     /**
-     * @return PDO
+     * Renews an instance. This might be needed for long lasting jobs, when the server
+     * drops the connection.
      */
-    public static function renewInstance()
+    public static function renewInstance(): ?PDO
     {
         self::dropInstance();
         return self::getInstance();
@@ -77,13 +85,13 @@ class Dao
      *
      * @return PDO
      */
-    public static function checkAndGetInstance() : PDO
+    public static function checkAndGetInstance(): PDO
     {
         try {
             self::query("SELECT 1;", null, false, true);
-        } catch(\PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->getCode() != 'HY000'
-                || !stristr($e->getMessage(), 'server has gone away')) {
+                || stripos($e->getMessage(), 'server has gone away') === false) {
                 throw $e;
             }
             echo 'Wait timeout exceeded, renewing instance...' . PHP_EOL;
@@ -100,18 +108,19 @@ class Dao
      */
     public static function __callStatic($method, $args)
     {
-        return call_user_func_array(array(self::getInstance(), $method), $args);
+        return call_user_func_array([self::getInstance(), $method], $args);
     }
 
     /**
      * provides a static query
-     * @param $sql
-     * @param null $args
-     * @param $silent for silent checkAndGetInstance
      * @return bool|PDOStatement
      */
-    public static function query($sql, $args = null, $retryQuery = true, $silent = false)
-    {
+    public static function query(
+        string $sql,
+        $args = null,
+        bool $retryQuery = true,
+        bool $silent = false
+    ) {
         try {
             /* test query might fail, avoid a warning in output */
             if ($silent) {
@@ -122,14 +131,16 @@ class Dao
                 $stmt->execute($args);
             }
             return $stmt;
-        } catch(\PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->getCode() != 'HY000'
-                || !stristr($e->getMessage(), 'server has gone away')) {
+                || stripos($e->getMessage(), 'server has gone away') === false
+            ) {
                 throw $e;
             }
             echo 'Wait timeout exceeded, renewing instance...' . PHP_EOL;
             self::renewInstance();
-            self::query($sql, $args, false);
+            $stmt = self::query($sql, $args, false);
+            return $stmt;
         }
     }
 }

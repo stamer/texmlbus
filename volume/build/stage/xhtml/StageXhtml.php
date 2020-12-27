@@ -10,19 +10,18 @@
 use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\Dao;
-use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
 use Dmake\UtilStage;
 
-class StageXhtml extends AbstractStage implements StageInterface
+class StageXhtml extends AbstractStage
 {
     public function __construct()
     {
         $this->config = static::register();
     }
 
-    public static function register()
+    public static function register(): array
     {
         $config = [
             'stage' => 'xhtml',
@@ -66,12 +65,12 @@ class StageXhtml extends AbstractStage implements StageInterface
         return $config;
     }
 
-    public function save()
+    public function save(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = /** @lang ignore */ '
 			REPLACE	INTO
@@ -104,10 +103,10 @@ class StageXhtml extends AbstractStage implements StageInterface
 		$stmt->bindValue('warnmsg', $this->warnmsg);
 		$stmt->bindValue('errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function fillEntry($row)
+    public static function fillEntry($row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -150,12 +149,12 @@ class StageXhtml extends AbstractStage implements StageInterface
         return $se;
     }
 
-	public function updateRetval()
+	public function updateRetval(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = /** @lang ignore */ '
 			INSERT INTO
@@ -184,10 +183,13 @@ class StageXhtml extends AbstractStage implements StageInterface
 		$stmt->bindValue('i_errmsg', $this->errmsg);
 		$stmt->bindValue('u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
+    public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed): bool
     {
         $directory = $entry->filename;
 
@@ -222,7 +224,7 @@ class StageXhtml extends AbstractStage implements StageInterface
             // matches[3] ==> num_xmarg
             // matches[4] ==> ok_xmarg
             $xmarg_pattern = '@(.*?)(^   XMArg: )(\d+)/(\d+)@m';
-            $matches = array();
+            $matches = [];
             preg_match($xmarg_pattern, $content, $matches);
             if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                 print_r($matches);
@@ -328,9 +330,7 @@ class StageXhtml extends AbstractStage implements StageInterface
             if (isset($matches[2])) {
                 $res->retval = 'no_problems';
             }
-
-
         }
-        $res->updateRetval();
+        return $res->updateRetval();
     }
 }

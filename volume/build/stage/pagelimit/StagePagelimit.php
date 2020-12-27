@@ -3,12 +3,11 @@
 use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\Dao;
-use Dmake\StageInterface;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
 use Dmake\UtilStage;
 
-class StagePagelimit extends AbstractStage implements StageInterface
+class StagePagelimit extends AbstractStage
 {
 	public $num_err_namespace = 0;
 	public $num_err_parser = 0;
@@ -19,7 +18,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $this->config = static::register();
     }
 
-    public static function register()
+    public static function register(): array
     {
         $config = [
             'stage' => 'pagelimit',
@@ -69,12 +68,12 @@ class StagePagelimit extends AbstractStage implements StageInterface
         return $config;
     }
 
-	public function save()
+	public function save(): bool
 	{
         $cfg = Config::getConfig();
-		$cfg->now->datestamp = date("Y-m-d H:i:s", time());
+		$cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
         $query = /** @lang ignore */ '
             REPLACE	INTO
@@ -107,10 +106,10 @@ class StagePagelimit extends AbstractStage implements StageInterface
 		$stmt->bindValue('warnmsg', $this->warnmsg);
 		$stmt->bindValue('errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    public static function fillEntry($row)
+    public static function fillEntry($row): StatEntry
     {
         $se = new StatEntry();
         if (isset($row['id'])) {
@@ -150,15 +149,12 @@ class StagePagelimit extends AbstractStage implements StageInterface
         return $se;
     }
 
-    /**
-     * @return mixed|void
-     */
-    public function updateRetval()
+    public function updateRetval(): bool
     {
         $cfg = Config::getConfig();
-        $cfg->now->datestamp = date("Y-m-d H:i:s", time());
+        $cfg->now->datestamp = date("Y-m-d H:i:s");
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
         $query = /** @lang ignore */ '
 			INSERT INTO
@@ -187,10 +183,13 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $stmt->bindValue('i_errmsg', $this->errmsg);
         $stmt->bindValue('u_errmsg', $this->errmsg);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
-    public static function parse(string $hostGroup, StatEntry $entry, bool $childAlarmed)
+    public static function parse(
+        string $hostGroup,
+        StatEntry $entry,
+        bool $childAlarmed): bool
     {
         $directory = $entry->filename;
 
@@ -231,7 +230,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $res->warnmsg = '';
 
         $warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
-        $matches = array();
+        $matches = [];
         preg_match_all($warnPattern, $content, $matches);
 
         $numWarnings = count($matches[4]);
@@ -247,7 +246,7 @@ class StagePagelimit extends AbstractStage implements StageInterface
         $res->warnmsg .= implode("\n", $matches[4]);
 
         $errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
-        $matches = array();
+        $matches = [];
         preg_match_all($errPattern, $content, $matches);
         $numErrors = count($matches[4]);
         if ($numErrors) {
@@ -258,6 +257,6 @@ class StagePagelimit extends AbstractStage implements StageInterface
 
         echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
 
-        $res->updateRetval();
+        return $res->updateRetval();
     }
 }

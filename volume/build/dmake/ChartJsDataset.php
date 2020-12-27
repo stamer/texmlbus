@@ -7,13 +7,15 @@
 
 namespace Dmake;
 
-class ChartJsDataset implements \JsonSerializable
+use JsonSerializable;
+
+class ChartJsDataset implements JsonSerializable
 {
     /**
      * @var array
      */
     public static $colors =
-        array(
+        [
             'darkRed' => 'rgba(238,  53,  46, 0.75)', // dark red, 123
             'darkGreen' => 'rgba(  0, 147,  60, 0.75)', // dark green, 456
             'blue' => 'rgba(  0,  57, 166, 0.75)', // blue, ACE
@@ -25,7 +27,7 @@ class ChartJsDataset implements \JsonSerializable
             'darkPink' => 'rgba(185,  51, 173, 0.75)', // dark pink, 7
             'green2' => 'rgba(  0, 105, 131, 0.75)', // green, Montauk Branch
             'lightBlue' => 'rgba(  0, 161, 222, 0.75)', // light blue, West Hempstead Branch
-        );
+        ];
 
     /**
      * @var int
@@ -35,7 +37,7 @@ class ChartJsDataset implements \JsonSerializable
     /**
      * @var array of y-values
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * @var string
@@ -75,65 +77,47 @@ class ChartJsDataset implements \JsonSerializable
         self::$idx = (self::$idx + 1) % count($colorValues);
     }
 
-    /**
-     * @return array
-     */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
 
-    /**
-     * @return string
-     */
-    public function getLabel()
+    public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @return string
-     */
-    public function getBackgroundColor()
+    public function getBackgroundColor(): string
     {
         return $this->backgroundColor;
     }
 
-    /**
-     * @return string
-     */
-    public function getBorderColor()
+    public function getBorderColor(): string
     {
         return $this->borderColor;
     }
 
-    /**
-     * @return string
-     */
-    public function getHoverBackgroundColor()
+    public function getHoverBackgroundColor(): string
     {
         return $this->hoverBackgroundColor;
     }
 
-    /**
-     * @return string
-     */
-    public function getHoverBorderColor()
+    public function getHoverBorderColor(): string
     {
         return $this->hoverBorderColor;
     }
 
-    public function setData($data)
+    public function setData($data): void
     {
         $this->data = $data;
     }
 
-    public function setLabel($label)
+    public function setLabel($label): void
     {
         $this->label = $label;
     }
 
-    public function setBackgroundColor($backgroundColor)
+    public function setBackgroundColor($backgroundColor): void
     {
         if (isset(self::$colors[$backgroundColor])) {
             $this->backgroundColor = self::$colors[$backgroundColor];
@@ -142,7 +126,7 @@ class ChartJsDataset implements \JsonSerializable
         }
     }
 
-    public function setBorderColor($borderColor)
+    public function setBorderColor($borderColor): void
     {
         if (isset(self::$colors[$borderColor])) {
             $this->borderColor = self::$colors[$borderColor];
@@ -151,17 +135,17 @@ class ChartJsDataset implements \JsonSerializable
         }
     }
 
-    public function setHoverBackgroundColor($hoverBackgroundColor)
+    public function setHoverBackgroundColor($hoverBackgroundColor): void
     {
         $this->hoverBackgroundColor = $hoverBackgroundColor;
     }
 
-    public function setHoverBorderColor($hoverBorderColor)
+    public function setHoverBorderColor($hoverBorderColor): void
     {
         $this->hoverBorderColor = $hoverBorderColor;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return get_object_vars($this);
     }

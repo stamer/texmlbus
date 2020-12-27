@@ -8,6 +8,9 @@
  */
 namespace Dmake;
 
+use RangeException;
+use stdClass;
+
 class BaseConfig
 {
     private static $config = null;
@@ -21,14 +24,12 @@ class BaseConfig
     }
 
     /**
-     * @param string|null $subobj
-     * @param bool $useConfigHosts
-     * @return StdClass|null
+     * Gets the config object, or the subobject of config.
      */
-    public static function getConfig($subobj = null)
+    public static function getConfig(?string $subobj = null): ?stdClass
     {
         if (self::$config === null) {
-            $config = new \stdClass();
+            $config = new stdClass();
             require __DIR__ . '/../config/configGeneral.php';
             require __DIR__ . '/../config/configData.php';
             require __DIR__ . '/../config/configDb.php';
@@ -37,11 +38,11 @@ class BaseConfig
 
         if (!is_null($subobj)) {
             if (!isset(self::$config->{$subobj})) {
-                throw new \RangeException("Unknown Config part: $subobj");
+                throw new RangeException("Unknown Config part: $subobj");
             }
             return self::$config->{$subobj};
-        } else {
-            return self::$config;
         }
+
+        return self::$config;
     }
 }

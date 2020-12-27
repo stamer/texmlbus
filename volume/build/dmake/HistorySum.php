@@ -10,7 +10,7 @@ namespace Dmake;
 class HistorySum
 {
     public $id = 0;
-    public $set = '';
+    public $set = [];
     public $dateSnapshot = '';
     public $showEntry = 1;
     public $stage = '';
@@ -32,227 +32,227 @@ class HistorySum
     public $timeout = 0;
     public $comment = '';
 
-    function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    function getSet()
+    public function getSet(): ?Set
     {
         return $this->set;
     }
 
-    function getDateSnapshot()
+    public function getDateSnapshot(): ?string
     {
         return $this->dateSnapshot;
     }
 
-    function getShowEntry()
+    public function getShowEntry(): ?int
     {
         return $this->showEntry;
     }
 
-    function getStage()
+    public function getStage(): ?string
     {
         return $this->stage;
     }
 
-    function getRetvalUnknown()
+    public function getRetvalUnknown(): ?int
     {
         return $this->retvalUnknown;
     }
 
-    function getRetvalNotQualified()
+    public function getRetvalNotQualified(): ?int
     {
         return $this->retvalNotQualified;
     }
 
-    function getRetvalMissingErrlog()
+    public function getRetvalMissingErrlog(): ?int
     {
         return $this->retvalMissingErrlog;
     }
 
-    function getRetvalTimeout()
+    public function getRetvalTimeout(): ?int
     {
         return $this->retvalTimeout;
     }
 
-    function getRetvalFatalError()
+    public function getRetvalFatalError(): ?int
     {
         return $this->retvalFatalError;
     }
 
-    function getRetvalMissingMacros()
+    public function getRetvalMissingMacros(): ?int
     {
         return $this->retvalMissingMacros;
     }
 
-    function getRetvalMissingFigure()
+    public function getRetvalMissingFigure(): ?int
     {
         return $this->retvalMissingFigure;
     }
 
-    function getRetvalMissingBib()
+    public function getRetvalMissingBib(): ?int
     {
         return $this->retvalMissingBib;
     }
 
-    function getRetvalMissingFile()
+    public function getRetvalMissingFile(): ?int
     {
         return $this->retvalMissingFile;
     }
 
-    function getRetvalError()
+    public function getRetvalError(): ?int
     {
         return $this->retvalError;
     }
 
-    function getRetvalWarning()
+    public function getRetvalWarning(): ?int
     {
         return $this->retvalWarning;
     }
 
-    function getRetvalNoProblems()
+    public function getRetvalNoProblems(): ?int
     {
         return $this->retvalNoProblems;
     }
 
-    function getSumWarning()
+    public function getSumWarning(): ?int
     {
         return $this->sumWarning;
     }
 
-    function getSumError()
+    public function getSumError(): ?int
     {
         return $this->sumError;
     }
 
-    function getSumMacro()
+    public function getSumMacro(): ?int
     {
         return $this->sumMacro;
     }
 
-    function getTimeout()
+    public function getTimeout(): ?int
     {
         return $this->timeout;
     }
 
-    function getComment()
+    public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    function setId($id)
+    public function setId($id): void
     {
         $this->id = $id;
     }
 
-    function setSet($set)
+    public function setSet(Set $set): void
     {
         $this->set = $set;
     }
 
-    function setDateSnapshot($dateSnapshot)
+    public function setDateSnapshot($dateSnapshot): void
     {
         $this->dateSnapshot = $dateSnapshot;
     }
 
-    function setShowEntry($showEntry)
+    public function setShowEntry($showEntry): void
     {
         $this->showEntry = $showEntry;
     }
 
-    function setStage($stage)
+    public function setStage($stage): void
     {
         $this->stage = $stage;
     }
 
-    function setRetvalUnknown($retvalUnknown)
+    public function setRetvalUnknown($retvalUnknown): void
     {
         $this->retvalUnknown = $retvalUnknown;
     }
 
-    function setRetvalNotQualified($retvalNotQualified)
+    public function setRetvalNotQualified($retvalNotQualified): void
     {
         $this->retvalNotQualified = $retvalNotQualified;
     }
 
-    function setRetvalMissingErrlog($retvalMissingErrlog)
+    public function setRetvalMissingErrlog($retvalMissingErrlog): void
     {
         $this->retvalMissingErrlog = $retvalMissingErrlog;
     }
 
-    function setRetvalTimeout($retvalTimeout)
+    public function setRetvalTimeout($retvalTimeout): void
     {
         $this->retvalTimeout = $retvalTimeout;
     }
 
-    function setRetvalFatalError($retvalFatalError)
+    public function setRetvalFatalError($retvalFatalError): void
     {
         $this->retvalFatalError = $retvalFatalError;
     }
 
-    function setRetvalMissingMacros($retvalMissingMacros)
+    public function setRetvalMissingMacros($retvalMissingMacros): void
     {
         $this->retvalMissingMacros = $retvalMissingMacros;
     }
 
-    function setRetvalMissingFigure($retvalMissingFigure)
+    public function setRetvalMissingFigure($retvalMissingFigure): void
     {
         $this->retvalMissingFigure = $retvalMissingFigure;
     }
 
-    function setRetvalMissingBib($retvalMissingBib)
+    public function setRetvalMissingBib($retvalMissingBib): void
     {
         $this->retvalMissingBib = $retvalMissingBib;
     }
 
-    function setRetvalMissingFile($retvalMissingFile)
+    public function setRetvalMissingFile($retvalMissingFile): void
     {
         $this->retvalMissingFile = $retvalMissingFile;
     }
 
-    function setRetvalError($retvalError)
+    public function setRetvalError($retvalError): void
     {
         $this->retvalError = $retvalError;
     }
 
-    function setRetvalWarning($retvalWarning)
+    public function setRetvalWarning($retvalWarning): void
     {
         $this->retvalWarning = $retvalWarning;
     }
 
-    function setRetvalNoProblems($retvalNoProblems)
+    public function setRetvalNoProblems($retvalNoProblems): void
     {
         $this->retvalNoProblems = $retvalNoProblems;
     }
 
-    function setSumWarning($sumWarning)
+    public function setSumWarning($sumWarning): void
     {
         $this->sumWarning = $sumWarning;
     }
 
-    function setSumError($sumError)
+    public function setSumError($sumError): void
     {
         $this->sumError = $sumError;
     }
 
-    function setSumMacro($sumMacro)
+    public function setSumMacro($sumMacro): void
     {
         $this->sumMacro = $sumMacro;
     }
 
-    function setTimeout($timeout)
+    public function setTimeout($timeout): void
     {
         $this->timeout = $timeout;
     }
 
-    function setComment($comment)
+    public function setComment($comment): void
     {
         $this->comment = $comment;
     }
 
-    public function save()
+    public function save(): bool
     {
         $cfg = Config::getConfig();
         $dao = Dao::getInstance();
@@ -306,8 +306,7 @@ class HistorySum
 
         $stmt = $dao->prepare($query);
 
-
-        $stmt->bindValue(':i_set', $this->getSet()['set']);
+        $stmt->bindValue(':i_set', $this->getSet()->getName());
         $stmt->bindValue(':i_date_snapshot', $this->getDateSnapshot());
         $stmt->bindValue(':i_show_entry', $this->getShowEntry());
         $stmt->bindValue(':i_target', $this->getStage());
@@ -327,7 +326,7 @@ class HistorySum
         $stmt->bindValue(':i_sum_error', $this->getSumError());
         $stmt->bindValue(':i_sum_macro', $this->getSumMacro());
         $stmt->bindValue(':i_comment', $this->getComment());
-        $stmt->bindValue(':u_set', $this->getSet()['set']);
+        $stmt->bindValue(':u_set', $this->getSet()->getName());
         $stmt->bindValue(':u_date_snapshot', $this->getDateSnapshot());
         $stmt->bindValue(':u_show_entry', $this->getShowEntry());
         $stmt->bindValue(':u_target', $this->getStage());
@@ -348,12 +347,12 @@ class HistorySum
         $stmt->bindValue(':u_sum_macro', $this->getSumMacro());
         $stmt->bindValue(':u_comment', $this->getComment());
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
-    public static function fillEntry($row)
+    public static function fillEntry($row): self
     {
-        $hs = new HistorySum();
+        $hs = new self();
         if (isset($row['id'])) {
             $hs->setId($row['id']);
         }
@@ -418,13 +417,11 @@ class HistorySum
     }
 
     /**
-     * @param $stat
-     * @param $stage
-     * @return HistorySum
+     * Creates a HistorySum object from a stat array.
      */
-    public static function adaptFromStat($stat, $stage)
+    public static function adaptFromStat(array $stat, string $stage): self
     {
-        $hs = new HistorySum();
+        $hs = new self();
         $hs->setId(0);
 
         $hs->setDateSnapshot('current');
@@ -475,12 +472,9 @@ class HistorySum
     }
 
     /**
-     *
-     * @param string $set
-     * @param string $stage
-     * @return StatEntry
+     * @return StatEntry[]
      */
-    public static function getBySetStage($set, $stage)
+    public static function getBySetStage(string $set, string $stage): array
     {
         $dao = Dao::getInstance();
 
@@ -541,7 +535,7 @@ class HistorySum
             $stmt->execute();
         }
 
-        $obj = array();
+        $obj = [];
         while ($row = $stmt->fetch()) {
             $obj[] = self::fillEntry($row);
         }

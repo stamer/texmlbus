@@ -33,10 +33,10 @@ class Dmake
     /**
      * signal handler for returning children
      */
-    public function sigChild($signo)
+    public function sigChild($signo): void
     {
         // reinstall, older OS might need it
-        pcntl_signal(SIGCHLD, array($this, 'sigChild'));
+        pcntl_signal(SIGCHLD, [$this, 'sigChild']);
 
         if (DBG_LEVEL & DBG_ALARM) {
             echo "Parent caught SIGCHLD\n";
@@ -51,7 +51,7 @@ class Dmake
         global $pid;
 
         // reinstall, older OS might need it
-        pcntl_signal(SIGCHLD, array($this, 'sigGrandchild'));
+        pcntl_signal(SIGCHLD, [$this, 'sigGrandchild']);
 
         if (DBG_LEVEL & DBG_SIGNAL) {
             echo "Child caught grantchild SIGCHLD\n";
@@ -63,7 +63,7 @@ class Dmake
     public function sigHup($signo)
     {
         // reinstall, older OS might need it
-        pcntl_signal(SIGHUP, array($this, 'sigHup'));
+        pcntl_signal(SIGHUP, [$this, 'sigHup']);
         echo "Caught SIGHUP" . PHP_EOL;
 
         foreach ($this->activeHosts as $hostGroupName => $hostGroup) {
@@ -79,7 +79,7 @@ class Dmake
     public function sigInt($signo)
     {
         // reinstall, older OS might need it
-        pcntl_signal(SIGINT, array($this, 'sigInt'));
+        pcntl_signal(SIGINT, [$this, 'sigInt']);
 
         echo "Caught SIGINT" . PHP_EOL;
         foreach ($this->activeHosts as $hostGroupName => $hostGroup) {
@@ -93,16 +93,14 @@ class Dmake
 
 
     // alarm handler for child
-    function sigAlrm($signo)
+    public function sigAlrm($signo)
     {
         // this variable should be unique in each process
         global $cpid;
         // this variable should be unique in each process
         global $gpid;
 
-        if (DBG_LEVEL & DBG_ALARM) {
-            echo "$cpid child alarmed\n";
-        }
+        echo "$cpid child alarmed\n";
 
         // kill grandchildren and therefore remote job
         if (DBG_LEVEL & DBG_EXEC) {
@@ -121,12 +119,10 @@ class Dmake
             $retval = posix_kill($gpid, SIGKILL);
             if ($retval) {
                 if (DBG_LEVEL & DBG_ALARM) {
-                    echo "SGKILL SUCCESS\n";
+                    echo "SIGKILL SUCCESS\n";
                 }
-            } else {
-                if (DBG_LEVEL & DBG_ALARM) {
-                    echo "SIGKILL FAILED\n";
-                }
+            } elseif (DBG_LEVEL & DBG_ALARM) {
+                echo "SIGKILL FAILED\n";
             }
         }
     }
@@ -185,7 +181,7 @@ class Dmake
 
         // pcntl_exec only returns on error
         echo "Error executing $execstr!\n";
-
+        return true;
     }
 
     /*
@@ -207,7 +203,7 @@ class Dmake
          * while grandchild will remotely execute the code
          */
 
-        pcntl_signal(SIGCHLD, array($this, 'sigGrandchild'));
+        pcntl_signal(SIGCHLD, [$this, 'sigGrandchild']);
         $cpid = posix_getpid();
 
         $pid = pcntl_fork();
@@ -218,9 +214,9 @@ class Dmake
                 break;
 
             case 0:
-                // child (grandchild)
+                // child (grandchild),
                 exit($this->grandchildMain($hostGroup, $host, $entry, $stage, $action));
-                break;
+
             default:
                 // parent (this child)
                 if (DBG_LEVEL & DBG_ALARM) {
@@ -228,7 +224,7 @@ class Dmake
                 }
                 // $gpid is pid of grandchild
                 $gpid = $pid;
-                pcntl_signal(SIGALRM, array($this, 'sigAlrm'), true);
+                pcntl_signal(SIGALRM, [$this, 'sigAlrm'], true);
                 pcntl_alarm($timeout);
 
                 // either alarm or child finishes
@@ -276,7 +272,6 @@ class Dmake
                  * Parse the result logfile
                  */
                 $classname = $cfg->stages[$stage]->classname;
-                echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     echo "CLASSNAME: $classname" . PHP_EOL;
                     echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
@@ -292,7 +287,7 @@ class Dmake
                 $wqEntry->setStatisticId($entry->getId());
                 $wqEntry->setPriority(0);
                 $wqEntry->setAction(StatEntry::WQ_ACTION_NONE);
-                $wqEntry->setHostgroup($hostGroup);
+                $wqEntry->setHostGroup($hostGroup);
                 $wqEntry->updateAndStat();
 
                 if (DBG_LEVEL & DBG_CHILD) {

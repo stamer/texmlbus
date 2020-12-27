@@ -6,7 +6,7 @@
  */
 require_once "../../include/IncFiles.php";
 
-use Dmake\StatEntry;
+use Dmake\Set;
 use Dmake\JwToken;
 use Server\Config;
 use Server\RequestFactory;
@@ -23,18 +23,17 @@ $response = ResponseFactory::create();
 
 $query = $request->getQueryParam('q', '');
 
-$sets = StatEntry::getSets($query);
+$sets = Set::getSets($query);
 
 $out['results'] = [];
 foreach ($sets as $key => $set) {
-    $setName = $set['set'];
-    $item = new StdClass();
-    $item->id = $setName;
-    $item->text = $setName;
+    $item = new stdClass();
+    $item->id = $set->getName();
+    $item->text = $set->getName();
     $out['results'][] = $item;
 }
 
-$out['pagination'] = new StdClass;
+$out['pagination'] = new stdClass;
 $out['pagination']->more = false;
 
 $response->json($out);

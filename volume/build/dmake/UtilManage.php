@@ -19,18 +19,14 @@ class UtilManage
      * deletes an Article from DB and filesystem, directories are traversed bottom-up. If no documents
      * remain in subDirectory, subDirectory is also removed.
      * Therefore, when last document in set is deleted, the set subDir is also deleted.
-     *
-     * @param $id
-     * @return int
      */
-    public static function deleteDocument($id)
+    public static function deleteDocument(int $id): int
     {
         // delete entries in all retvaltables
         self::deleteFromAllRetvalTablesById($id);
         // delete entry in StatEntry
         $statEntry = StatEntry::getById($id);
         // delete the entry itself.
-        $set = $statEntry->getSet();
         if ($statEntry) {
             error_log("Deleting from DB: id: $id, " . $statEntry->getFilename());
             $success = (int)StatEntry::deleteById($id);
@@ -66,10 +62,8 @@ class UtilManage
 
     /**
      * deletes a complete set from DB and filesystem
-     * @param $set
-     * @return int;
      */
-    public static function deleteSet($set)
+    public static function deleteSet(string $set): int
     {
         // find all entries for set
         $ids = StatEntry::getIdsBySet($set);
@@ -89,10 +83,8 @@ class UtilManage
 
     /**
      * deletes all corresponding entries from RetvalTables
-     * @param $id
-     * @return bool
      */
-    public static function deleteFromAllRetvalTablesById($id)
+    public static function deleteFromAllRetvalTablesById(int $id): bool
     {
         static $retvalTables = null;
         if ($retvalTables === null) {
@@ -110,7 +102,7 @@ class UtilManage
      *
      * @return string[]
      */
-    public static function getRetvalTables()
+    public static function getRetvalTables(): array
     {
         $dao = Dao::getInstance();
 

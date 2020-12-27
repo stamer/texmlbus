@@ -8,6 +8,8 @@
  */
 namespace Dmake;
 
+use stdClass;
+
 class Config extends BaseConfig
 {
     private static $config = null;
@@ -20,12 +22,9 @@ class Config extends BaseConfig
     {
     }
 
-    /**
-     * @param string|null $subobj
-     * @param bool $useConfigHosts
-     * @return \stdClass
-     */
-    public static function getConfig($subobj = null, $useConfigHosts = false): \stdClass
+    public static function getConfig(
+        string $subobj = null,
+        bool $useConfigHosts = false) : stdClass
     {
         if (self::$config === null) {
             $config = BaseConfig::getConfig();
@@ -42,8 +41,8 @@ class Config extends BaseConfig
                 throw new \RangeException("Unknown Config part: $subobj");
             }
             return self::$config->{$subobj};
-        } else {
-            return self::$config;
         }
+
+        return self::$config;
     }
 }

@@ -12,10 +12,9 @@ namespace Dmake;
 class MacroDao
 {
     /**
-     *
-     * @return int
+     * Get count of top stylefiles.
      */
-    public static function getCountTopStylefiles()
+    public static function getCountTopStylefiles(): int
     {
         $dao = Dao::getInstance();
 
@@ -33,9 +32,9 @@ class MacroDao
     }
 
     /**
-     * @return array
+     * Get the top Stylefiles.
      */
-    public static function getTopStylefiles()
+    public static function getTopStylefiles(): array
     {
         $dao = Dao::getInstance();
 
@@ -59,12 +58,9 @@ class MacroDao
     }
 
     /**
-     * @param $field2
-     * @param $column
-     * @param $value
-     * @return int
+     * Gets the count for dynamic field.
      */
-    public static function getCountField2($field2, $column, $value)
+    public static function getCountField2(string $field2, string $column, $value): int
     {
         $dao = Dao::getInstance();
 
@@ -86,14 +82,9 @@ class MacroDao
     }
 
     /**
-     * @param $field2
-     * @param $column
-     * @param $value
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Gets dynamic fields.
      */
-    public static function getField2($field2, $column, $value, $min, $max_pp)
+    public static function getField2(string $field2, string $column, $value, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 

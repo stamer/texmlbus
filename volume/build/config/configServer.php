@@ -23,9 +23,10 @@ if ($MAINTENANCE) {
 /**
  * @var StdClass $config
  */
+if (!isset($config)) {
+    $config = new stdClass();
+}
 $config->isCrawler = false;
-
-$config->db->perPage = 50;
 
 $config->ret_class = [
     '' => 'none',

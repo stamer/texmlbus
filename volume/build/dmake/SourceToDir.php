@@ -22,13 +22,13 @@ class SourceToDir
      *
      * @return string
      */
-    public function setSourcefile($sourcefile)
+    public function setSourcefile(?string $sourcefile): self
     {
         $this->sourcefile = $sourcefile;
 		return $this;
     }
 
-    public function getSourcefile()
+    public function getSourcefile(): string
     {
         return $this->sourcefile;
     }
@@ -37,25 +37,26 @@ class SourceToDir
      *
      * @return this
      */
-    public function setDirectory($directory)
+    public function setDirectory(?string $directory): self
     {
         $this->directory = $directory;
 		return $this;
     }
 
-    public function getDirectory()
+    public function getDirectory(): ?string
     {
         return $this->directory;
     }
 
-    public function getSourcefilePrefix() {
+    public function getSourcefilePrefix(): ?string
+    {
         return preg_replace('/.tex$/', '', $this->sourcefile);
     }
 
     /**
      * Saves an entry to source_to_dir
      */
-	public function save()
+	public function save(): bool
 	{
         $cfg = Config::getConfig();
 
@@ -76,16 +77,12 @@ class SourceToDir
 		$stmt->bindValue(':i_sourcefile', $this->sourcefile);
 		$stmt->bindValue(':u_sourcefile', $this->sourcefile);
 
-        $stmt->execute();
+        return $stmt->execute();
 	}
 
-    /**
-     * @param $row
-     * @return SourceToDir
-     */
-    public static function fillEntry($row)
+    public static function fillEntry(array $row): self
     {
-        $std = new SourceToDir();
+        $std = new self();
         if (isset($row['sourcefile'])) {
             $std->sourcefile = $row['sourcefile'];
         }

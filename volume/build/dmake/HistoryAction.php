@@ -7,22 +7,20 @@
 
 namespace Dmake;
 
-require_once __DIR__ . '/../config/configServer.php';
-require_once "HistorySum.php";
+// Server\Config needed for ret_color
+use Server\Config;
 
-use Dmake\Config;
-use Dmake\StatEntry;
-use Dmake\HistorySum;
+require_once "HistorySum.php";
 
 class HistoryAction
 {
     /**
      * Initialiaze a HistorySnapshot.
      */
-    public static function initializeHistorySumEntries()
+    public static function initializeHistorySumEntries(): void
     {
         $cfg = Config::getConfig();
-        $sets = StatEntry::getSets();
+        $sets = Set::getSets();
 
         $stat = [];  // empty will save default (0) values;
         foreach ($sets as $set) {
@@ -38,10 +36,9 @@ class HistoryAction
     /**
      * Create entries for all sets.
      */
-    public static function createHistorySumEntries()
+    public static function createHistorySumEntries(): void
     {
-        $sets = StatEntry::getSets();
-
+        $sets = Set::getSets();
         foreach ($sets as $set) {
             self::createHistorySumEntry($set);
         }
@@ -49,9 +46,8 @@ class HistoryAction
 
     /**
      * Create a history snapshot for a single set.
-     * @param mixed $set
      */
-    public static function createHistorySumEntry($set)
+    public static function createHistorySumEntry(Set $set): void
     {
         $cfg = Config::getConfig();
         $stages = array_keys($cfg->stages);
@@ -59,20 +55,14 @@ class HistoryAction
         foreach ($stages as $stage) {
 
             // just to get the right order..
-            $stat = array();
+            $stat = [];
             foreach ($cfg->ret_class as $class => $stclass) {
                 $stat[$class] = 0;
             }
 
-            // just to get the right order..
-            $stat_class = array();
-            foreach ($cfg->ret_color as $class => $color) {
-                $stat_class[$class] = 0;
-            }
-
             $dbTable = $cfg->stages[$stage]->dbTable;
 
-            list($stat, $rerun) = StatEntry::getStats($dbTable, $set['set']);
+            list($stat, $rerun) = StatEntry::getStats($dbTable, $set->getName());
 
             self::saveStat($set, $stage, $stat);
         }
@@ -80,11 +70,8 @@ class HistoryAction
 
     /**
      * Saves the entry.
-     * @param $set
-     * @param $stage
-     * @param $stat
      */
-    public static function saveStat($set, $stage, $stat)
+    public static function saveStat(Set $set, string $stage, array $stat): bool
     {
         $cfg = Config::getConfig();
 
@@ -92,6 +79,6 @@ class HistoryAction
         $hs->setSet($set);
         $hs->setDateSnapshot($cfg->now->datestamp);
 
-        $hs->save();
+        return $hs->save();
     }
 }

@@ -93,11 +93,6 @@ class GeneralStatistics
         return $row['num'];
     }
 
-    public static function wqGetNumEntries()
-    {
-        WorkqueueEntry::getQueuedEntries();
-    }
-
     public static function getDmakeStatus()
     {
         $dao = Dao::getInstance();

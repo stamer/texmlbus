@@ -12,12 +12,8 @@ use \ZipArchive;
 class UtilZipfile
 {
     public static $debug = true;
-    /**
-     * @param string $zipfile
-     * @param string $destDir
-     * @return mixed
-     */
-    public static function extract(string $zipfile, string $destDir)
+
+    public static function extract(string $zipfile, string $destDir): bool
     {
         $zip = new ZipArchive;
         if (self::$debug) {
@@ -46,10 +42,6 @@ class UtilZipfile
         }
     }
 
-    /**
-     * @param $zipfile
-     * @return array
-     */
     public static function listSubDirs(string $zipfile) : array
     {
         $za = new ZipArchive();

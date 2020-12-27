@@ -7,6 +7,7 @@
 
 namespace Dmake;
 
+use Exception;
 use Nowakowskir\JWT\Base64Url;
 use Nowakowskir\JWT\TokenDecoded;
 use Nowakowskir\JWT\TokenEncoded;
@@ -16,13 +17,13 @@ use Server\RequestFactory;
 
 class JwToken
 {
-    const PRIVATE_KEYFILE = '/tmp/private.key';
-    const PUBLIC_KEY = '/tmp/public.pub';
+    public const PRIVATE_KEYFILE = '/tmp/private.key';
+    public const PUBLIC_KEY = '/tmp/public.pub';
 
     /**
-     *
+     * Creates a key.
      */
-    public static function createKeys()
+    public static function createKeys(): void
     {
         $command = '/usr/bin/ssh-keygen -t rsa -b 4096 -m PEM -P "" -f ' . self::PRIVATE_KEYFILE;
         exec ($command, $output, $return_var);
@@ -37,10 +38,10 @@ class JwToken
     }
 
     /**
-     * @return TokenEncoded
-     * @throws \Exception
+     * Returns an encoded token.
+     * @throws Exception
      */
-    public static function create()
+    public static function create(): string
     {
         $payload = ['random' => base64_encode(random_bytes(32))];
         $tokenDecoded = new TokenDecoded([], $payload);
@@ -57,14 +58,13 @@ class JwToken
     }
 
     /**
-     * @param $token
-     * @return bool
+     * Validates a token.
      */
-    public static function validate($token)
+    public static function validate(string $token): bool
     {
         try {
             $tokenEncoded = new TokenEncoded($token);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log("ParseException");
             return false;
         }
@@ -79,7 +79,7 @@ class JwToken
         } catch (IntegrityViolationException $e) {
             // Handle token not trusted
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Handle other validation exceptions
             return false;
         }
@@ -89,7 +89,7 @@ class JwToken
     /**
      * authenticate if sent via ajax-Request, possibly external
      */
-    public static function authenticate()
+    public static function authenticate(): void
     {
         $headers = getallheaders();
         $token = $headers['Authorization'] ?? null;
@@ -105,7 +105,7 @@ class JwToken
     /*
      * authenticate via Cookie
      */
-    public static function authenticateByCookie()
+    public static function authenticateByCookie(): void
     {
         $request = RequestFactory::create();
         $token = $request->getCookieParam('jwToken');

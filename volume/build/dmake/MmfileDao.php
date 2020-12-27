@@ -13,12 +13,8 @@ class MmfileDao
 {
     /**
      * Gets the number of entries for given parameters.
-     * @param $set
-     * @param $macro
-     * @param $styfilename
-     * @return int
      */
-    public function getCount($set, $macro, $styfilename)
+    public function getCount(string $set, string $macro, string $styfilename): int
     {
         $dao = Dao::getInstance();
 
@@ -67,14 +63,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @param $macro
-     * @param $styfilename
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get filenames for given set, macro and styfilename.
      */
-    public function getFilenames($set, $macro, $styfilename, $min, $max_pp)
+    public function getFilenames(string $set, string $macro, string $styfilename, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -123,10 +114,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @return int
+     * Get count for given set.
      */
-    public static function getCountA($set)
+    public static function getCountA(string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -158,12 +148,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get macro and styfilename for given set.
      */
-    public static function getA($set, $min, $max_pp)
+    public static function getA(string $set, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -199,10 +186,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @return int
+     * Get count of mmfile entries for given set.
      */
-    public static function getCountM($set)
+    public static function getCountM(string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -234,12 +220,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get count mmfiles entries grouped by macro entries for given set.
      */
-    public static function getM($set, $min, $max_pp)
+    public static function getM(string $set, int $min, int $max_pp): int
     {
         $dao = Dao::getInstance();
 
@@ -278,10 +261,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @return int
+     * Get count grouped by styfilename for given set.
      */
-    public static function getCountS($set)
+    public static function getCountS(string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -313,12 +295,9 @@ class MmfileDao
     }
 
     /**
-     * @param $set
-     * @param $min
-     * @param $max_pp
-     * @return array
+     * Get entries grouped by styfilename.
      */
-    public static function getS($set, $min, $max_pp)
+    public static function getS(string $set, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 

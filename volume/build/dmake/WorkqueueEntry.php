@@ -12,10 +12,10 @@ use \PDO;
 
 class WorkqueueEntry
 {
-    const WQ_ACTION_NONE = 'none';
-    const WQ_ACTION_DEFAULT = 'default';
-    const WQ_ACTION_FORCE = 'force';
-    const WQ_ENTRY_DISABLED = 0;
+    public const WQ_ACTION_NONE = 'none';
+    public const WQ_ACTION_DEFAULT = 'default';
+    public const WQ_ACTION_FORCE = 'force';
+    public const WQ_ENTRY_DISABLED = 0;
 
     protected $id = 0;
     protected $statisticId = 0;
@@ -27,152 +27,96 @@ class WorkqueueEntry
     protected $stage = '';
     protected $hostGroup = '';
 
-    /**
-     * @return int
-     */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getStatisticId(): int
+    public function getStatisticId(): ?int
     {
         return $this->statisticId;
     }
 
-    /**
-     * @param int $statisticId
-     */
-    public function setStatisticId(int $statisticId): void
+    public function setStatisticId(?int $statisticId): void
     {
         $this->statisticId = $statisticId;
     }
 
-    /**
-     * @return null
-     */
-    public function getDateCreated()
+    public function getDateCreated(): ?string
     {
         return $this->dateCreated;
     }
 
-    /**
-     * @param null $dateCreated
-     */
-    public function setDateCreated($dateCreated): void
+    public function setDateCreated(?string $dateCreated): void
     {
         $this->dateCreated = $dateCreated;
     }
 
-    /**
-     * @return null
-     */
-    public function getDateModified()
+    public function getDateModified(): ?string
     {
         return $this->dateModified;
     }
 
-    /**
-     * @param null $dateModified
-     */
-    public function setDateModified($dateModified): void
+    public function setDateModified(?string $dateModified): void
     {
         $this->dateModified = $dateModified;
     }
 
-    /**
-     * @return int
-     */
-    public function getPriority(): int
+    public function getPriority(): ?int
     {
         return $this->priority;
     }
 
-    /**
-     * @param int $priority
-     */
-    public function setPriority(int $priority): void
+    public function setPriority(?int $priority): void
     {
         $this->priority = $priority;
     }
 
-    /**
-     * @return int
-     */
-    public function getPrevAction(): int
+    public function getPrevAction(): ?int
     {
         return $this->prevAction;
     }
 
-    /**
-     * @param int $prevAction
-     */
-    public function setPrevAction(int $prevAction): void
+    public function setPrevAction(?int $prevAction): void
     {
         $this->prevAction = $prevAction;
     }
 
-    /**
-     * @return string
-     */
-    public function getAction(): string
+    public function getAction(): ?string
     {
         return $this->action;
     }
 
-    /**
-     * @param string $action
-     */
-    public function setAction(string $action): void
+    public function setAction(?string $action): void
     {
         $this->action = $action;
     }
 
-    /**
-     * @return string
-     */
-    public function getStage(): string
+    public function getStage(): ?string
     {
         return $this->stage;
     }
 
-    /**
-     * @param string $stage
-     */
-    public function setStage(string $stage): void
+    public function setStage(?string $stage): void
     {
         $this->stage = $stage;
     }
 
-    /**
-     * @return string
-     */
-    public function getHostGroup(): string
+    public function getHostGroup(): ?string
     {
         return $this->hostGroup;
     }
 
-    /**
-     * @param string $hostGroup
-     */
-    public function setHostGroup(string $hostGroup): void
+    public function setHostGroup(?string $hostGroup): void
     {
         $this->hostGroup = $hostGroup;
     }
 
-    /**
-     */
     public function save(): bool
     {
         $cfg = Config::getConfig();
@@ -219,19 +163,15 @@ class WorkqueueEntry
         $stmt->bindValue(':i_hostgroup', $this->hostGroup);
         $stmt->bindValue(':u_hostgroup', $this->hostGroup);
 
-        $result = $stmt->execute();
+        $success = $stmt->execute();
 
         if ($this->id == 0) {
             $this->id = $dao->lastInsertId();
         }
-        return $result;
+        return $success;
     }
 
-    /**
-     * @param $row
-     * @return StatEntry
-     */
-    public static function fillEntry($row): ?self
+    public static function fillEntry(array $row): self
     {
         $we = new static();
         $we->setId($row['id'] ?? 0);
@@ -277,8 +217,7 @@ class WorkqueueEntry
         $stmt->bindValue(':statistic_id', $this->getStatisticId());
         $stmt->bindValue(':stage', $this->getStage());
 
-        $result = $stmt->execute();
-        return $result;
+        return  $stmt->execute();
     }
 
     public function updateButHostgroup(): bool
@@ -309,11 +248,10 @@ class WorkqueueEntry
         $stmt->bindValue(':statistic_id', $this->getStatisticId());
         $stmt->bindValue(':stage', $this->getStage());
 
-        $result = $stmt->execute();
-        return $result;
+        return $stmt->execute();
     }
 
-    public function updateAndStat()
+    public function updateAndStat(): bool
     {
         $cfg = Config::getConfig();
 
@@ -333,13 +271,10 @@ class WorkqueueEntry
         $stmt->bindValue(':date_modified', $this->getDateModified());
         $stmt->bindValue(':id', $this->getStatisticId());
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
-    /**
-     * @param $id
-     */
-    public static function disableEntry($statisticId, $stage)
+    public static function resetPriority(int $statisticId, string $stage): bool
     {
         $dao = Dao::getInstance();
 
@@ -347,24 +282,45 @@ class WorkqueueEntry
             UPDATE
                 workqueue
             SET
-                priority = " . StatEntry::WQ_ENTRY_DISABLED . "
+                priority = :priority
             WHERE
                 statistic_id = :statistic_id
                 AND stage = :stage
         ";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':priority', StatEntry::WQ_ENTRY_DISABLED);
         $stmt->bindValue(':statistic_id', $statisticId);
         $stmt->bindValue(':stage', $stage);
 
-        $stmt->execute();
+        return $stmt->execute();
     }
 
-    /**
-     * @param $id
-     * @return bool
-     */
-    public static function deleteById($id): bool
+    public static function disableEntry(int $statisticId, string $stage): bool
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            UPDATE
+                workqueue
+            SET
+                priority = :priority,
+                action = :action
+            WHERE
+                statistic_id = :statistic_id
+                AND stage = :stage
+        ";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':priority', StatEntry::WQ_ENTRY_DISABLED);
+        $stmt->bindValue(':action', StatEntry::WQ_ACTION_NONE);
+        $stmt->bindValue(':statistic_id', $statisticId);
+        $stmt->bindValue(':stage', $stage);
+
+        return $stmt->execute();
+    }
+
+    public static function deleteById(int $id): bool
     {
         $dao = Dao::getInstance();
 
@@ -381,11 +337,7 @@ class WorkqueueEntry
         return $result;
     }
 
-    /**
-     * @param $statisticId
-     * @return bool
-     */
-    public static function deleteByStatisticId($statisticId): bool
+    public static function deleteByStatisticId(int $statisticId): bool
     {
         $dao = Dao::getInstance();
 
@@ -402,11 +354,7 @@ class WorkqueueEntry
         return $result;
     }
 
-    /**
-     * @param string $id
-     * @return StatEntry
-     */
-    public static function getById($id): ?self
+    public static function getById(int $id): ?self
     {
         $dao = Dao::getInstance();
 
@@ -430,12 +378,17 @@ class WorkqueueEntry
         return $obj;
     }
 
-    /**
-     * @return mixed
-     */
-    public static function getQueuedEntries()
+    public static function getNumQueuedEntries($includeCurrentEntries = false): int
     {
         $dao = Dao::getInstance();
+
+        if ($includeCurrentEntries) {
+            $where = "
+                priority > 0
+                OR (priority = 0 AND action != 'none')";
+        } else {
+            $where = "priority > 0";
+        }
 
         $query = "
             SELECT
@@ -443,7 +396,7 @@ class WorkqueueEntry
             FROM
                 workqueue
             WHERE
-                priority > 0
+                $where
         ";
 
         $stmt = $dao->prepare($query);
@@ -453,5 +406,4 @@ class WorkqueueEntry
         $row = $stmt->fetch();
         return $row['num'];
     }
-
 }

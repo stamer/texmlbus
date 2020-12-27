@@ -7,7 +7,7 @@
 namespace Server;
 
 use Dmake\JwToken;
-use Dmake\StatEntry;
+use Dmake\Set;
 
 class Page
 {
@@ -107,7 +107,7 @@ class Page
 	public function showHeader($activeLeft = null, $activeRight = null)
     {
         $cfg = Config::getConfig();
-        $sets = StatEntry::getSets();
+        $sets = Set::getSets();
 
         $currentSet = $this->getRequest()->getQueryParam('set', '');
         $detail = (int) $this->getRequest()->getQueryParam('detail', 0);
@@ -243,10 +243,10 @@ class Page
 					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/index.php">overall</a></li>'.PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set['set'] ? 'active' : '').'">'.PHP_EOL;
-                            echo '  <a href="/index.php?set=' . htmlspecialchars(urlencode($set['set'])) . '" title="'
-                                    . htmlspecialchars($set['sourcefile']).'">';
-                            echo '    '.htmlspecialchars($set['set']);
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '  <a href="/index.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
+                                    . htmlspecialchars($set->getSourcefile()).'">';
+                            echo '    '.htmlspecialchars($set->getName());
                             echo '  </a>'.PHP_EOL;
                             echo '</li>'.PHP_EOL;
                         }
@@ -263,10 +263,10 @@ class Page
 					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/retval_abc.php">overall</a></li>'.PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set['set'] ? 'active' : '').'">'.PHP_EOL;
-                            echo '  <a href="/retval_abc.php?set=' . htmlspecialchars(urlencode($set['set'])) . '" title="'
-                                    . htmlspecialchars($set['sourcefile']).'">';
-                            echo '    '.htmlspecialchars($set['set']);
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '  <a href="/retval_abc.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
+                                    . htmlspecialchars($set->getSourcefile()).'">';
+                            echo '    '.htmlspecialchars($set->getName());
                             echo '  </a>'.PHP_EOL;
                             echo '</li>'.PHP_EOL;
                         }
@@ -316,10 +316,10 @@ class Page
 					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/package_usage.php">overall</a></li>'.PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set['set'] ? 'active' : '').'">'.PHP_EOL;
-                            echo '  <a href="/package_usage.php?set=' . htmlspecialchars(urlencode($set['set'])) . '" title="'
-                                    . htmlspecialchars($set['sourcefile']).'">';
-                            echo '    '.htmlspecialchars($set['set']);
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '  <a href="/package_usage.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
+                                    . htmlspecialchars($set->getSourcefile()).'">';
+                            echo '    '.htmlspecialchars($set->getName());
                             echo '  </a>'.PHP_EOL;
                             echo '</li>'.PHP_EOL;
                         }
@@ -337,10 +337,10 @@ class Page
 					echo '  <li class="' . (empty($currentSet) ? 'active' : '') . '"><a href="/history.php">overall</a></li>'.PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set['set'] ? 'active' : '').'">'.PHP_EOL;
-                            echo '  <a href="/history.php?set=' . htmlspecialchars(urlencode($set['set'])) . '" title="'
-                                    . htmlspecialchars($set['sourcefile']).'">';
-                            echo '    '.htmlspecialchars($set['set']);
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '  <a href="/history.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
+                                    . htmlspecialchars($set->getSourcefile()).'">';
+                            echo '    '.htmlspecialchars($set->getName());
                             echo '  </a>'.PHP_EOL;
                             echo '</li>'.PHP_EOL;
                         }
@@ -357,10 +357,10 @@ class Page
 					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/history.php?detail=1">overall</a></li>'.PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set['set'] ? 'active' : '').'">'.PHP_EOL;
-                            echo '  <a href="/history.php?detail=1&amp;set=' . htmlspecialchars(urlencode($set['set'])) . '" title="'
-                                    . htmlspecialchars($set['sourcefile']).'">';
-                            echo '    '.htmlspecialchars($set['set']);
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '  <a href="/history.php?detail=1&amp;set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
+                                    . htmlspecialchars($set->getSourcefile()).'">';
+                            echo '    '.htmlspecialchars($set->getName());
                             echo '  </a>'.PHP_EOL;
                             echo '</li>'.PHP_EOL;
                         }

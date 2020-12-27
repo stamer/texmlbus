@@ -19,9 +19,9 @@ namespace Dmake;
  */
 class DbUpdate
 {
-    const UPGRADEDIR = BUILDDIR . '/config/sql';
+    public const UPGRADEDIR = BUILDDIR . '/config/sql';
 
-    public function execute()
+    public function execute(): void
     {
         $dbVersion = $this->getDbVersion();
         echo "Checking DB updates..." . PHP_EOL;
@@ -31,7 +31,7 @@ class DbUpdate
 
         foreach ($files as $filename) {
             // filename pattern should be dddd-upgrade.sql
-            $result = preg_split('/-/', $filename, 2);
+            $result = explode('-', $filename, 2);
             if ($result === false
                 || !isset($result[0])
             ) {
@@ -57,11 +57,9 @@ class DbUpdate
     }
 
     /**
-     * @param $tableName
-     * @param $columnName
-     * @return bool
+     * Checks if given columnName for tableName exists.
      */
-    public function columnExists($tableName, $columnName)
+    public function columnExists(string $tableName, string $columnName): bool
     {
         $db = Config::getConfig('db');
         $dao = Dao::getInstance();
@@ -84,7 +82,7 @@ class DbUpdate
         return ($row['num'] > 0);
     }
 
-    public function getDbVersion()
+    public function getDbVersion(): int
     {
         if (!$this->columnExists('dbversion', 'dbversion')) {
             return 0;
@@ -98,17 +96,22 @@ class DbUpdate
         return $row['dbversion'];
     }
 
-    public function setDbVersion($dbVersion)
+    /**
+     * Sets current version of patches to dbversion.
+     */
+    public function setDbVersion(int $dbVersion): bool
     {
         $dao = Dao::getInstance();
         $query = "UPDATE dbversion SET dbversion = :dbVersion";
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':dbVersion', $dbVersion);
-        $result = $stmt->execute();
-        return $result;
+        return $stmt->execute();
     }
 
-    public function importFile($filename)
+    /**
+     * Imports a dump file to mysql.
+     */
+    public function importFile(string $filename): bool
     {
         $db = Config::getConfig('db');
         $systemstr = sprintf('/usr/bin/mysql -u%s -p%s -h%s %s < %s',
