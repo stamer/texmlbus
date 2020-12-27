@@ -815,7 +815,7 @@ class StatEntry
                 s.date_modified,
                 s.filename,
                 s.sourcefile,
-                wq.id as wq_id,   
+                wq.id as wq_id,
                 wq.priority as wq_priority,
                 wq.prev_action as wq_prev_action,
                 wq.action as wq_action,
@@ -826,12 +826,12 @@ class StatEntry
                 statistic as s
             JOIN
                 workqueue as wq
-            ON 
+            ON
                 s.id = wq.statistic_id
             WHERE
                 $where
             ORDER BY
-                wq.priority DESC, 
+                wq.priority DESC,
                 wq.date_modified
             LIMIT :limit";
 
@@ -852,6 +852,70 @@ class StatEntry
         if ($toStdout) {
             echo "fetched " . $count . ($count == 1 ? ' entry.' : ' entries.') . PHP_EOL;
         }
+        return $dbEntries;
+    }
+
+    /**
+     * Get next entries
+     * @return ?StatEntry[]
+     */
+    public static function wqGetEntries(
+        string $hostGroupName = '',
+        int $limit = 10)
+    {
+        // Here we might get "server has gone away message".
+        // Therefore explicitly check, whether connection is still there.
+        $dao = Dao::checkAndGetInstance();
+
+        $where = "
+            wq.priority > 0
+            OR (wq.priority = 0 AND wq.action != 'none')
+        ";
+
+        if ($hostGroupName !== '') {
+            $where .= ' AND wq.hostgroup = :hostGroupName';
+        }
+
+        $query = "
+            SELECT
+                s.id,
+                s.date_created,
+                s.date_modified,
+                s.filename,
+                s.sourcefile,
+                wq.id as wq_id,
+                wq.priority as wq_priority,
+                wq.prev_action as wq_prev_action,
+                wq.action as wq_action,
+                wq.stage as wq_stage,
+                wq.hostgroup as wq_hostgroup,
+                wq.date_modified as wq_date_modified
+            FROM
+                statistic as s
+            JOIN
+                workqueue as wq
+            ON
+                s.id = wq.statistic_id
+            WHERE
+                $where
+            ORDER BY
+                wq.priority,
+                wq.date_modified
+            LIMIT :limit";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':limit', $limit);
+        if ($hostGroupName !== '') {
+            $stmt->bindValue(':hostGroupName', $hostGroupName);
+        }
+
+        $stmt->execute();
+
+        $dbEntries = [];
+        while ($row = $stmt->fetch()) {
+            $dbEntries[$row['wq_id']] = self::fillEntry($row);
+        }
+
         return $dbEntries;
     }
 

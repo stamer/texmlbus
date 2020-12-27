@@ -137,7 +137,7 @@ class Set
         $query = "
             SELECT
                 s.`set`,
-                count(s.id) as numDocuments,                            
+                count(s.id) as numDocuments,
                 std.sourcefile
             FROM
                 statistic as s
