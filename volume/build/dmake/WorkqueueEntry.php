@@ -274,6 +274,28 @@ class WorkqueueEntry
         return $stmt->execute();
     }
 
+    public static function resetPriority(int $statisticId, string $stage): bool
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            UPDATE
+                workqueue
+            SET
+                priority = :priority
+            WHERE
+                statistic_id = :statistic_id
+                AND stage = :stage
+        ";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':priority', StatEntry::WQ_ENTRY_DISABLED);
+        $stmt->bindValue(':statistic_id', $statisticId);
+        $stmt->bindValue(':stage', $stage);
+
+        return $stmt->execute();
+    }
+
     public static function disableEntry(int $statisticId, string $stage): bool
     {
         $dao = Dao::getInstance();
@@ -282,13 +304,16 @@ class WorkqueueEntry
             UPDATE
                 workqueue
             SET
-                priority = " . StatEntry::WQ_ENTRY_DISABLED . "
+                priority = :priority,
+                action = :action
             WHERE
                 statistic_id = :statistic_id
                 AND stage = :stage
         ";
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':priority', StatEntry::WQ_ENTRY_DISABLED);
+        $stmt->bindValue(':action', StatEntry::WQ_ACTION_NONE);
         $stmt->bindValue(':statistic_id', $statisticId);
         $stmt->bindValue(':stage', $stage);
 
@@ -353,9 +378,17 @@ class WorkqueueEntry
         return $obj;
     }
 
-    public static function getQueuedEntries(): int
+    public static function getNumQueuedEntries($includeCurrentEntries = false): int
     {
         $dao = Dao::getInstance();
+
+        if ($includeCurrentEntries) {
+            $where = "
+                priority > 0
+                OR (priority = 0 AND action != 'none')";
+        } else {
+            $where = "priority > 0";
+        }
 
         $query = "
             SELECT
@@ -363,7 +396,7 @@ class WorkqueueEntry
             FROM
                 workqueue
             WHERE
-                priority > 0
+                $where
         ";
 
         $stmt = $dao->prepare($query);
