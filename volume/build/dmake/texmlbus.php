@@ -13,10 +13,11 @@
  * written by Heinrich Stamerjohanns, June 5th, 2007
  *            heinrich@stamerjohanns.de
  *
+ * Minimum language level is php 7.3.
+ *
  */
 
 ini_set("memory_limit", "512M");
-
 require_once "IncFiles.php";
 
 use Dmake\Config;
@@ -34,23 +35,8 @@ use Dmake\WorkqueueEntry;
 $cfg = Config::getConfig(null, true);
 
 // setup process control
-
-/*
-function tick_handler() {
-	pcntl_signal_dispatch();
-}
-
-register_tick_function('tick_handler');
-*/
-
-// Older php versions still need declare ticks...
-if (version_compare(PHP_VERSION, '7.1.0', '>=')) {
-    echo "Using pcntl_async_signals..." . PHP_EOL;
-    pcntl_async_signals(true);
-} else {
-    echo "Using declare(ticks=1)..." . PHP_EOL;
-    declare(ticks=1);
-}
+// php >= 7.1 uses this
+pcntl_async_signals(true);
 
 /** @var Dmake $dmake */
 $dmake = new Dmake();
@@ -88,7 +74,7 @@ $du->execute();
 
 $ds = new DmakeStatus;
 $ds->directory = '';
-$ds->num_files = WorkqueueEntry::getQueuedEntries();
+$ds->num_files = WorkqueueEntry::getNumQueuedEntries();
 $ds->num_hosts = count($cfg->hosts);
 
 $str = '';
@@ -130,7 +116,11 @@ function mainLoop($hostGroupName, $dmake, $ds)
          *  processed in a seperate while loop.
          *
         */
-        while ($db_entries = StatEntry::wqGetNextEntries($hostGroupName, $ds->num_hosts)) {
+        while ($db_entries = StatEntry::wqGetNextEntries(
+            $hostGroupName,
+            $ds->num_hosts,
+            false)
+        ) {
             // process fetched entries
 
             while ($entry = array_pop($db_entries)) {
@@ -139,14 +129,14 @@ function mainLoop($hostGroupName, $dmake, $ds)
                     echo $entry->filename . "..." . PHP_EOL;
                 }
 
-                WorkqueueEntry::disableEntry($entry->getId(), $entry->getWqStage());
+                WorkqueueEntry::resetPriority($entry->getId(), $entry->getWqStage());
 
                 // trigger doneTrigger (which is actually as statusTrigger, so running status is set
                 $inotify->trigger($hostGroupName, InotifyHandler::doneTrigger);
 
                 // update every 20 entries
                 if (($count % 20) == 0) {
-                    $ds->num_files = WorkqueueEntry::getQueuedEntries();
+                    $ds->num_files = WorkqueueEntry::getNumQueuedEntries();
                     $ds->save(false);
                 }
 
@@ -279,7 +269,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
          *
          */
 
-        $ds->num_files = WorkqueueEntry::getQueuedEntries();
+        $ds->num_files = WorkqueueEntry::getNumQueuedEntries();
         $ds->save(false);
 
         if ($inotify->isActive()) {
