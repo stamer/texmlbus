@@ -155,11 +155,6 @@ class InotifyHandler
                 stream_set_blocking($this->fd[$hostGroupName][$triggerName], false);
             }
             while (1) {
-                // if we work with declare ticks, the interrupted system call might just
-                // restart, call pcntl_signal_dispatch to handle signals
-                if (PHP_VERSION_ID < 70100) {
-                    pcntl_signal_dispatch();
-                }
                 $readFds = [];
                 foreach ($hostGroups as $hostGroupName) {
                     $readFds[] = $this->fd[$hostGroupName][$triggerName];
@@ -220,11 +215,6 @@ class InotifyHandler
             // wait on all fds of triggerName
             stream_set_blocking($this->fd[$hostGroupName][$triggerName], false);
             while (1) {
-                // if we work with declare ticks, the interrupted system call might just
-                // restart, call pcntl_signal_dispatch to handle signals
-                if (PHP_VERSION_ID < 70100) {
-                    pcntl_signal_dispatch();
-                }
                 $readFds = [$this->fd[$hostGroupName][$triggerName]];
                 $w = [];
                 $e = [];
