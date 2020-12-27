@@ -6,6 +6,7 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
+use Dmake\WorkqueueEntry;
 use Server\Config;
 use Server\GeneralStatistics;
 use Server\Page;
@@ -31,7 +32,7 @@ $num_conv = GeneralStatistics::getNumCompiledFiles();
 $num_last_24 = GeneralStatistics::getNumLast24();
 $num_last_hour = GeneralStatistics::getNumLastHour();
 
-$wq_num = GeneralStatistics::wqGetNumEntries();
+$wq_num = WorkqueueEntry::getNumQueuedEntries();
 ?>
     <h3 style="text-align: center"><em><b>Tex</b> to X<b>ML BU</b>ild <b>S</b>ystem (texmlbus)</em></h3>
     <h4>General statistics <?=$page->info('generalStat') ?></h4>
