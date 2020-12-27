@@ -59,26 +59,30 @@ foreach ($stages as $stage) {
     }
 }
 
-$numrows = WorkqueueEntry::getQueuedEntries();
+$numrows = WorkqueueEntry::getNumQueuedEntries(true);
 
-$stat = StatEntry::wqGetNextEntries('', 20, false);
-
+$stat = StatEntry::wqGetEntries('', 20);
 ?>
 <table border="1">
 <tr>
 	<th style="min-width:70px">No.</th>
     <th>Date&nbsp;queued</th>
     <th>Directory</th>
-<?php
-	echo '<th>Stage</th>';
-?>
-
+	<th>Stage</th>
+    <th>Action</th>
 </tr>
 <?php
 $count = 0;
-foreach ($stat as $wq_id => $entry) {
-    $stage = $entry->getWqStage();
+if (!$numrows) {
+?>
+<tr>
+    <td colspan="5">No entries in queue.</td>
+</tr>
+<?php
+}
 
+
+foreach ($stat as $wq_id => $entry) {
     $directory = 'files/'.$entry->getFilename().'/';
     if (!preg_match('/\.tex$/', $entry->getSourcefile())) {
         $sourcefile = $entry->getSourcefile().'.tex';
@@ -89,7 +93,6 @@ foreach ($stat as $wq_id => $entry) {
     }
 
     $prefix = basename($entry->getSourcefile(), '.tex');
-
 
 	echo "<tr>\n";
 	$count++;
@@ -105,14 +108,24 @@ foreach ($stat as $wq_id => $entry) {
 		$filename = '';
 	}
 
+	$running = ($entry->getWqPriority() == 0 && $entry->getWqAction() != 'none');
+
 	echo '<td align="right" rowspan="1">'.$no;
-    echo '<button type="button" class="btn btn-warning warning queue_warning" onclick="dequeueDocument(this, ' . $entry->getId() . ', \'' . $stage .'\')">';
-    echo '<i class="fas fa-ban" title="dequeue document"></i>';
-    echo '<span></span></button>';
+    if (!$running) {
+        echo '<button type="button" class="btn btn-warning warning queue_warning" onclick="dequeueDocument(this, ' . $entry->getId(
+            ) . ', \'' . $entry->getWqStage() . '\')">';
+        echo '<i class="fas fa-ban" title="dequeue document"></i>';
+        echo '<span></span></button>';
+    }
     echo '</td>' . PHP_EOL;
 	echo '<td rowspan="1">'.$date_modified."</td>\n";
 	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename."</a></td>\n";
-    echo '<td rowspan="1">'.$stage."</td>\n";
+    echo '<td rowspan="1">'.$entry->getWqStage()."</td>\n";
+    echo '<td rowspan="1">'.$entry->getWqAction();
+    if ($running) {
+        echo '<br /><em>running</em>';
+    }
+    echo "</td>\n";
 
 
     //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
