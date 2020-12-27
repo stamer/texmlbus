@@ -100,9 +100,7 @@ class Dmake
         // this variable should be unique in each process
         global $gpid;
 
-        if (DBG_LEVEL & DBG_ALARM) {
-            echo "$cpid child alarmed\n";
-        }
+        echo "$cpid child alarmed\n";
 
         // kill grandchildren and therefore remote job
         if (DBG_LEVEL & DBG_EXEC) {
@@ -274,7 +272,6 @@ class Dmake
                  * Parse the result logfile
                  */
                 $classname = $cfg->stages[$stage]->classname;
-                echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     echo "CLASSNAME: $classname" . PHP_EOL;
                     echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
