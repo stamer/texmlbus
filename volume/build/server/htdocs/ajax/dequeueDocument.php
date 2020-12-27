@@ -5,7 +5,7 @@
  *
  */
 require_once "../../include/IncFiles.php";
-use Dmake\StatEntry;
+use Dmake\WorkqueueEntry;
 use Dmake\JwToken;
 use Server\Config;
 use Server\RequestFactory;
@@ -24,7 +24,7 @@ $id = $request->getQueryParam('id', '');
 $stage = $request->getQueryParam('stage', '');
 
 if (!empty($id)) {
-    $success = StatEntry::addToWorkqueueById($id, '', $stage, 'none', 0);
+    $success = WorkqueueEntry::disableEntry($id, $stage);
     $out['success'] = $success;
     if ($success) {
         $out['message'] = 'Success.';
