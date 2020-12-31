@@ -47,14 +47,13 @@ class UtilStylefile
         $pattern = '/documentclass/i';
 
         if (preg_match($pattern, $contents)) {
-
             // find the .cls file
             preg_match_all('/^ *(?<!\%) *\\\\documentclass(\[.*?\]){0,1}\{(.+?)\}/m', $contents, $matches);
             //print_r($matches);
-            echo $matches[2][0]."\n";
+            echo $matches[2][0] . "\n";
 
             if (isset($matches[2][0])) {
-                $stylefiles[] = $matches[2][0].".cls";
+                $stylefiles[] = $matches[2][0] . ".cls";
             } else {
                 $stylefiles[0] = "NODOCUMENTCLASS";
             }
@@ -65,10 +64,10 @@ class UtilStylefile
 
             // be aware each entry in $matches[2] might still contain multiple packages;
             if (isset($matches[2][0])) {
-                foreach($matches[2] as $entry) {
+                foreach ($matches[2] as $entry) {
                     $files = explode(',', $entry);
-                    foreach($files as $file) {
-                        $stylefiles[] = trim($file).".sty";
+                    foreach ($files as $file) {
+                        $stylefiles[] = trim($file) . ".sty";
                     }
                 }
             }
@@ -79,19 +78,19 @@ class UtilStylefile
 
 
             if (isset($matches[2][0])) {
-                $stylefiles[] = $matches[2][0].".sty";
+                $stylefiles[] = $matches[2][0] . ".sty";
             } else {
                 $stylefiles[0] = "NODOCUMENTSTYLE";
             }
 
             // be aware each entry in $matches[1] might still contain multiple packages;
             if (isset($matches[1][0])) {
-                foreach($matches[1] as $entry) {
+                foreach ($matches[1] as $entry) {
                     $files = explode(',', $entry);
-                    foreach($files as $file) {
+                    foreach ($files as $file) {
                         $realname = trim($file, '[ ]');
                         if ($realname != '') {
-                            $stylefiles[] = $realname.".sty";
+                            $stylefiles[] = $realname . ".sty";
                         }
                     }
                 }
@@ -104,17 +103,17 @@ class UtilStylefile
     public function saveStylefiles(
         string $set,
         string $filename,
-        array $stylefilesArr): void
-    {
+        array $stylefilesArr
+    ): void {
         $dao = DAO::getInstance();
 
         $styfiles = '';
-        
+
         foreach ($stylefilesArr as $stylefile) {
             if ($stylefile == 'A4.sty' || $stylefile == '12pt.sty' || $stylefile == '11pt.sty' || $stylefile == 'twoside.sty') {
                 continue;
             }
-            $styfiles .= $stylefile.' ';
+            $styfiles .= $stylefile . ' ';
         }
 
         // cleanup first, this could be expanded to compute diffs
@@ -131,10 +130,12 @@ class UtilStylefile
         $stmt->bindValue(':filename', $filename);
 
         $stmt->execute();
-        
+
         foreach ($stylefilesArr as $styfilename) {
             $styfilename = trim($styfilename);
-            if (!strlen($styfilename)) continue;
+            if (!strlen($styfilename)) {
+                continue;
+            }
             // echo $filename."\n";
 
             $query = "
@@ -160,8 +161,8 @@ class UtilStylefile
         string $set,
         string $filename,
         string $macro,
-        array $stylefilesArr): void
-    {
+        array $stylefilesArr
+    ): void {
         $dao = DAO::getInstance();
 
         $styfiles = '';
@@ -169,10 +170,10 @@ class UtilStylefile
             if ($stylefile == 'A4.sty' || $stylefile == '12pt.sty' || $stylefile == '11pt.sty' || $stylefile == 'twoside.sty') {
                 continue;
             }
-            $styfiles .= $stylefile.' ';
+            $styfiles .= $stylefile . ' ';
         }
 
-        $execStr = 'cd '.STYARXMLIVDIR.'; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*'.$macro.'[^a-zA-Z0-9_]\' '.$styfiles;
+        $execStr = 'cd ' . STYARXMLIVDIR . '; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*' . $macro . '[^a-zA-Z0-9_]\' ' . $styfiles;
         //echo $execStr."\n";
 
         $retstr = shell_exec($execStr);
@@ -186,7 +187,9 @@ class UtilStylefile
 
         foreach ($arr as $styfilename) {
             $styfilename = trim($styfilename);
-            if (!strlen($styfilename)) continue;
+            if (!strlen($styfilename)) {
+                continue;
+            }
             // echo $filename."\n";
 
             $query = "
@@ -215,8 +218,8 @@ class UtilStylefile
         string $set,
         string $filename,
         string $macro,
-        array $stylefilesArr): void
-    {
+        array $stylefilesArr
+    ): void {
         $dao = DAO::getInstance();
 
         $styfiles = '';
@@ -227,10 +230,10 @@ class UtilStylefile
                 || $stylefile == 'twoside.sty') {
                 continue;
             }
-            $styfiles .= $stylefile.' ';
+            $styfiles .= $stylefile . ' ';
         }
 
-        $execStr = 'cd '.STYARXMLIVDIR.'; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*'.$macro.'[^a-zA-Z0-9_]\' '.$styfiles;
+        $execStr = 'cd ' . STYARXMLIVDIR . '; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*' . $macro . '[^a-zA-Z0-9_]\' ' . $styfiles;
         //echo $execStr."\n";
 
         $retstr = shell_exec($execStr);
@@ -250,15 +253,17 @@ class UtilStylefile
                 filename = :filename
                 AND macro    = :macro";
 
-            $stmt = $dao->prepare($query);
-            $stmt->bindValue(':filename', $filename);
-            $stmt->bindValue(':macro', $macro);
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':filename', $filename);
+        $stmt->bindValue(':macro', $macro);
 
-            $stmt->execute();
+        $stmt->execute();
 
         foreach ($arr as $styfilename) {
             $styfilename = trim($styfilename);
-            if (!strlen($styfilename)) continue;
+            if (!strlen($styfilename)) {
+                continue;
+            }
             // echo $filename."\n";
 
             $query = "
@@ -281,5 +286,29 @@ class UtilStylefile
 
             $stmt->execute();
         }
+    }
+
+    /**
+     * Returns the installed cls/sty files as
+     * [name => path] Array.
+     */
+    public static function getInstalledClsStyFiles($directory): array
+    {
+        $currentDepth = -5;
+        $result_dirs = [];
+        UtilFile::listDirR(
+            $directory,
+            $result_dirs,
+            $currentDepth,
+            true,
+            false,
+            '/\.cls|\.sty/',
+        );
+
+        $installedFiles = [];
+        foreach ($result_dirs as $filename) {
+            $installedFiles[basename($filename)] = $filename;
+        }
+        return $installedFiles;
     }
 }
