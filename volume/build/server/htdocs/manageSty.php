@@ -61,19 +61,22 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
 <?php
     $prevDir = '__empty__'; // avoid warning in strpos
     $depth = 0;
+    sort($result_dirs);
     foreach ($result_dirs as $fullFilename) {
-        $isDir = 'false';
+        $isDir = false;
         $file = str_replace(ARTICLEDIR . '/sty/', '', $fullFilename);
 
         if (substr($file, -1, 1) === '/') {
-            $isDir = 'true';
+            $isDir = true;
         }
 
+        // does the path change?
         if (strpos($file, $prevDir) !== 0
             && $prevDir !== '__empty__'
         ) {
-            $num = substr_count($file, '/') ;
-            while ($depth >= $num) {
+            // do not count last /
+            $num = substr_count($file, '/', 0, -1) ;
+            while ($depth > $num) {
                 echo '</ul>' . PHP_EOL;
                 $depth--;
             }
@@ -85,18 +88,22 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
          <i class="fas fa-trash"></i>
               <span></span>
          </button>
-        <?=htmlspecialchars($file) ?>
+<?php
+        echo htmlspecialchars(basename($file) . ($isDir ? '/' : ''));
+?>
     </div>
 <?php
-        if ($isDir === 'true') {
+        if ($isDir === true) {
             $prevDir = $file;
             echo '<ul>' . PHP_EOL;
             $depth++;
         }
 
     }
-    while ($depth--) {
+
+    while ($depth > 0) {
         echo '</ul>' . PHP_EOL;
+        $depth--;
     }
 ?>
       </div>
