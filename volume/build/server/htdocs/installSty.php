@@ -40,11 +40,13 @@ foreach ($cfg->clsLoader as $publisher => $val) {
 <?php
         if ($val2['installed']) {
             $icon = 'fa-chevron-down';
+            $btn_class = 'btn-success';
         } else {
             $icon = 'fa-cloud-download-alt';
+            $btn_class = 'btn-primary';
         }
 ?>
-        <button style="font-size: 0.9rem; padding: 0.1rem 0.25rem; margin-right: 10px" type="button" class="btn btn-success install" onclick="installSty(this, '<?=$val2['className'] ?>')">
+        <button style="font-size: 0.9rem; width: 1.8rem; padding: 0.1rem 0.25rem; margin-right: 10px" type="button" class="btn <?=$btn_class ?> install" onclick="installSty(this, '<?=$val2['className'] ?>')">
         <i class="fas <?=$icon ?>"></i>
             <span></span>
         </button>

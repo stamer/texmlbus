@@ -22,16 +22,20 @@ abstract class AbstractClsLoader
 
     /**
      * @var string $publisher name of the publisher
+     * Used for grouping on installSty.
      */
     protected $publisher;
 
     /**
-     * @var string url of the file
+     * @var string url of the zip file
+     * Where to download the sources from.
      */
     protected $url;
 
     /**
      * @var string[] cls/sty files of package
+     * Files that are checked for existence, to determine whether
+     * package is installed or not.
      */
     protected $files = [];
 

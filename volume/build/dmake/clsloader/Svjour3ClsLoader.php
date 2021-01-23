@@ -30,6 +30,5 @@ class Svjour3ClsLoader extends AbstractClsLoader
     protected $url = 'https://static.springer.com/sgw/documents/468198/application/zip/LaTeX_DL_468198.zip';
 
     protected $files = ['svjour3.cls'];
-
 }
 

@@ -5,6 +5,8 @@ function installSty(element, name)
         headers: { "Authorization": token }
     });
 
+    $(element).html('<i class="fas fa-spinner fa-spin"></i><span></span>');
+
     $.ajax({
         url: "/ajax/installSty.php?name=" + name,
         method: "GET",
@@ -24,6 +26,8 @@ function installSty(element, name)
                 if (data.result['installed']) {
                     message += ' <em>' + data.result['installedCls'] + '</em> installed.';
                     msgClass = 'success';
+                    $(element).removeClass();
+                    $(element).addClass('btn btn-success install');
                     $(element).html('<i class="fas fa-chevron-down"></i><span></span>');
                     fadeMsec = 1000;
                 } else {

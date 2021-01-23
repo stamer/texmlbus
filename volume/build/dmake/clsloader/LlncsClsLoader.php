@@ -27,9 +27,8 @@ class LlncsClsLoader extends AbstractClsLoader
     /**
      * @inheritDoc
      */
-    // protected $url = 'ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip';
-    protected $url = 'file:///srv/texmlbus/build/llncs2e.zip';
-    protected $files = ['llncs.cls'];
+    protected $url = 'ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip';
 
+    protected $files = ['llncs.cls'];
 }
 

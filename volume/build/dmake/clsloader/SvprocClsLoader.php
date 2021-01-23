@@ -30,6 +30,5 @@ class SvprocClsLoader extends AbstractClsLoader
     protected $url = 'ftp://ftp.springernature.com/cs-proceeding/svproc/templates/ProcSci_TeX.zip';
 
     protected $files = ['svproc.cls'];
-
 }
 
