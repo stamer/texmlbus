@@ -199,6 +199,21 @@ class UtilHost
     }
 
     /**
+     * Run a program on a worker.
+     *
+     * @return mixed|string
+     */
+    public static function runOnWorker($hostGroupName, $execString)
+    {
+        $cfg = Config::getConfig();
+
+        $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' "' . $execString . '"';
+        $retstr = shell_exec($execstr);
+
+        return $retstr;
+    }
+
+    /**
      * Parses the output of /proc/meminfo, determines
      * the total amount (MemTotal + SwapTotal) and multiplies this with factor.
      * /proc/meminfo output is in kB and ulimit also uses kB
