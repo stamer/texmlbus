@@ -9,7 +9,8 @@ RUN apk add \
     make \
     openrc \
     openssh \
-    php-cli
+    php-cli \
+    php-json
 
 RUN (ls /etc/ssh/ssh_host_rsa_key) || ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa
 RUN (ls /etc/ssh/ssh_host_dsa_key) || ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
