@@ -6,6 +6,8 @@
  */
 namespace Dmake;
 
+use Server\Config;
+
 require_once 'StatEntry.php';
 require_once 'UtilHost.php';
 require_once 'UtilStage.php';
@@ -89,5 +91,92 @@ class UtilBindingFile
             $bindingFiles = unserialize(file_get_contents($cacheFile));
         }
         return $bindingFiles;
+    }
+
+    public function getClsFiles($useCache = true)
+    {
+        $bindingDir = UtilBindingFile::getBindingFilesDir();
+        $clsPattern = "/\.cls\.ltxml$/";
+
+        $latexmlClsFiles =
+            array_fill_keys(
+                UtilBindingFile::getBindingFiles($bindingDir, $useCache, 'latexmlClsFiles.tmp', $clsPattern),
+                'latexml'
+            );
+
+        $buildClsFiles =
+            array_fill_keys(
+                UtilBindingFile::getBindingFiles(STYDIR, $useCache, 'buildClsFiles.tmp', $clsPattern),
+                'build'
+            );
+
+        // find files that exist in both arrays
+        $clsIntersectFiles = array_intersect_key($latexmlClsFiles, $buildClsFiles);
+        foreach ($clsIntersectFiles as $key => &$val) {
+            $val = 'build/latexml';
+        }
+
+
+        // last ones will overwrite previous ones
+        $clsFiles = array_merge($latexmlClsFiles, $buildClsFiles, $clsIntersectFiles);
+
+        ksort($clsFiles, SORT_ASC);
+        return $clsFiles;
+    }
+
+    public function getStyFiles($useCache = true)
+    {
+        $bindingDir = UtilBindingFile::getBindingFilesDir();
+        $styPattern = "/\.sty\.ltxml$/";
+
+        $latexmlStyFiles =
+            array_fill_keys(
+                UtilBindingFile::getBindingFiles($bindingDir, $useCache, 'latexmlStyFiles.tmp', $styPattern),
+                'latexml'
+            );
+        $buildStyFiles =
+            array_fill_keys(
+                UtilBindingFile::getBindingFiles(STYDIR, $useCache, 'buildStyFiles.tmp', $styPattern),
+                'build'
+            );
+        // find files that exist in both arrays
+        $styIntersectFiles = array_intersect_key($latexmlStyFiles, $buildStyFiles);
+        foreach ($styIntersectFiles as $key => &$val) {
+            $val = 'build/latexml';
+        }
+        // last ones will overwrite previous ones
+        $styFiles = array_merge($latexmlStyFiles, $buildStyFiles, $styIntersectFiles);
+        ksort($styFiles, SORT_ASC);
+        return $styFiles;
+    }
+
+    /**
+     * get current version of latexml for each HostGroup
+     *
+     * @return mixed|string
+     *
+     */
+    public static function testStyClsSupport($filenames)
+    {
+        $cfg = Config::getConfig();
+
+        //$hostGroups = self::getActiveHostGroups();
+        $hostGroups = ['worker'];
+
+        $parameter = [
+            // usr/share/texmf-dist/tex is alpine-specific...
+            'TEXINPUTS' => '.:/usr/share/texmf-dist/tex//:' . ARTICLESTYDIR . '//:' . STYDIR .'//',
+            'filenames' => array_keys($filenames)
+        ];
+
+        foreach ($hostGroups as $hostGroupName) {
+            // the string needs to be \''string'\' ...
+            // the string is also base64_encoded, to circumvent encoding " problems
+            $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' php ' . BUILDDIR . '/script/php/testStyClsSupport.php '
+                . "\\\\\''" . base64_encode(json_encode($parameter)) . "'\\\\\'";
+            $retstr = shell_exec($execstr);
+            $result = json_decode($retstr, true);
+        }
+        return $result;
     }
 }

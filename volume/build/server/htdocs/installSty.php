@@ -51,6 +51,7 @@ foreach ($cfg->clsLoader as $publisher => $val) {
             <span></span>
         </button>
         <?=htmlspecialchars($name . ' (' . implode(', ', $val2['files']) . ')') ?>
+        <em style="color:#999"><?=htmlspecialchars($val2['object']->getComment()) ?></em>
       </div>
 <?php
     }
