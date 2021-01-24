@@ -48,31 +48,34 @@ $sets = Set::getSetsCount();
 $result_dirs = [];
 $current_depth = 0;
 
-UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, false);
+UtilFile::listDirR(ARTICLESTYDIR, $result_dirs, $current_depth, true, false);
 
     echo '<h4>Manage sty classes and file ' . $page->info('manageSty') . '</h4>';
 ?>
 
       <div class="container">
           <p>
-              The sty directory is <em><?=ARTICLEDIR . '/sty' ?></em>.
+              The sty directory is <em><?=ARTICLESTYDIR ?></em>.
           </p>
 
 <?php
     $prevDir = '__empty__'; // avoid warning in strpos
     $depth = 0;
+    sort($result_dirs);
     foreach ($result_dirs as $fullFilename) {
-        $isDir = 'false';
-        $file = str_replace(ARTICLEDIR . '/sty/', '', $fullFilename);
+        $isDir = false;
+        $file = str_replace(ARTICLESTYDIR, '', $fullFilename);
 
         if (substr($file, -1, 1) === '/') {
-            $isDir = 'true';
+            $isDir = true;
         }
 
+        // does the path change?
         if (strpos($file, $prevDir) !== 0
             && $prevDir !== '__empty__'
         ) {
-            $num = substr_count($file, '/') ;
+            // do not count last /
+            $num = substr_count($file, '/', 0, -1) ;
             while ($depth >= $num) {
                 echo '</ul>' . PHP_EOL;
                 $depth--;
@@ -81,22 +84,26 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
         }
 ?>
     <div style="margin-bottom: 10px;">
-        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSty(this, '<?=$isDir ?>', '<?=htmlspecialchars($file)?>')">
+        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSty(this, '<?=($isDir ? "true" : "false") ?>', '<?=htmlspecialchars($file)?>')">
          <i class="fas fa-trash"></i>
               <span></span>
          </button>
-        <?=htmlspecialchars($file) ?>
+<?php
+        echo htmlspecialchars(basename($file) . ($isDir ? '/' : ''));
+?>
     </div>
 <?php
-        if ($isDir === 'true') {
+        if ($isDir === true) {
             $prevDir = $file;
             echo '<ul>' . PHP_EOL;
             $depth++;
         }
 
     }
-    while ($depth--) {
+
+    while ($depth > 0) {
         echo '</ul>' . PHP_EOL;
+        $depth--;
     }
 ?>
       </div>

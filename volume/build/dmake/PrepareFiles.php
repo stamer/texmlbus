@@ -368,6 +368,7 @@ class PrepareFiles
 
             chdir($saveDir);
         }
+        return true;
     }
 
     /**

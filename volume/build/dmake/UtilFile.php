@@ -295,7 +295,12 @@ class UtilFile
                     self::copyR("$src/$file", "$dest/$file");
                 }
         } elseif (file_exists($src)) {
-            $result = copy($src, $dest);
+            // avoid "The second argument to copy() function cannot be a directory"
+            if (is_dir($dest)) {
+                $result = copy($src, $dest . '/' . basename($src));
+            } else {
+                $result = copy($src, $dest);
+            }
             return $result;
         }
         return true;
@@ -305,9 +310,13 @@ class UtilFile
      * On Windows it is still not possible to rename across file-system boundaries. :(
      * Therefore everything is done manually.
      */
-    public function rename(string $src, string $dest): bool
+    public static function rename(string $src, string $dest): bool
     {
-        $result = rename($src, $dest);
+        $result = false;
+        // rename does not work with directories
+        if (!is_dir($src) && !is_dir($dest)) {
+            $result = rename($src, $dest);
+        }
         if (!$result) {
             $result = self::copyR($src, $dest);
             if (!$result) {
@@ -444,15 +453,28 @@ class UtilFile
     }
 
     /**
-     * return suffix of an e.g. filename
+     * Return suffix of an e.g. filename.
      */
     public static function getSuffix(string $str, bool $withDot = true): string
     {
         if ($withDot) {
             return strrchr($str, ".");
-        } else {
-            return substr(strrchr($str, "."), 1);
         }
+        return substr(strrchr($str, "."), 1);
+    }
+
+    /**
+     * Return prefix of filename.
+     * basename() is not used, as it is locale dependent and you need to
+     * specify the suffix to be removed as well.
+     */
+    public static function getPrefix(string $filename): string
+    {
+        $pos = strpos($filename, '.');
+        if ($pos === false) {
+            return $filename;
+        }
+        return substr($filename, 0, $pos);
     }
 
     /**
@@ -512,6 +534,51 @@ class UtilFile
             return false;
         }
     }
+
+    public static function createSubDir(string $dirname, $permissions = 0777): bool
+    {
+        $result = mkdir($dirname);
+        if (!$result) {
+            throw new ErrorException("Failed to mkdir $dirname.");
+        }
+        $result = chmod($dirname, $permissions);
+        if (!$result) {
+            error_log(__METHOD__ . "Failed to chmod $dirname");
+        }
+        return $result;
+    }
+
+    /**
+     * creates a temporary directory in $dirname
+     * @return string
+     * @throws ErrorException
+     */
+    public static function createTempDir(string $dirname = '', $permissions = 0777): string
+    {
+        if ($dirname === '') {
+            $dirname = sys_get_temp_dir();
+        }
+        $prefix = 'tmp';
+        if (!is_dir($dirname)) {
+            error_log($dirname . " does not exist, creating directory");
+            $result = mkdir($dirname, $permissions);
+            if (!$result) {
+                throw new ErrorException("Failed to mkdir $dirname.");
+            }
+        }
+        $tmpDirname = tempnam($dirname, $prefix);
+        if ($tmpDirname === false) {
+            throw new ErrorException("Failed to tempnam $tmpDirname.");
+        }
+        // has been created as file, we need a directory
+        $result = unlink($tmpDirname);
+        if (!$result) {
+            error_log(__METHOD__ . "Failed to unlink $tmpDirname");
+        }
+        $result = self::createSubDir($tmpDirname);
+        return $tmpDirname;
+    }
+
 
     /**
      * parse given files to find out whether current is actually a latex file
@@ -618,5 +685,28 @@ class UtilFile
         return $result;
     }
 
+    public static function downloadUrl(string $url, string $destFile)
+    {
+        $fp = fopen($destFile, 'w');
+        if (!$fp) {
+            throw new \ErrorException("Unable to create $destFile!");
+        }
+        $options = array(
+            CURLOPT_FILE => $fp,
+            CURLOPT_TIMEOUT => 600,
+            CURLOPT_URL => $url,
+            CURLOPT_FOLLOWLOCATION => true
+        );
 
+        $ch = curl_init();
+        if (!$ch) {
+            throw new \ErrorException("Failed to init curl.");
+        }
+        curl_setopt_array($ch, $options);
+        $success = curl_exec($ch);
+        if (!$success) {
+            throw new \ErrorException("Download of $url failed.");
+        }
+        curl_close($ch);
+    }
 }

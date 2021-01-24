@@ -30,8 +30,9 @@ class HelpDao
 
     /**
      * Gets a help message by given id.
+     * @return false|array
      */
-    public static function getHelpById(string $id, bool $replacePlaceholder = true): array
+    public static function getHelpById(string $id, bool $replacePlaceholder = true)
     {
         $dao = Dao::getInstance();
 

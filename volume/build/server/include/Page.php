@@ -231,6 +231,7 @@ class Page
                     echo '  <li class=""><a href="/manageSets.php">Manage sets</a></li>'.PHP_EOL;
                     echo '  <li class="" style="margin-top:10px"><a href="/uploadSty.php">Upload class and sty for global use</a></li>'.PHP_EOL;
                     echo '  <li class="" style="margin-top:10px"><a href="/manageSty.php">Manage class and sty files</a></li>'.PHP_EOL;
+                    echo '  <li class="" style="margin-top:10px"><a href="/installSty.php">Install class and sty files</a></li>'.PHP_EOL;
                     echo '</ul>' . PHP_EOL;
                     ?>
                 </div>
