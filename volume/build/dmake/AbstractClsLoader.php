@@ -140,7 +140,7 @@ abstract class AbstractClsLoader
         }
         $tmpDestDir = UtilFile::createTempDir();
         UtilZipfile::extract($this->localFilename, $tmpDestDir);
-        $publisherDir = ARTICLEDIR . '/sty/' . $this->getPublisher();
+        $publisherDir = ARTICLESTYDIR . '/' . $this->getPublisher();
         UtilFile::ensureDirExists($publisherDir);
         $destDir = $publisherDir . '/' . $this->getName();
         UtilFile::deleteDirR($destDir);

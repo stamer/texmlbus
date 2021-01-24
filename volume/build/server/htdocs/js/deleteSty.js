@@ -1,9 +1,11 @@
 function deleteSty(element, isDir, file)
 {
-    if (isDir === 'false') {
-        var item = 'file';
-    } else {
+    if (isDir === 'true') {
         var item = 'directory';
+        var upItem = 'Directory';
+    } else {
+        var item = 'file';
+        var upItem = 'File';
     }
     modalConfirm('Delete files', 'Do you really want to delete ' + item + ' ' + file + '?', function() {
         showMessage('Deleting ' + file + '...',
@@ -33,7 +35,7 @@ function deleteSty(element, isDir, file)
                         message += '<h5>' + data.result['message'] + '</h5>';
                     }
                     if (data.result['filesDeleted']) {
-                        message += item + ' <em>' + data.result['destFile'] + '</em> deleted.';
+                        message += upItem + ' <em>' + data.result['destFile'] + '</em> deleted.';
                         msgClass = 'success';
                         fadeMsec = 1000;
                     } else {

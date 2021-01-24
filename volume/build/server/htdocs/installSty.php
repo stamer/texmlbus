@@ -25,7 +25,7 @@ echo '<h4>Install sty classes and file ' . $page->info('installSty') . '</h4>';
 
   <div class="container">
       <p>
-      The sty directory is <em><?=ARTICLEDIR . '/sty' ?></em>.
+      The sty directory is <em><?=ARTICLESTYDIR ?></em>.
       </p>
 
 <?php

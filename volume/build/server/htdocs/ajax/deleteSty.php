@@ -37,7 +37,7 @@ if (!empty($file)) {
         $out['message'] = 'Illegal filename';
     } else {
         // must be prepended
-        $fullFilename = ARTICLEDIR . '/sty/' . $file;
+        $fullFilename = ARTICLESTYDIR . '/' . $file;
         $result = UtilFile::deleteDirR($fullFilename);
         $out['success'] = $result;
         $out['filesDeleted'] = (int)$result;

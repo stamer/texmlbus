@@ -30,7 +30,7 @@ $files = UtilFile::listDir(
 
 $config->clsLoader = [];
 
-$installedFiles = UtilStylefile::getInstalledClsStyFiles(ARTICLEDIR . '/sty');
+$installedFiles = UtilStylefile::getInstalledClsStyFiles(ARTICLESTYDIR);
 
 foreach ($files as $filename) {
     require_once CLSLOADERDIR . '/' . $filename;

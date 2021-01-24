@@ -48,14 +48,14 @@ $sets = Set::getSetsCount();
 $result_dirs = [];
 $current_depth = 0;
 
-UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, false);
+UtilFile::listDirR(ARTICLESTYDIR, $result_dirs, $current_depth, true, false);
 
     echo '<h4>Manage sty classes and file ' . $page->info('manageSty') . '</h4>';
 ?>
 
       <div class="container">
           <p>
-              The sty directory is <em><?=ARTICLEDIR . '/sty' ?></em>.
+              The sty directory is <em><?=ARTICLESTYDIR ?></em>.
           </p>
 
 <?php
@@ -64,7 +64,7 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
     sort($result_dirs);
     foreach ($result_dirs as $fullFilename) {
         $isDir = false;
-        $file = str_replace(ARTICLEDIR . '/sty/', '', $fullFilename);
+        $file = str_replace(ARTICLESTYDIR, '', $fullFilename);
 
         if (substr($file, -1, 1) === '/') {
             $isDir = true;
@@ -76,7 +76,7 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
         ) {
             // do not count last /
             $num = substr_count($file, '/', 0, -1) ;
-            while ($depth > $num) {
+            while ($depth >= $num) {
                 echo '</ul>' . PHP_EOL;
                 $depth--;
             }
@@ -84,7 +84,7 @@ UtilFile::listDirR(ARTICLEDIR . '/sty', $result_dirs, $current_depth, true, fals
         }
 ?>
     <div style="margin-bottom: 10px;">
-        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSty(this, '<?=$isDir ?>', '<?=htmlspecialchars($file)?>')">
+        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSty(this, '<?=($isDir ? "true" : "false") ?>', '<?=htmlspecialchars($file)?>')">
          <i class="fas fa-trash"></i>
               <span></span>
          </button>

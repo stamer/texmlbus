@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  */
 
@@ -10,17 +10,60 @@ $dockerized = getenv('DOCKERIZED');
 
 $ostype = getenv('OSTYPE');
 
+/**
+ * Location of the project.
+ */
 define('BASEDIR', '/srv/texmlbus');
+
+/**
+ * Base for Make.
+ */
 define('MAKEDIR', BASEDIR);
-define('BUILDDIR', BASEDIR.'/build');
-//define('PAPERDIR', BASEDIR.'/articles');
-define('ARTICLEDIR', BASEDIR.'/articles');
+
+/**
+ * Location of sourcecode.
+ */
+define('BUILDDIR', BASEDIR . '/build');
+
+/**
+ * Location of articles.
+ */
+define('ARTICLEDIR', BASEDIR . '/articles');
+
+/**
+ * Location of addtitional sty files.
+ */
+define('ARTICLESTYDIR', ARTICLEDIR . '/sty');
+
+/**
+ * Location where files are first uploaded to.
+ */
 define('UPLOADDIR', ARTICLEDIR . '/upload');
-define('STYDIR', BUILDDIR.'/sty');
-define('BINDIR', BUILDDIR.'/bin');
-define('STYARXMLIVDIR', BUILDDIR.'/sty.arxmliv');
-define('SERVERDIR', BUILDDIR.'/server');
-define('HTDOCS', SERVERDIR.'/htdocs');
+
+/**
+ * Location of additional sty/ltxml files provided by build system
+ */
+define('STYDIR', BUILDDIR . '/sty');
+
+/**
+ * Location of additional programs
+ */
+define('BINDIR', BUILDDIR . '/bin');
+
+/**
+ * @deprecated
+ */
+define('STYARXMLIVDIR', BUILDDIR . '/sty.arxmliv');
+
+/**
+ * Location of webserver related files.
+ */
+define('SERVERDIR', BUILDDIR . '/server');
+
+/**
+ * Location of publically accessible files of webserver
+ */
+define('HTDOCS', SERVERDIR . '/htdocs');
 
 /**
  * Application
