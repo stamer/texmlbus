@@ -295,7 +295,12 @@ class UtilFile
                     self::copyR("$src/$file", "$dest/$file");
                 }
         } elseif (file_exists($src)) {
-            $result = copy($src, $dest);
+            // avoid "The second argument to copy() function cannot be a directory"
+            if (is_dir($dest)) {
+                $result = copy($src, $dest . '/' . basename($src));
+            } else {
+                $result = copy($src, $dest);
+            }
             return $result;
         }
         return true;
@@ -309,7 +314,7 @@ class UtilFile
     {
         $result = false;
         // rename does not work with directories
-        if (!is_dir($src)) {
+        if (!is_dir($src) && !is_dir($dest)) {
             $result = rename($src, $dest);
         }
         if (!$result) {
@@ -689,7 +694,8 @@ class UtilFile
         $options = array(
             CURLOPT_FILE => $fp,
             CURLOPT_TIMEOUT => 600,
-            CURLOPT_URL => $url
+            CURLOPT_URL => $url,
+            CURLOPT_FOLLOWLOCATION => true
         );
 
         $ch = curl_init();
