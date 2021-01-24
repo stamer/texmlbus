@@ -12,25 +12,25 @@ use Dmake\UtilFile;
 use Dmake\UtilStylefile;
 use Dmake\UtilZipfile;
 
-class ElsartClsLoader extends AbstractClsLoader
+class AaClsLoader extends AbstractClsLoader
 {
     /**
      * @inheritdoc
      */
-    protected $name = 'elsart';
+    protected $name = 'aa';
 
     /**
      * @inheritDoc
      */
-    protected $publisher = 'Elsevier';
+    protected $publisher = 'EDP Sciences';
 
     /**
      * @inheritDoc
      */
-    protected $url = 'https://arxiv.org/macros/elsart.cls';
+    protected $url = 'http://ftp.edpsciences.org/pub/aa/aa-package.zip';
 
-    protected $files = ['elsart.cls'];
+    protected $files = ['aa.cls'];
 
-    protected $comment = 'outdated, (support for existing publications), superseded by elsarticle.cls';
+    protected $comment = 'Astronomy & Astrophysics';
 }
 

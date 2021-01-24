@@ -12,12 +12,12 @@ use Dmake\UtilFile;
 use Dmake\UtilStylefile;
 use Dmake\UtilZipfile;
 
-class LlncsClsLoader extends AbstractClsLoader
+class JhepClsLoader extends AbstractClsLoader
 {
     /**
      * @inheritdoc
      */
-    protected $name = 'llncs';
+    protected $name = 'JHEP';
 
     /**
      * @inheritDoc
@@ -27,8 +27,10 @@ class LlncsClsLoader extends AbstractClsLoader
     /**
      * @inheritDoc
      */
-    protected $url = 'ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip';
+    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/jhep/JHEP.cls';
 
-    protected $files = ['llncs.cls'];
+    protected $files = ['JHEP.cls'];
+
+    protected $comment = 'Journal of High Energy Physics';
 }
 

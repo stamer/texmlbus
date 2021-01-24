@@ -12,23 +12,25 @@ use Dmake\UtilFile;
 use Dmake\UtilStylefile;
 use Dmake\UtilZipfile;
 
-class JhepClsLoader extends AbstractClsLoader
+class JheppubClsLoader extends AbstractClsLoader
 {
     /**
      * @inheritdoc
      */
-    protected $name = 'JHEP';
+    protected $name = 'jheppub';
 
     /**
      * @inheritDoc
      */
-    protected $publisher = 'Springer Nature';
+    protected $publisher = 'SpringerNature / Sissa';
 
     /**
      * @inheritDoc
      */
-    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/jhep/JHEP.cls';
+    protected $url = 'https://jhep.sissa.it/jhep/help/JHEP/TeXclass/DOCS/jheppub.sty';
 
-    protected $files = ['JHEP.cls'];
+    protected $files = ['jheppub.sty'];
+
+    protected $comment = '';
 }
 

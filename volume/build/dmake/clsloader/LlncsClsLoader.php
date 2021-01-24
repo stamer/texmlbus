@@ -30,5 +30,7 @@ class LlncsClsLoader extends AbstractClsLoader
     protected $url = 'ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip';
 
     protected $files = ['llncs.cls'];
+
+    protected $comment = 'Lecture Notes in Computer Science';
 }
 

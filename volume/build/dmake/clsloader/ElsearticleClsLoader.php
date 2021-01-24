@@ -12,25 +12,25 @@ use Dmake\UtilFile;
 use Dmake\UtilStylefile;
 use Dmake\UtilZipfile;
 
-class IeeeconfClsLoader extends AbstractClsLoader
+class ElsearticleClsLoader extends AbstractClsLoader
 {
     /**
      * @inheritdoc
      */
-    protected $name = 'IEEEconf';
+    protected $name = 'elsarticle';
 
     /**
      * @inheritDoc
      */
-    protected $publisher = 'IEEE Computer Society Press';
+    protected $publisher = 'Elsevier';
 
     /**
      * @inheritDoc
      */
-    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/IEEEconf.zip';
+    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/elsarticle.zip';
 
-    protected $files = ['ieeeconf.cls'];
+    protected $files = ['elsarticle.cls'];
 
-    protected $comment = 'IEEE conference proceedings';
+    protected $comment = 'Elsevier journals';
 }
 

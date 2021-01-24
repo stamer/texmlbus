@@ -40,6 +40,11 @@ abstract class AbstractClsLoader
     protected $files = [];
 
     /**
+     * @var string some comment
+     */
+    protected $comment = '';
+
+    /**
      * @var string[] installed cls/sty files of package
      */
     protected $installedFiles = [];
@@ -99,6 +104,22 @@ abstract class AbstractClsLoader
     }
 
     /**
+     * @return string
+     */
+    public function getComment(): string
+    {
+        return $this->comment;
+    }
+
+    /**
+     * @param string $comment
+     */
+    public function setComment(string $comment): void
+    {
+        $this->comment = $comment;
+    }
+
+    /**
      * @param string[] $installedFiles
      */
     public function setInstalledFiles(array $installedFiles): void
@@ -123,7 +144,8 @@ abstract class AbstractClsLoader
     public function download(string $url): string
     {
         $tmpDir = UtilFile::createTempDir();
-        $tmpFile = $tmpDir . '/destfile.zip';
+        $suffix = UtilFile::getSuffix($url);
+        $tmpFile = $tmpDir . '/destfile' . $suffix;
         $this->localFilename = UtilFile::downloadUrl($url, $tmpFile);
         return $tmpFile;
     }
@@ -139,13 +161,23 @@ abstract class AbstractClsLoader
             return false;
         }
         $tmpDestDir = UtilFile::createTempDir();
-        UtilZipfile::extract($this->localFilename, $tmpDestDir);
+        $suffix = UtilFile::getSuffix($this->localFilename);
+        if ($suffix === '.zip') {
+            UtilZipfile::extract($this->localFilename, $tmpDestDir);
+        } else {
+            UtilFile::rename($this->localFilename, $tmpDestDir . '/' . basename($this->url));
+        }
+        // remove tmpDir of downloaded file
+        UtilFile::deleteDirR(dirname($this->localFilename));
+
         $publisherDir = ARTICLESTYDIR . '/' . $this->getPublisher();
         UtilFile::ensureDirExists($publisherDir);
         $destDir = $publisherDir . '/' . $this->getName();
         UtilFile::deleteDirR($destDir);
         UtilFile::rename($tmpDestDir, $destDir);
         $this->installedFiles = UtilStylefile::getInstalledClsStyFiles($destDir);
+
+        // remove tmpDir of extracted files / file.
         UtilFile::deleteDirR($tmpDestDir);
         return true;
     }

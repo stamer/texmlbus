@@ -12,23 +12,25 @@ use Dmake\UtilFile;
 use Dmake\UtilStylefile;
 use Dmake\UtilZipfile;
 
-class JhepClsLoader extends AbstractClsLoader
+class ElsartClsLoader extends AbstractClsLoader
 {
     /**
      * @inheritdoc
      */
-    protected $name = 'JHEP';
+    protected $name = 'elsart';
 
     /**
      * @inheritDoc
      */
-    protected $publisher = 'SpringerNature';
+    protected $publisher = 'Elsevier';
 
     /**
      * @inheritDoc
      */
-    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/jhep/JHEP.cls';
+    protected $url = 'https://arxiv.org/macros/elsart.cls';
 
-    protected $files = ['JHEP.cls'];
+    protected $files = ['elsart.cls'];
+
+    protected $comment = 'outdated, (support for existing publications), superseded by elsarticle.cls';
 }
 

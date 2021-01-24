@@ -51,5 +51,6 @@ foreach ($files as $filename) {
         'className' => $className,
         'installed' => $installed,
         'files' => $styFilenames,
+        'object' => $obj
     ];
 }
