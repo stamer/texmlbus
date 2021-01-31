@@ -15,7 +15,7 @@ RUN apk update \
     && apk add \
     apache2 \
     apache2-ssl \
-	bash \
+    bash \
     ca-certificates \
     curl \
     git \
