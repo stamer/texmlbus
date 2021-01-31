@@ -16,43 +16,43 @@ use Dmake\UtilZipfile;
 abstract class AbstractClsLoader
 {
     /**
-     * @var string $name name of the loader
+     * name of the loader
      */
-    protected $name;
+    protected string $name;
 
     /**
-     * @var string $publisher name of the publisher
+     * name of the publisher
      * Used for grouping on installSty.
      */
-    protected $publisher;
+    protected string $publisher;
 
     /**
-     * @var string url of the zip file
+     * url of the zip file
      * Where to download the sources from.
      */
-    protected $url;
+    protected string $url;
 
     /**
      * @var string[] cls/sty files of package
      * Files that are checked for existence, to determine whether
      * package is installed or not.
      */
-    protected $files = [];
+    protected array $files = [];
 
     /**
-     * @var string some comment
+     * some comment
      */
-    protected $comment = '';
+    protected string $comment = '';
 
     /**
      * @var string[] installed cls/sty files of package
      */
-    protected $installedFiles = [];
+    protected array $installedFiles = [];
 
     /**
-     * @var string name of localFilename
+     * name of localFilename
      */
-    protected $localFilename;
+    protected string $localFilename = '';
 
     public function getName(): string
     {
@@ -67,6 +67,11 @@ abstract class AbstractClsLoader
     public function getPublisher(): string
     {
         return $this->publisher;
+    }
+
+    public function setPublisher(string $publisher): void
+    {
+        $this->publisher = $publisher;
     }
 
     public function getUrl(): string
@@ -137,6 +142,10 @@ abstract class AbstractClsLoader
         $this->localFilename = $localFilename;
     }
 
+    public function __construct()
+    {
+    }
+    
     /**
      * installs the cls/sty files
      * @return bool
@@ -146,7 +155,12 @@ abstract class AbstractClsLoader
         $tmpDir = UtilFile::createTempDir();
         $suffix = UtilFile::getSuffix($url);
         $tmpFile = $tmpDir . '/destfile' . $suffix;
-        $this->localFilename = UtilFile::downloadUrl($url, $tmpFile);
+        try {
+            UtilFile::downloadUrl($url, $tmpFile);
+        } catch (\Exception $e) {
+            error_log(__CLASS__ . ': ' . $e->getMessage());
+            return '';
+        }
         return $tmpFile;
     }
 

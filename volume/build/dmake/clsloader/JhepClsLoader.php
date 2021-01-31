@@ -14,23 +14,15 @@ use Dmake\UtilZipfile;
 
 class JhepClsLoader extends AbstractClsLoader
 {
-    /**
-     * @inheritdoc
-     */
-    protected $name = 'JHEP';
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setName('JHEP');
+        $this->setPublisher('SpringerNature');
+        $this->setUrl('http://mirrors.ctan.org/macros/latex/contrib/jhep/JHEP.cls');
+        $this->setFiles(['JHEP.cls']);
+        $this->setComment('Journal of High Energy Physics');
+    }
 
-    /**
-     * @inheritDoc
-     */
-    protected $publisher = 'SpringerNature';
-
-    /**
-     * @inheritDoc
-     */
-    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/jhep/JHEP.cls';
-
-    protected $files = ['JHEP.cls'];
-
-    protected $comment = 'Journal of High Energy Physics';
 }
 

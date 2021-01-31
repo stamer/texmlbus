@@ -14,23 +14,14 @@ use Dmake\UtilZipfile;
 
 class ElsartClsLoader extends AbstractClsLoader
 {
-    /**
-     * @inheritdoc
-     */
-    protected $name = 'elsart';
-
-    /**
-     * @inheritDoc
-     */
-    protected $publisher = 'Elsevier';
-
-    /**
-     * @inheritDoc
-     */
-    protected $url = 'https://arxiv.org/macros/elsart.cls';
-
-    protected $files = ['elsart.cls'];
-
-    protected $comment = 'outdated, (support for existing publications), superseded by elsarticle.cls';
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setName('elsart');
+        $this->setPublisher('Elsevier');
+        $this->setUrl('https://arxiv.org/macros/elsart.cls');
+        $this->setFiles(['elsart.cls']);
+        $this->setComment('outdated, (support for existing publications), superseded by elsarticle.cls');
+    }
 }
 

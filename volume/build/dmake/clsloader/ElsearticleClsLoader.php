@@ -15,24 +15,15 @@ use Dmake\UtilZipfile;
 
 class ElsearticleClsLoader extends AbstractClsLoader
 {
-    /**
-     * @inheritdoc
-     */
-    protected $name = 'elsarticle';
-
-    /**
-     * @inheritDoc
-     */
-    protected $publisher = 'Elsevier';
-
-    /**
-     * @inheritDoc
-     */
-    protected $url = 'http://mirrors.ctan.org/macros/latex/contrib/elsarticle.zip';
-
-    protected $files = ['elsarticle.cls'];
-
-    protected $comment = 'Elsevier journals';
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setName('elsarticle');
+        $this->setPublisher('Elsevier');
+        $this->setUrl('http://mirrors.ctan.org/macros/latex/contrib/elsarticle.zip');
+        $this->setFiles(['elsarticle.cls']);
+        $this->setComment('Elsevier journals');
+    }
 
     public function install() : bool
     {

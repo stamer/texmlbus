@@ -14,23 +14,14 @@ use Dmake\UtilZipfile;
 
 class SvprocClsLoader extends AbstractClsLoader
 {
-    /**
-     * @inheritdoc
-     */
-    protected $name = 'svproc';
-
-    /**
-     * @inheritDoc
-     */
-    protected $publisher = 'SpringerNature';
-
-    /**
-     * @inheritDoc
-     */
-    protected $url = 'ftp://ftp.springernature.com/cs-proceeding/svproc/templates/ProcSci_TeX.zip';
-
-    protected $files = ['svproc.cls'];
-
-    protected $comment = 'Proceedings';
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setName('svproc');
+        $this->setPublisher('SpringerNature');
+        $this->setUrl('ftp://ftp.springernature.com/cs-proceeding/svproc/templates/ProcSci_TeX.zip');
+        $this->setFiles(['svproc.cls']);
+        $this->setComment('Proceedings');
+    }
 }
 

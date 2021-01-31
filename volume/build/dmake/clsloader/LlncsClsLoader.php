@@ -14,23 +14,14 @@ use Dmake\UtilZipfile;
 
 class LlncsClsLoader extends AbstractClsLoader
 {
-    /**
-     * @inheritdoc
-     */
-    protected $name = 'llncs';
-
-    /**
-     * @inheritDoc
-     */
-    protected $publisher = 'SpringerNature';
-
-    /**
-     * @inheritDoc
-     */
-    protected $url = 'ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip';
-
-    protected $files = ['llncs.cls'];
-
-    protected $comment = 'Lecture Notes in Computer Science';
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setName('llncs');
+        $this->setPublisher('SpringerNature');
+        $this->setUrl('ftp://ftp.springernature.com/cs-proceeding/llncs/llncs2e.zip');
+        $this->setFiles(['llncs.cls']);
+        $this->setComment('Lecture Notes in Computer Science');
+    }
 }
 
