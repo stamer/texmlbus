@@ -1,4 +1,4 @@
-FROM alpine:3.12
+FROM alpine:3.13
 #MAINTAINER Paul Smith <pa.ulsmith.net>
 #See https://hub.docker.com/r/ulsmith/alpine-apache-php7
 
@@ -10,8 +10,26 @@ FROM alpine:3.12
 #RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
 # Add basics first
-RUN apk update && apk upgrade && apk add \
-	bash apache2 apache2-ssl php7-apache2 curl ca-certificates openssl openssh git php7 php7-phar php7-json php7-iconv php7-openssl tzdata openntpd nano
+RUN apk update \
+    && apk upgrade \
+    && apk add \
+    apache2 \
+    apache2-ssl \
+	bash \
+    ca-certificates \
+    curl \
+    git \
+    nano \
+    openssh \
+    openssl \
+    openntpd \
+    php7 \
+    php7-apache2 \
+    php7-iconv \
+    php7-json \
+    php7-openssl \
+    php7-phar \
+    tzdata
 
 # dmake specific stuff
 RUN apk add \
@@ -72,8 +90,8 @@ RUN set -xe; \
       #bzip2-dev freetype-dev gettext-dev icu-dev imagemagick-dev libintl libjpeg-turbo-dev \
       #libpng-dev libxslt-dev libzip-dev \
       ; \
-    pecl channel-update pecl.php.net && \
-    pecl install -o -f \
+    pecl channel-update pecl.php.net \
+    && pecl install -o -f \
       inotify \
       ; \
     apk del .build-deps
@@ -111,7 +129,6 @@ COPY ssl/server.key /etc/ssl/apache2/server.key
 
 ENV APACHE_SERVER_NAME=dmake
 
-
 # setup dmake user
 RUN addgroup dmake \
     && adduser -D -g "" -h "/home/dmake" -G dmake dmake \
@@ -146,6 +163,3 @@ EXPOSE 80
 EXPOSE 443
 
 ENTRYPOINT ["/bootstrap/start.sh"]
-
-
-
