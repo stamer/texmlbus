@@ -41,7 +41,7 @@ class UtilBindingFile
 
         // in docker context, the server cannot execute latexml directly
         if (!empty(getenv('DOCKERIZED'))) {
-            $path = dirname($cfg->server->app->latexml, 2) . '/blib/lib/LaTeXML/Package';
+            $path = dirname($cfg->server->app->latexml, 2) . '/lib/LaTeXML/Package';
             return $path;
         }
 
