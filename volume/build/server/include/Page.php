@@ -226,12 +226,14 @@ class Page
                     </a>
                     <?php
                     echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-                    echo '  <li class=""><a href="/upload.php">Upload texfiles and import</a></li>'.PHP_EOL;
+                    echo '  <li class=""`><a href="/upload.php">Upload texfiles and import</a></li>'.PHP_EOL;
                     echo '  <li class=""><a href="/scan.php">Scan directory for documents</a></li>'.PHP_EOL;
                     echo '  <li class=""><a href="/manageSets.php">Manage sets</a></li>'.PHP_EOL;
-                    echo '  <li class="" style="margin-top:10px"><a href="/uploadSty.php">Upload class and sty for global use</a></li>'.PHP_EOL;
-                    echo '  <li class="" style="margin-top:10px"><a href="/manageSty.php">Manage class and sty files</a></li>'.PHP_EOL;
-                    echo '  <li class="" style="margin-top:10px"><a href="/installSty.php">Install class and sty files</a></li>'.PHP_EOL;
+                    echo '  <li class="mt-3"><a href="/uploadSty.php">Upload class and sty for global use</a></li>'.PHP_EOL;
+                    echo '  <li class=""><a href="/manageSty.php">Manage class and sty files</a></li>'.PHP_EOL;
+                    echo '  <li class=""><a href="/installSty.php">Install class and sty files</a></li>'.PHP_EOL;
+                    echo '  <li class="mt-3"><a href="/createSamples.php">Create sample set</a></li>'.PHP_EOL;
+                    echo '  <li class="""><a href="/createLatexmlTest.php">Create latexml test-cases set</a></li>'.PHP_EOL;
                     echo '</ul>' . PHP_EOL;
                     ?>
                 </div>
@@ -434,7 +436,7 @@ class Page
 <?php
         $this->headerShown = true;
 		if ($this->maintenance) {
-			echo '<h3 style="padding: 20px">';
+			echo '<h3 class="p-sm-5">';
 			echo "Build System is under maintenance until Monday, Sep. 18th.<br />";
 			echo "Please come back then.";
 			echo "</h3>";

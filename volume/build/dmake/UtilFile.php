@@ -299,6 +299,11 @@ class UtilFile
             if (is_dir($dest)) {
                 $result = copy($src, $dest . '/' . basename($src));
             } else {
+                $destDir = pathinfo($dest, PATHINFO_DIRNAME);
+                if (!is_dir($destDir)) {
+                    // do not return on error, as is_dir might be cached...
+                    mkdir($destDir, 0777, true);
+                }
                 $result = copy($src, $dest);
             }
             return $result;

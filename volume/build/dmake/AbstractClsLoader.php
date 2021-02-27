@@ -8,6 +8,7 @@
 namespace Dmake;
 
 use Dmake\UtilFile;
+use Dmake\UtilTarfile;
 use Dmake\UtilZipfile;
 
 /**
@@ -178,6 +179,10 @@ abstract class AbstractClsLoader
         $suffix = UtilFile::getSuffix($this->localFilename);
         if ($suffix === '.zip') {
             UtilZipfile::extract($this->localFilename, $tmpDestDir);
+        } elseif ($suffix === '.tgz'
+            || $suffix === '.gz'
+        ) {
+            UtilTarfile::extract($this->localFilename, $tmpDestDir);
         } else {
             UtilFile::rename($this->localFilename, $tmpDestDir . '/' . basename($this->url));
         }
