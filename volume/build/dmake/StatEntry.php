@@ -832,7 +832,8 @@ class StatEntry
                 $where
             ORDER BY
                 wq.priority DESC,
-                wq.date_modified
+                wq.date_modified,
+                s.filename
             LIMIT :limit";
 
         $stmt = $dao->prepare($query);
@@ -1064,7 +1065,9 @@ class StatEntry
             FROM
                 statistic
             WHERE
-                `set` = :set";
+                `set` = :set
+            ORDER BY
+                filename";
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':set', $set);
@@ -1163,7 +1166,9 @@ class StatEntry
             FROM
                 statistic
             WHERE
-                `set` = :set";
+                `set` = :set
+            ORDER BY
+                filename";
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':set', $set);
