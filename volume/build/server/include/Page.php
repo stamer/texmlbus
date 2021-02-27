@@ -212,12 +212,12 @@ class Page
                         General
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class=""><a href="/lastStat.php">current</a></li>'.PHP_EOL;
-					echo '</ul>' . PHP_EOL;
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-                    echo '  <li class=""><a href="/manageQueue.php">manage queue</a></li>'.PHP_EOL;
-                    echo '</ul>' . PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class=""><a href="/lastStat.php">current</a></li>' . PHP_EOL;
+					echo '</ul>' . . PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+                    echo '  <li class=""><a href="/manageQueue.php">manage queue</a></li>' . PHP_EOL;
+                    echo '</ul>' . . PHP_EOL;
 ?>
                 </div>
                 <div class="bd-toc-item <?=($activeLeft == 'import' ? 'active' : '') ?>">
@@ -225,16 +225,16 @@ class Page
                         Import / Manage
                     </a>
                     <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-                    echo '  <li class=""`><a href="/upload.php">Upload texfiles and import</a></li>'.PHP_EOL;
-                    echo '  <li class=""><a href="/scan.php">Scan directory for documents</a></li>'.PHP_EOL;
-                    echo '  <li class=""><a href="/manageSets.php">Manage sets</a></li>'.PHP_EOL;
-                    echo '  <li class="mt-3"><a href="/uploadSty.php">Upload class and sty for global use</a></li>'.PHP_EOL;
-                    echo '  <li class=""><a href="/manageSty.php">Manage class and sty files</a></li>'.PHP_EOL;
-                    echo '  <li class=""><a href="/installSty.php">Install class and sty files</a></li>'.PHP_EOL;
-                    echo '  <li class="mt-3"><a href="/createSamples.php">Create sample set</a></li>'.PHP_EOL;
-                    echo '  <li class="""><a href="/createLatexmlTest.php">Create latexml test-cases set</a></li>'.PHP_EOL;
-                    echo '</ul>' . PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+                    echo '  <li class=""><a href="/upload.php">Upload texfiles and import</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/scan.php">Scan directory for documents</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/manageSets.php">Manage sets</a></li>' . PHP_EOL;
+                    echo '  <li class="mt-3"><a href="/uploadSty.php">Upload class and sty for global use</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/manageSty.php">Manage class and sty files</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/installSty.php">Install class and sty files</a></li>' . PHP_EOL;
+                    echo '  <li class="mt-3"><a href="/createSamples.php">Create sample set</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/createLatexmlTest.php">Create latexml test-cases set</a></li>' . PHP_EOL;
+                    echo '</ul>' . . PHP_EOL;
                     ?>
                 </div>
                 <div class="bd-toc-item <?=($activeLeft == 'index' ? 'active' : '') ?>">
@@ -242,16 +242,16 @@ class Page
                         Statistics
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/index.php">overall</a></li>'.PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/index.php">overall</a></li>' . PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">' . PHP_EOL;
                             echo '  <a href="/index.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
                                     . htmlspecialchars($set->getSourcefile()).'">';
                             echo '    '.htmlspecialchars($set->getName());
-                            echo '  </a>'.PHP_EOL;
-                            echo '</li>'.PHP_EOL;
+                            echo '  </a>' . PHP_EOL;
+                            echo '</li>' . PHP_EOL;
                         }
                     }
                     echo '</ul>';
@@ -262,16 +262,16 @@ class Page
                         Documents alphabetically
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/retval_abc.php">overall</a></li>'.PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/retval_abc.php">overall</a></li>' . PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">' . PHP_EOL;
                             echo '  <a href="/retval_abc.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
                                     . htmlspecialchars($set->getSourcefile()).'">';
                             echo '    '.htmlspecialchars($set->getName());
-                            echo '  </a>'.PHP_EOL;
-                            echo '</li>'.PHP_EOL;
+                            echo '  </a>' . PHP_EOL;
+                            echo '</li>' . PHP_EOL;
                         }
                     }
                     echo '</ul>';
@@ -315,16 +315,16 @@ class Page
                         Package usage and success correlation
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/package_usage.php">overall</a></li>'.PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/package_usage.php">overall</a></li>' . PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">' . PHP_EOL;
                             echo '  <a href="/package_usage.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
                                     . htmlspecialchars($set->getSourcefile()).'">';
                             echo '    '.htmlspecialchars($set->getName());
-                            echo '  </a>'.PHP_EOL;
-                            echo '</li>'.PHP_EOL;
+                            echo '  </a>' . PHP_EOL;
+                            echo '</li>' . PHP_EOL;
                         }
                     }
                     echo '</ul>';
@@ -336,16 +336,16 @@ class Page
                         History
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class="' . (empty($currentSet) ? 'active' : '') . '"><a href="/history.php">overall</a></li>'.PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class="' . (empty($currentSet) ? 'active' : '') . '"><a href="/history.php">overall</a></li>' . PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">' . PHP_EOL;
                             echo '  <a href="/history.php?set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
                                     . htmlspecialchars($set->getSourcefile()).'">';
                             echo '    '.htmlspecialchars($set->getName());
-                            echo '  </a>'.PHP_EOL;
-                            echo '</li>'.PHP_EOL;
+                            echo '  </a>' . PHP_EOL;
+                            echo '</li>' . PHP_EOL;
                         }
                     }
                     echo '</ul>';
@@ -356,16 +356,16 @@ class Page
                         Detailed History
                     </a>
 <?php
-                    echo '<ul class="nav bd-sidenav">'.PHP_EOL;
-					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/history.php?detail=1">overall</a></li>'.PHP_EOL;
+                    echo '<ul class="nav bd-sidenav">' . PHP_EOL;
+					echo '  <li class="'.(empty($currentSet) ? 'active' : '') .'"><a href="/history.php?detail=1">overall</a></li>' . PHP_EOL;
                     if (count($sets)) {
                         foreach ($sets as $set) {
-                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">'.PHP_EOL;
+                            echo '<li class="'.($currentSet == $set->getName() ? 'active' : '').'">' . PHP_EOL;
                             echo '  <a href="/history.php?detail=1&amp;set=' . htmlspecialchars(urlencode($set->getName())) . '" title="'
                                     . htmlspecialchars($set->getSourcefile()).'">';
                             echo '    '.htmlspecialchars($set->getName());
-                            echo '  </a>'.PHP_EOL;
-                            echo '</li>'.PHP_EOL;
+                            echo '  </a>' . PHP_EOL;
+                            echo '</li>' . PHP_EOL;
                         }
                     }
                     echo '</ul>';
@@ -476,7 +476,7 @@ $(document).ready(function() {
 <?php
     if (is_array($deferJs)) {
         foreach ($deferJs as $line) {
-            echo $line.';'.PHP_EOL;
+            echo $line.';' . PHP_EOL;
         }
     }
 ?>
