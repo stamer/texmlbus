@@ -55,7 +55,7 @@ services:
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
-            - optdata:/opt
+            - optrun:/opt/run
 
     texmlbus:
         build:
@@ -108,14 +108,15 @@ services:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
             # have access to latexmls style files
-            - optdata:/opt
+            - ./src/LaTeXML:/opt/latexml
+            - optrun:/opt/run
         command: '/bin/bash'
 
 networks:
     texmlbus_net:
 volumes:
     # shared by latexml-dmake and texmlbus
-    optdata:
+    optrun:
     # mysql database
     data-mysql:
 
