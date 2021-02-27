@@ -214,10 +214,10 @@ class Page
 <?php
                     echo '<ul class="nav bd-sidenav">' . PHP_EOL;
 					echo '  <li class=""><a href="/lastStat.php">current</a></li>' . PHP_EOL;
-					echo '</ul>' . . PHP_EOL;
+					echo '</ul>' . PHP_EOL;
                     echo '<ul class="nav bd-sidenav">' . PHP_EOL;
                     echo '  <li class=""><a href="/manageQueue.php">manage queue</a></li>' . PHP_EOL;
-                    echo '</ul>' . . PHP_EOL;
+                    echo '</ul>' . PHP_EOL;
 ?>
                 </div>
                 <div class="bd-toc-item <?=($activeLeft == 'import' ? 'active' : '') ?>">
@@ -234,7 +234,7 @@ class Page
                     echo '  <li class=""><a href="/installSty.php">Install class and sty files</a></li>' . PHP_EOL;
                     echo '  <li class="mt-3"><a href="/createSamples.php">Create sample set</a></li>' . PHP_EOL;
                     echo '  <li class=""><a href="/createLatexmlTest.php">Create latexml test-cases set</a></li>' . PHP_EOL;
-                    echo '</ul>' . . PHP_EOL;
+                    echo '</ul>' . PHP_EOL;
                     ?>
                 </div>
                 <div class="bd-toc-item <?=($activeLeft == 'index' ? 'active' : '') ?>">
