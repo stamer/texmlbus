@@ -20,19 +20,21 @@ class StagePagelimit extends AbstractStage
 
     public static function register(): array
     {
+        $stage = 'pagelimit';
         $config = [
-            'stage' => 'pagelimit',
+            'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'pagelimit',
+            'target' => $stage,
             'hostGroup' => 'worker',
-            'dbTable' => 'retval_pagelimit',
-            'tableTitle' => 'pagelimit',
-            'toolTip' => 'pagelimit',
+            'dbTable' => 'retval_' . $stage,
+            'tableTitle' => $stage,
+            'toolTip' => $stage,
             'parseXml' => false,
             'timeout' => 1200,
             'destFile' => '%MAINFILEPREFIX%.pagelimit.html',
             'stdoutLog' => 'pagelimit.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'pagelimit.stderr.log', // needs to match entry in Makefile
+            'makeLog' => 'make_' . $stage . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             /* retvals to be shown */
             'showRetval' => [
@@ -189,6 +191,7 @@ class StagePagelimit extends AbstractStage
     public static function parse(
         string $hostGroup,
         StatEntry $entry,
+        int $status,
         bool $childAlarmed): bool
     {
         $directory = $entry->filename;
@@ -197,10 +200,10 @@ class StagePagelimit extends AbstractStage
         $res->id = $entry->id;
 
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
-        $stdErrlog = $sourceDir . '/' . $res->config['stderrLog'];
-
         $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+        $stdErrlog = $sourceDir . '/' . $res->config['stderrLog'];
+        $makelog = $sourceDir . '/' . $res->config['makeLog'];
 
         $destFile = str_replace('%MAINFILEPREFIX%', $texSourcefilePrefix, $res->config['destFile']);
 
@@ -212,7 +215,12 @@ class StagePagelimit extends AbstractStage
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
         } elseif (!is_file($stdErrlog)) {
-            $res->retval = 'missing_errlog';
+            if ($status) {
+                $res->retval = 'fatal_error';
+                $res->errmsg = static::parseMakelog($makelog);
+            } else {
+                $res->retval = 'missing_errlog';
+            }
         } else {
             // have we created a destFile?
             echo "check whether destfile $destFile exists... ";
@@ -226,37 +234,44 @@ class StagePagelimit extends AbstractStage
         }
 
         $content = file_get_contents($stdErrlog);
-        $res->errmsg = '';
-        $res->warnmsg = '';
+        if ($content === ''
+            && $status
+        ) {
+            $res->retval = 'fatal_error';
+            $res->errmsg = static::parseMakelog($makelog);
+        } else {
+            $content = file_get_contents($stdErrlog);
+            $res->errmsg = '';
+            $res->warnmsg = '';
 
-        $warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
-        $matches = [];
-        preg_match_all($warnPattern, $content, $matches);
+            $warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
+            $matches = [];
+            preg_match_all($warnPattern, $content, $matches);
 
-        $numWarnings = count($matches[4]);
-        if ($numWarnings) {
-            $res->warnmsg .= 'Found ' . $numWarnings . ' warning' . ($numWarnings == 1 ? '' : 's') . ".\n";
-            $res->retval = 'warning';
-            $errLimit = 10;
-            if ($numWarnings > $errLimit) {
-                $res->retval = 'error';
-                $res->errmsg .= "More than $errLimit warnings, considering paper as error.\n";
+            $numWarnings = count($matches[4]);
+            if ($numWarnings) {
+                $res->warnmsg .= 'Found ' . $numWarnings . ' warning' . ($numWarnings == 1 ? '' : 's') . ".\n";
+                $res->retval = 'warning';
+                $errLimit = 10;
+                if ($numWarnings > $errLimit) {
+                    $res->retval = 'error';
+                    $res->errmsg .= "More than $errLimit warnings, considering paper as error.\n";
+                }
             }
+            $res->warnmsg .= implode("\n", $matches[4]);
+
+            $errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
+            $matches = [];
+            preg_match_all($errPattern, $content, $matches);
+            $numErrors = count($matches[4]);
+            if ($numErrors) {
+                $res->errmsg .= 'Found ' . $numErrors . ' error' . ($numErrors == 1 ? '' : 's') . ".\n";
+                $res->retval = 'error';
+            }
+            $res->errmsg .= implode("\n", $matches[4]);
+
+            echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
         }
-        $res->warnmsg .= implode("\n", $matches[4]);
-
-        $errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
-        $matches = [];
-        preg_match_all($errPattern, $content, $matches);
-        $numErrors = count($matches[4]);
-        if ($numErrors) {
-            $res->errmsg .= 'Found ' . $numErrors . ' error' . ($numErrors == 1 ? '' : 's') . ".\n";
-            $res->retval = 'error';
-        }
-        $res->errmsg .= implode("\n", $matches[4]);
-
-        echo static::class . ": Setting retval to " . $res->retval . PHP_EOL;
-
         return $res->updateRetval();
     }
 }

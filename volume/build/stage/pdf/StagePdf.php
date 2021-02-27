@@ -46,22 +46,23 @@ class StagePdf extends AbstractStage
      */
     public static function register(): array
     {
+        $stage = 'pdf';
         $config = [
             // the name of the stage
-            'stage' => 'pdf',
+            'stage' => $stage,
             // the name of the class
             'classname' => __CLASS__,
             // the target of makefile, most times same as stage, but
             // pdf and pdf_edge have the same target pdf
-            'target' => 'pdf',
+            'target' => $stage,
             // the hostGroup
             // pdf has worker as hostGroup, pdf_edge has worker_edge
             // therefore two different pdf environments can be used
             'hostGroup' => 'worker',
             // the name of the table where target specific results are stored
-            'dbTable' => 'retval_pdf',
+            'dbTable' => 'retval_' . $stage,
             // titles on statistic page
-            'tableTitle' => 'pdf',
+            'tableTitle' => $stage,
             'toolTip' => 'PDF creation.',
             // whether xml needs to be parsed
             'parseXml' => false,
@@ -71,6 +72,7 @@ class StagePdf extends AbstractStage
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
+            'makeLog' => 'make_' . $stage . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             'showRetval' => [
                 'unknown' => true,
@@ -247,6 +249,7 @@ class StagePdf extends AbstractStage
     public static function parse(
         string $hostGroup,
         StatEntry $entry,
+        int $status,
         bool $childAlarmed): bool
     {
         $directory = $entry->filename;
@@ -257,6 +260,8 @@ class StagePdf extends AbstractStage
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+        $makelog = $sourceDir . '/' . $res->config['makeLog'];
+
         $logfile = $texSourcefilePrefix.'.log';
         echo "parsing Logfile $logfile ..." . PHP_EOL;
 
@@ -268,77 +273,88 @@ class StagePdf extends AbstractStage
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
         } elseif (!is_file($logfile)) {
-            $res->retval = 'missing_errlog';
+            // error status returned?
+            if ($status) {
+                $res->retval = 'fatal_error';
+                $res->errmsg = static::parseMakelog($makelog);
+            } else {
+                $res->retval = 'missing_errlog';
+            }
         // have we created a pdf?
         } elseif (is_file($resultfile)) {
             $res->retval = 'no_problems';
         } else {
             $res->retval = 'fatal_error';
         }
+        $content = file_get_contents($logfile);
+        if ($content === ''
+            && $status
+        ) {
+            $res->retval = 'fatal_error';
+            $res->errmsg = static::parseMakelog($makelog);
+        } else {
+            $warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
+            $matches = [];
+            preg_match_all($warnPattern, $content, $matches);
+            if (count($matches[4])) {
+                $res->retval = 'warning';
+            }
+            $res->warnmsg = implode("\n", $matches[4]);
 
-		$content = file_get_contents($logfile);
-
-		$warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
-        $matches = [];
-		preg_match_all($warnPattern, $content, $matches);
-		if (count($matches[4])) {
-            $res->retval = 'warning';
-        }
-		$res->warnmsg = implode("\n", $matches[4]);
-
-		$errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
-        $matches = [];
-		preg_match_all($errPattern, $content, $matches);
-		if (count($matches[4])) {
-            $res->retval = 'error';
-        }
-		$res->errmsg = implode("\n", $matches[4]);
-
-        // Citation undefined considered errors
-		$errPattern = '@(.*?)(Warning:)(\S*)\s+(Citation.{0,100}undefined)@m';
-        $matches = [];
-		preg_match_all($errPattern, $content, $matches);
-		if (count($matches[4])) {
-            $res->retval = 'error';
-        }
-		$res->errmsg .= implode("\n", $matches[4]);
-
-		// try to classify in more detail missing files
-        if ($res->retval === 'error') {
-            $macroSuffixes = ['sty', 'cls'];
-            $figureSuffixes = ['eps', 'jpg', 'jpeg', 'png', 'pdf'];
-            $bibSuffixes = ['bib'];
-
-            $errPattern = '@(.*?)(Error: File\s)\S(.*?)\S\s(not found)@m';
+            $errPattern = '@(.*?)(Error:)(\S*)\s+(.*)@m';
             $matches = [];
             preg_match_all($errPattern, $content, $matches);
             if (count($matches[4])) {
-                $filenames = $matches[3];
-                $result = 0;
-                foreach ($filenames as $filename) {
-                    $suffix = strtolower(UtilFile::getSuffix($filename, false));
-                    echo $suffix . PHP_EOL;
-                    if (in_array($suffix, $macroSuffixes)) {
-                        $result |= self::FOUND_MISSING_MACROS;
-                    } elseif (
-                        in_array($suffix, $figureSuffixes)
-                        || preg_match('/figure|image/i', $filename) !== false
-                    ) {
-                        $result |= self::FOUND_MISSING_FIGURE;
-                    } elseif (in_array($suffix, $bibSuffixes)) {
-                        $result |= self::FOUND_MISSING_BIB;
-                    } else {
-                        $result |= self::FOUND_MISSING_FILE;
+                $res->retval = 'error';
+            }
+            $res->errmsg = implode("\n", $matches[4]);
+
+            // Citation undefined considered errors
+            $errPattern = '@(.*?)(Warning:)(\S*)\s+(Citation.{0,100}undefined)@m';
+            $matches = [];
+            preg_match_all($errPattern, $content, $matches);
+            if (count($matches[4])) {
+                $res->retval = 'error';
+            }
+            $res->errmsg .= implode("\n", $matches[4]);
+
+            // try to classify in more detail missing files
+            if ($res->retval === 'error') {
+                $macroSuffixes = ['sty', 'cls'];
+                $figureSuffixes = ['eps', 'jpg', 'jpeg', 'png', 'pdf'];
+                $bibSuffixes = ['bib'];
+
+                $errPattern = '@(.*?)(Error: File\s)\S(.*?)\S\s(not found)@m';
+                $matches = [];
+                preg_match_all($errPattern, $content, $matches);
+                if (count($matches[4])) {
+                    $filenames = $matches[3];
+                    $result = 0;
+                    foreach ($filenames as $filename) {
+                        $suffix = strtolower(UtilFile::getSuffix($filename, false));
+                        echo $suffix . PHP_EOL;
+                        if (in_array($suffix, $macroSuffixes)) {
+                            $result |= self::FOUND_MISSING_MACROS;
+                        } elseif (
+                            in_array($suffix, $figureSuffixes)
+                            || preg_match('/figure|image/i', $filename) !== false
+                        ) {
+                            $result |= self::FOUND_MISSING_FIGURE;
+                        } elseif (in_array($suffix, $bibSuffixes)) {
+                            $result |= self::FOUND_MISSING_BIB;
+                        } else {
+                            $result |= self::FOUND_MISSING_FILE;
+                        }
                     }
-                }
-                if ($result & self::FOUND_MISSING_MACROS) {
-                    $res->retval = 'missing_macros';
-                } elseif ($result & self::FOUND_MISSING_FIGURE) {
-                    $res->retval = 'missing_figure';
-                } elseif ($result & self::FOUND_MISSING_BIB) {
-                    $res->retval = 'missing_bib';
-                } else {
-                    $res->retval = 'missing_file';
+                    if ($result & self::FOUND_MISSING_MACROS) {
+                        $res->retval = 'missing_macros';
+                    } elseif ($result & self::FOUND_MISSING_FIGURE) {
+                        $res->retval = 'missing_figure';
+                    } elseif ($result & self::FOUND_MISSING_BIB) {
+                        $res->retval = 'missing_bib';
+                    } else {
+                        $res->retval = 'missing_file';
+                    }
                 }
             }
         }

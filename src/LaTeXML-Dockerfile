@@ -35,7 +35,7 @@
 
 
 # We start from alpine linux 3.11
-FROM alpine:3.13 as latexml_base
+FROM alpine:3.12 as latexml_base
 
 RUN echo -e \
 " ############################################################\n" \

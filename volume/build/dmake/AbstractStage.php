@@ -98,7 +98,19 @@ abstract class AbstractStage implements StageInterface
     abstract public static function parse(
         string $hostGroup,
         StatEntry $entry,
+        int $status,
         bool $childAlarmed
     ): bool;
+
+    public static function parseMakelog(
+        string $filename
+    ) : string {
+        $content = file_get_contents($filename);
+        if ($content === false) {
+            return '';
+        }
+        // for now just return the full log.
+        return $content;
+    }
 }
 

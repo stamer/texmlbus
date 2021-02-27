@@ -13,13 +13,14 @@ class StagePdfEdge extends StagePdf
 {
     public static function register(): array
     {
+        $stage = 'pdf_edge';
         $config = [
-            'stage' => 'pdf_edge',
+            'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'pdf',
+            'target' => 'pdf', // pdf is correct
             'hostGroup' => 'worker_edge',
-            'dbTable' => 'retval_pdf_edge',
-            'tableTitle' => 'pdf_edge',
+            'dbTable' => 'retval_' . $stage,
+            'tableTitle' => $stage,
             'toolTip' => 'PDF creation.',
             'parseXml' => false,
             'timeout' => 240,
@@ -27,6 +28,7 @@ class StagePdfEdge extends StagePdf
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
+            'makeLog' => 'make_' . $stage . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             'showRetval' => [
                 'unknown' => true,
