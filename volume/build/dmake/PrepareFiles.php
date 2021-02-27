@@ -7,7 +7,10 @@
 
 namespace Dmake;
 
+use Dmake\Exception\WriteException;
+
 require_once "UtilFile.php";
+require_once "exception/WriteException.php";
 
 /**
  * Class PrepareFiles
@@ -545,6 +548,9 @@ class PrepareFiles
 
             // compute list again, tex file might have been in compressed file.
             $files = UtilFile::listDir($dir);
+            // prefer main.tex, mainfile.tex
+            $files = UtilSort::sortPreferValues($files, ['main.tex', 'mainfile.tex']);
+
             foreach ($files as $file) {
                 if (preg_match($this->ignoreSuffixesTexDetectionPattern, $file)
                     || preg_match($this->ignorePrefixesPattern, $file)

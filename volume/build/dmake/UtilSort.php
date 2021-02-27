@@ -26,4 +26,17 @@ class UtilSort
         uasort($array, $cmp);
         return $array;
     }
+
+    /**
+     * Prefer values (move element to front), that match values in second array.
+     * All other elements should stay same.
+     */
+    public static function sortPreferValues(array $array, array $preferValues): array
+    {
+        $cmp = function ($a, $b) use ($preferValues) {
+            return (in_array($a, $preferValues) ? 1 : (in_array($b, $preferValues) ? 1 : 0));
+        };
+        uasort($array, $cmp);
+        return $array;
+    }
 }
