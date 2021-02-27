@@ -23,18 +23,20 @@ class StageXhtml extends AbstractStage
 
     public static function register(): array
     {
+        $stage = 'xhtml';
         $config = [
-            'stage' => 'xhtml',
+            'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'xhtml',
+            'target' => $stage,
             'hostGroup' => 'worker',
-            'dbTable' => 'retval_xhtml',
-            'tableTitle' => 'xhtml',
+            'dbTable' => 'retval_' . $stage,
+            'tableTitle' => $stage,
             'toolTip' => 'Xhtml creation.',
             'timeout' => 1200,
             'destFile' => '%MAINFILEPREFIX%.xhtml',
-            'stdoutLog' => 'xhtml.stdout.log',  // this needs to match entry in Makefile
-            'stderrLog' => 'xhtml.stderr.log',  // needs to match entry in Makefile
+            'stdoutLog' => $stage . '.stdout.log',  // this needs to match entry in Makefile
+            'stderrLog' => $stage . '.stderr.log',  // needs to match entry in Makefile
+            'makeLog' => 'make_' . $stage . '.log',
             // which log files need to be parsed?
             // the dependent stage needs to have the same hostGroup as this stage
             'dependentStages' => ['xml'],
@@ -189,6 +191,7 @@ class StageXhtml extends AbstractStage
     public static function parse(
         string $hostGroup,
         StatEntry $entry,
+        int $status,
         bool $childAlarmed): bool
     {
         $directory = $entry->filename;
@@ -199,6 +202,7 @@ class StageXhtml extends AbstractStage
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
         $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
+        $makelog = $sourceDir . '/' . $res->config['makeLog'];
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
@@ -206,129 +210,130 @@ class StageXhtml extends AbstractStage
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
         } elseif (!is_file($stderrlog)) {
-            $res->retval = 'missing_errlog';
-        } else {
-            // have we created an xhtml file?
-/*
-
-            $arr = glob(ARTICLEDIR.'/'.$directory.'/*.xhtml');
-            if (count($arr)) {
-                $res->retval = 'no_problems';
-                $last = strrpos($arr[0], '/');
+            if ($status) {
+                $res->retval = 'fatal_error';
+                $res->errmsg = static::parseMakelog($makelog);
             } else {
-                $res->retval = 'fatal_error';
+                $res->retval = 'missing_errlog';
             }
-*/
+        } else {
             $content = file_get_contents($stderrlog);
-
-            // matches[3] ==> num_xmarg
-            // matches[4] ==> ok_xmarg
-            $xmarg_pattern = '@(.*?)(^   XMArg: )(\d+)/(\d+)@m';
-            $matches = [];
-            preg_match($xmarg_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                print_r($matches);
-            }
-
-            if (isset($matches[3])) {
-                $res->num_xmarg = $matches[3];
-            }
-            if (isset($matches[4])) {
-                $res->ok_xmarg = $matches[4];
-            }
-
-            // matches[3] ==> num_xmath
-            // matches[4] ==> ok_xmath
-            $xmath_pattern = '@(.*?)(^   XMath: )(\d+)/(\d+)@m';
-            preg_match($xmath_pattern, $content, $matches);
-
-            if (isset($matches[3])) {
-                $res->num_xmath = $matches[3];
-            }
-            if (isset($matches[4])) {
-                $res->ok_xmath = $matches[4];
-            }
-
-
-            $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
-            preg_match($fatal_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                print_r($matches);
-            }
-
-            // this will only be set if we have found a fatal error
-            if (isset($matches[2])) {
+            if ($status
+                && ($content === ''
+                    || strpos($content, 'processing finished') === false)
+            ) {
                 $res->retval = 'fatal_error';
-                $res->errmsg = $matches[4];
-            }
-            /*
-
-            $warning_pattern = '@(.*?)(^Conversion complete: )((\d*)(\s*)((warning|error)?)(s?)(; ?)?)((\d*)(\s*)(error?)?)@m';
-            preg_match($warning_pattern, $content, $matches);
-            print_r($matches);
-
-            if (isset($matches[6])) {
-                $res->retval = 'warning';
-                if ($matches[6] == 'error') {
-                    $res->num_error = $matches[4];
-                } elseif ($matches[6]  == 'warning') {
-                    $res->num_warning = $matches[4];
-                    if (isset($matches[13])) {
-                        $res->num_error = $matches[11];
-                    }
-                } else {
-                    echo "Error, neither warning nor error...\n";
+                $res->errmsg = static::parseMakelog($makelog);
+            } else {
+                // matches[3] ==> num_xmarg
+                // matches[4] ==> ok_xmarg
+                $xmarg_pattern = '@(.*?)(^   XMArg: )(\d+)/(\d+)@m';
+                $matches = [];
+                preg_match($xmarg_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
                 }
-            }
-            */
 
-            $warning_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(warning)@m';
-            preg_match($warning_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                if (isset($matches[3])) {
+                    $res->num_xmarg = $matches[3];
+                }
+                if (isset($matches[4])) {
+                    $res->ok_xmarg = $matches[4];
+                }
+
+                // matches[3] ==> num_xmath
+                // matches[4] ==> ok_xmath
+                $xmath_pattern = '@(.*?)(^   XMath: )(\d+)/(\d+)@m';
+                preg_match($xmath_pattern, $content, $matches);
+
+                if (isset($matches[3])) {
+                    $res->num_xmath = $matches[3];
+                }
+                if (isset($matches[4])) {
+                    $res->ok_xmath = $matches[4];
+                }
+
+
+                $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
+                preg_match($fatal_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
+
+                // this will only be set if we have found a fatal error
+                if (isset($matches[2])) {
+                    $res->retval = 'fatal_error';
+                    $res->errmsg = $matches[4];
+                }
+                /*
+
+                $warning_pattern = '@(.*?)(^Conversion complete: )((\d*)(\s*)((warning|error)?)(s?)(; ?)?)((\d*)(\s*)(error?)?)@m';
+                preg_match($warning_pattern, $content, $matches);
                 print_r($matches);
-            }
 
-            if (isset($matches[6]) && $matches[6] == 'warning') {
-                $res->num_warning = $matches[4];
-                $res->retval = 'warning';
-            }
+                if (isset($matches[6])) {
+                    $res->retval = 'warning';
+                    if ($matches[6] == 'error') {
+                        $res->num_error = $matches[4];
+                    } elseif ($matches[6]  == 'warning') {
+                        $res->num_warning = $matches[4];
+                        if (isset($matches[13])) {
+                            $res->num_error = $matches[11];
+                        }
+                    } else {
+                        echo "Error, neither warning nor error...\n";
+                    }
+                }
+                */
 
-            $error_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(error)@m';
-            preg_match($error_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                print_r($matches);
-            }
+                $warning_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(warning)@m';
+                preg_match($warning_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
 
-            if (isset($matches[6]) && $matches[6] == 'error') {
-                $res->num_error = (int) $matches[4];
-                if ($res->num_error > 0) {
-                    $res->retval = 'error';
-                } else {
+                if (isset($matches[6]) && $matches[6] == 'warning') {
+                    $res->num_warning = $matches[4];
+                    $res->retval = 'warning';
+                }
+
+                $error_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(error)@m';
+                preg_match($error_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
+
+                if (isset($matches[6]) && $matches[6] == 'error') {
+                    $res->num_error = (int)$matches[4];
+                    if ($res->num_error > 0) {
+                        $res->retval = 'error';
+                    } else {
+                        $res->retval = 'no_problems';
+                    }
+                }
+
+                $macro_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
+                preg_match($macro_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
+
+                if (isset($matches[6]) && $matches[6] == 'undefined macro') {
+                    $res->num_macro = $matches[4];
+                    $res->missing_macros = $matches[8];
+                    $res->retval = 'missing_macros';
+                }
+
+                $success_pattern = '@(.*?)(^Postprocessing complete: No obvious problems)@m';
+                preg_match($success_pattern, $content, $matches);
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
+
+                // this will only be set if
+                if (isset($matches[2])) {
                     $res->retval = 'no_problems';
                 }
-            }
-
-            $macro_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
-            preg_match($macro_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                print_r($matches);
-            }
-
-            if (isset($matches[6]) && $matches[6] == 'undefined macro') {
-                $res->num_macro = $matches[4];
-                $res->missing_macros = $matches[8];
-                $res->retval = 'missing_macros';
-            }
-
-            $success_pattern = '@(.*?)(^Postprocessing complete: No obvious problems)@m';
-            preg_match($success_pattern, $content, $matches);
-            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                print_r($matches);
-            }
-
-            // this will only be set if
-            if (isset($matches[2])) {
-                $res->retval = 'no_problems';
             }
         }
         return $res->updateRetval();

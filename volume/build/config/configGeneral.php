@@ -10,16 +10,17 @@ define("DBG_EXEC", 4);
 define("DBG_ALARM", 8);
 define("DBG_SIGNAL", 16);
 define("DBG_CHILD", 32);
-define("DBG_DELETE", 64);
-define("DBG_PARSE_ERRLOG", 128);
-define("DBG_PARSE_POST", 256);
-define("DBG_HOSTS", 512);
+define("DBG_CHILD_RETVAL", 64);
+define("DBG_DELETE", 128);
+define("DBG_PARSE_ERRLOG", 256);
+define("DBG_PARSE_POST", 512);
+define("DBG_HOSTS", 1024);
 
 $dbgLevel = getenv('DBG_LEVEL');
 if ($dbgLevel !== false && $dbgLevel != '') {
-    define("DBG_LEVEL", (int)$dbgLevel);
+    define("DBG_LEVEL", (int) $dbgLevel);
 } else {
-    define("DBG_LEVEL", 4 | 128);
+    define("DBG_LEVEL", DBG_EXEC | DBG_PARSE_ERRLOG | DBG_CHILD_RETVAL);
 }
 
 // not supported yet

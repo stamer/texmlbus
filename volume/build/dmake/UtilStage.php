@@ -57,7 +57,7 @@ class UtilStage
         $json = file_get_contents(ACTIVESTAGESFILE);
         if ($json === false) {
             echo "Failed to load current active stages to " . ACTIVESTAGESFILE;
-            return false;
+            return [];
         }
         $activeStages = json_decode($json, true);
         return $activeStages;
@@ -99,8 +99,8 @@ class UtilStage
     public static function setupFiles(
         string $articleDir,
         string $directory,
-        string $hostGroupName): void
-    {
+        string $hostGroupName
+    ): void {
         $sourceDir = $articleDir . '/' . $directory;
         $destDir = $articleDir . '/' . $directory . '/__texmlbus_' . $hostGroupName;
         if (!file_exists($destDir)) {
@@ -113,8 +113,8 @@ class UtilStage
     public static function getSourceDir(
         string $articleDir,
         string $directory,
-        string $hostGroup): string
-    {
+        string $hostGroup
+    ): string {
         $cfg = Config::getConfig();
 
         if ($cfg->linkSourceFiles) {
@@ -123,5 +123,27 @@ class UtilStage
             $sourceDir = $articleDir . '/' . $directory;
         }
         return $sourceDir;
+    }
+
+    /**
+     * Determine the makeCommand
+     * @return string
+     */
+    public static function getMakeCommand(
+        array $host,
+        string $action,
+        string $makeLog
+    ) : string {
+        $makeAction = 'make_' . $action;
+
+        // if there is a defined command like MAKE_PDF, use that otherwise just "make action"
+        if (isset($host[$makeAction])) {
+            $makeCommand = $host[$makeAction];
+        } else {
+            $makeCommand = $host['make_default'] . ' ' . $action;
+        }
+        $makeCommand .= ' ' . str_replace('__MAKELOG__', $makeLog, $host['make_output']);
+
+        return $makeCommand;
     }
 }

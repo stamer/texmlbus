@@ -16,11 +16,21 @@ use Dmake\UtilHost;
 use Dmake\UtilStage;
 /**
  * @var StdClass $config
+ * set -o pipefail: return status of failing program
  */
-define('MAKE_DEFAULT', $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile');
+define('MAKE_DEFAULT',
+       'set -o pipefail; '
+       . $config->app->nice . ' -n 4 '
+       . $config->app->make . ' -f Makefile');
+
+// __MAKELOG__ is replaced by $cfg->stages[$stage]->makeLog
+define('MAKE_OUTPUT', '2>&1 | tee __MAKELOG__');
+
 define(
     'MAKE_PDF',
-    $config->app->make . ' -f Makefile pdfclean; ' . $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile pdf'
+    'set -o pipefail; '
+    . $config->app->make . ' -f Makefile pdfclean; '
+    . $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile pdf'
 );
 
 /**
@@ -51,6 +61,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ];
         }
@@ -67,6 +78,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_1' =>
@@ -76,6 +88,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_2' =>
@@ -85,6 +98,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                     'make_xml' => MAKE_XML,
                     'make_xhtml' => MAKE_XHTML,
@@ -97,6 +111,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_4' =>
@@ -106,6 +121,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_5' =>
@@ -115,6 +131,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_6' =>
@@ -124,6 +141,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
             'local_7' =>
@@ -133,6 +151,7 @@ if ($dockerized) {
                     'status' => STAT_IDLE,
                     'dir' => ARTICLEDIR,
                     'make_default' => MAKE_DEFAULT,
+                    'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
         );

@@ -21,6 +21,7 @@ interface StageInterface
 	public static function parse(
 	    string $hostGroup,
         StatEntry $entry,
+        int $status,
         bool $childAlarmed
     ): bool;
 }

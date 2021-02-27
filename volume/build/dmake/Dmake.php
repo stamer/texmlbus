@@ -143,14 +143,10 @@ class Dmake
             $args[1] = $host['hostname'];
         }
 
-        $makeAction = 'make_' . $action;
-
-        // if there is a defined command like MAKE_PDF, use that otherwise just "make action"
-        if (isset($host[$makeAction])) {
-            $makeCommand = $host[$makeAction];
-        } else {
-            $makeCommand = $host['make_default'] . ' ' . $action;
-        }
+        $makeCommand = UtilStage::getMakeCommand(
+            $host,
+            $action,
+            $cfg->stages[$stage]->makeLog);
 
         $args[2] = '';
         if (isset($host['path'])) {
@@ -234,20 +230,24 @@ class Dmake
                 // determine whether alarm went off..
                 if (pcntl_alarm(0)) {
                     // if alarm still running, remaining seconds are returned...
-                    $child_alarmed = FALSE;
+                    $childAlarmed = false;
                 } else {
-                    $child_alarmed = TRUE;
+                    $childAlarmed = true;
                 }
 
-                if (!$child_alarmed) {
+                if (!$childAlarmed) {
+                    // why was this needed?.. Spurious wakeups?
                     while (!pcntl_wifexited($status)) {
                         $pid = pcntl_wait($status);
                         pcntl_signal_dispatch();
                     }
                 }
 
+                if (DBG_LEVEL & DBG_CHILD_RETVAL) {
+                    echo "Child returns status: $status" . PHP_EOL;
+                }
                 if (DBG_LEVEL & DBG_ALARM) {
-                    echo "state of child_alarmed: $child_alarmed\n";
+                    echo "State of childAlarmed: " . (int) $childAlarmed . PHP_EOL;
                 }
 
                 /*
@@ -261,7 +261,7 @@ class Dmake
                             if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                                 echo "DependentStage: parsing " . $cfg->stages[$dependentStage]->stderrLog . PHP_EOL;
                             }
-                            $classname::parse($hostGroup, $entry, $child_alarmed);
+                            $classname::parse($hostGroup, $entry, $status, $childAlarmed);
                         } else {
                             die ("Parsing dependent stages: $action, Trying to load $classname, but it does not exist");
                         }
@@ -277,7 +277,7 @@ class Dmake
                     echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
                 }
                 if (class_exists($classname)) {
-                    $classname::parse($hostGroup, $entry, $child_alarmed);
+                    $classname::parse($hostGroup, $entry, $status, $childAlarmed);
                 } else {
                     die ("Action: $action, Trying to load $classname, but it does not exist");
                 }
