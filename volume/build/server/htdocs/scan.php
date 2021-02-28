@@ -55,7 +55,7 @@ echo '<h4>Scan and import articles ' . $page->info('scan') . '</h4>';
                   Select set:
                 <select id="destset" name="destset" class="js-data-get-subdirs" style="width: 400px"></select> <?=$page->info('scan-select', 0.9) ?>
               </div>
-            <div style="margin-top:1rem">
+            <div class="mt-4">
 
                 <button class="btn btn-primary" type="submit" name="submit" onclick="scanFiles($('#destset').val()); return false;">Scan</button>
             </div>

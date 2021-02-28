@@ -33,7 +33,7 @@ $prevDir = '__empty__'; // avoid warning in strpos
 $depth = 0;
 foreach ($cfg->clsLoader as $publisher => $val) {
     echo $publisher;
-    echo '<ul style="margin-top: 10px">' . PHP_EOL;
+    echo '<ul class="mt-2">' . PHP_EOL;
     foreach ($val as $name => $val2) {
 ?>
       <div style="margin-bottom: 10px;">
