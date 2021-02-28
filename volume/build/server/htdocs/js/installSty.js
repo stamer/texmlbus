@@ -32,6 +32,9 @@ function installSty(element, name)
                     fadeMsec = 1000;
                 } else {
                     message += "No files have been installed.";
+                    $(element).removeClass();
+                    $(element).addClass('btn btn-primary');
+                    $(element).html('<i class="fas fa-cloud-download-alt"></i><span></span>');
                     msgClass = 'info';
                 }
                 showMessage('Sty Files Install', message, msgClass, 2500);

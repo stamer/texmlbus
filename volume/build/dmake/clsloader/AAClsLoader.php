@@ -20,7 +20,7 @@ class AaClsLoader extends AbstractClsLoader
         $this->setName('aa');
         $this->setPublisher('EDP Sciences');
         $this->setUrl('http://ftp.edpsciences.org/pub/aa/aa-package.zip');
-        $this->setFiles(['aa.cls']);
+        $this->setFiles(['aastex.cls']);
         $this->setComment('Astronomy & Astrophysics');
     }
 }

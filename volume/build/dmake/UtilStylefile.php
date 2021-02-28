@@ -291,9 +291,19 @@ class UtilStylefile
     /**
      * Returns the installed cls/sty files as
      * [name => path] Array.
+     * If checkfiles is empty, it checks for any .cls/.sty files,
+     * otherwise it checks for specific filenames.
      */
-    public static function getInstalledClsStyFiles($directory): array
+    public static function getInstalledClsStyFiles(
+        string $directory,
+        array $checkFiles = []): array
     {
+        if (empty($checkFiles)) {
+            $pattern = '/\.cls|\.sty|\.tex/';
+        } else {
+            $pattern = null;
+        }
+
         $currentDepth = -5;
         $result_dirs = [];
         UtilFile::listDirR(
@@ -302,12 +312,17 @@ class UtilStylefile
             $currentDepth,
             true,
             false,
-            '/\.cls|\.sty/',
+            $pattern,
         );
 
         $installedFiles = [];
         foreach ($result_dirs as $filename) {
-            $installedFiles[basename($filename)] = $filename;
+            $basename = basename($filename);
+            if (empty($checkFiles)
+                || in_array($basename, $checkFiles)
+            ) {
+                $installedFiles[basename($filename)] = $filename;
+            }
         }
         return $installedFiles;
     }
