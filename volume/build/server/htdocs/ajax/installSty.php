@@ -30,7 +30,8 @@ if (!empty($className)) {
         $nsClassName = "Dmake\\ClsLoader\\" . $className;
         $obj = new $nsClassName;
         try {
-            $success = $obj->install();
+            $destDir = $obj->install();
+            $success = $obj->checkInstallation($destDir);
             if ($success) {
                 $out['message'] = 'Files installed.';
             } else {

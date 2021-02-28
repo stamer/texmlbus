@@ -146,7 +146,7 @@ abstract class AbstractClsLoader
     public function __construct()
     {
     }
-    
+
     /**
      * installs the cls/sty files
      * @return bool
@@ -166,10 +166,9 @@ abstract class AbstractClsLoader
     }
 
     /**
-     * installs the cls/sty files
-     * @return bool
+     * Installs the cls/sty files
      */
-    public function install(): bool
+    public function install(): string
     {
         $this->localFilename = $this->download($this->url);
         if (!$this->localFilename) {
@@ -189,16 +188,28 @@ abstract class AbstractClsLoader
         // remove tmpDir of downloaded file
         UtilFile::deleteDirR(dirname($this->localFilename));
 
-        $publisherDir = ARTICLESTYDIR . '/' . $this->getPublisher();
+        $publisherDir = ARTICLESTYDIR
+            . '/'
+            . UtilFile::sanitizeFilename($this->getPublisher());
         UtilFile::ensureDirExists($publisherDir);
         $destDir = $publisherDir . '/' . $this->getName();
         UtilFile::deleteDirR($destDir);
         UtilFile::rename($tmpDestDir, $destDir);
-        $this->installedFiles = UtilStylefile::getInstalledClsStyFiles($destDir);
 
         // remove tmpDir of extracted files / file.
         UtilFile::deleteDirR($tmpDestDir);
-        return true;
+        return $destDir;
+    }
+
+    /**
+     * Checks for existence of the to be installed files.
+     */
+    public function checkInstallation(string $destDir): bool
+    {
+        $this->installedFiles = UtilStylefile::getInstalledClsStyFiles(
+            $destDir,
+            $this->getFiles()
+        );
+        return count($this->installedFiles) > 0;
     }
 }
-

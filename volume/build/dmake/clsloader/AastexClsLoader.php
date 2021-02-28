@@ -24,15 +24,13 @@ class AastexClsLoader extends AbstractClsLoader
         $this->setComment('AAS Journals');
     }
 
-    public function install() : bool
+    public function install() : string
     {
-        parent::install();
-        $destDir = ARTICLESTYDIR . '/'
-            . $this->getPublisher() . '/'
-            . 'aastex/aastex';
-        $execStr = "cd $destDir && cp aastex??.cls aastex.cls";
+        $destDir = parent::install();
+        $execDir = $destDir . '/aastex';
+        $execStr = "cd $execDir && cp aastex??.cls aastex.cls";
         system($execStr);
-        return true;
+        return $destDir;
     }
 
 }

@@ -25,16 +25,13 @@ class ElsearticleClsLoader extends AbstractClsLoader
         $this->setComment('Elsevier journals');
     }
 
-    public function install() : bool
+    public function install() : string
     {
-        parent::install();
-        $destDir = ARTICLESTYDIR . '/'
-            . $this->getPublisher() . '/'
-            . 'elsarticle/elsarticle';
-        $execStr = 'cd ' . $destDir .' && /usr/bin/pdftex elsarticle.ins';
+        $destDir = parent::install();
+        $execDir = $destDir . '/elsarticle';
+        $execStr = 'cd ' . $execDir .' && /usr/bin/pdftex elsarticle.ins';
         $result = UtilHost::runOnWorker('worker', $execStr);
-        // error_log($result);
-        return true;
+        return $destDir;
     }
 }
 
