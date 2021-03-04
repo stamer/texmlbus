@@ -28,7 +28,7 @@ class AastexClsLoader extends AbstractClsLoader
     {
         $destDir = parent::install();
         $execDir = $destDir . '/aastex';
-        $execStr = "cd $execDir && cp aastex??.cls aastex.cls";
+        $execStr = "cd $execDir && cp aastex*.cls aastex.cls";
         system($execStr);
         return $destDir;
     }
