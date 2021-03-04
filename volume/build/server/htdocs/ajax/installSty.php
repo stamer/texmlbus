@@ -35,7 +35,7 @@ if (!empty($className)) {
             if ($success) {
                 $out['message'] = 'Files installed.';
             } else {
-                $out['message'] = 'Unable to install ' . $className;
+                $out['message'] = 'Installation of ' . implode(', ', $obj->getFiles()) . ' failed.';
             }
             $out['installed'] = count($obj->getInstalledFiles()) > 0;
             $out['installedCls'] = implode(', ', $obj->getInstalledFiles());
