@@ -270,20 +270,32 @@ class PrepareFiles
 
     /**
      * Determines whether a given file is a main tex file.
+     *
+     * If it is a main tex file, $texProcessor is filled with either
+     * default TexProcessor or detected $texProcessor.
      */
-    public function isFileMainTexfile(string $checkfile): bool
+    public function isFileMainTexfile(string $checkfile, &$texProcessor): bool
     {
+        $cfg = Config::getConfig();
         if (!($contents = @file_get_contents($checkfile))) {
-            return FALSE;
+            return false;
         }
+        $texProcessor = $cfg->defaultTexProcessor;
 
         // Avoid comments
         $pattern = '/^\s*(?!%)\s*\\\\document(style|class)/mi';
 
         if (preg_match($pattern, $contents)) {
-            return TRUE;
+            // try to find hint for Texprocessor
+            // recognize % tex = "xelatex" or %tex = xelatex
+            if (preg_match('/^%\s*(la)*tex\s*=\s*\"*(\w+)\"*\s*/m', $contents, $matches)) {
+                if (in_array($matches[2], array_keys($cfg->validPdfTexProcessors))) {
+                    $texProcessor = $matches[2];
+                }
+            }
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -404,7 +416,8 @@ class PrepareFiles
             $fullfilename = $dir . '/' . $file;
             if ($this->isFileTexfile($fullfilename)) {
                 $this->debugLog($file . ': possible Tex...');
-                if ($this->isFileMainTexfile($fullfilename)) {
+                // the detected $texProcessor is not needed here
+                if ($this->isFileMainTexfile($fullfilename, $texProcessor)) {
                     $this->debugLog($file .': Mainfile!');
                     $texFiles[] = $fullfilename;
                 }
@@ -476,6 +489,7 @@ class PrepareFiles
             fwrite($fp, 'TARGET.base = #TARGET#' . PHP_EOL);
             fwrite($fp, 'STY.base = #STY#' . PHP_EOL);
             fwrite($fp, 'CLS.base = #CLS#' . PHP_EOL);
+            fwrite($fp, 'TEXPROCOPT = #TEXPROCOPT#' . PHP_EOL);
             fwrite($fp, 'include $(PREFIX)/script/make/Makefile.paper.in' . PHP_EOL);
             fclose($fp);
             $this->debugLog("$template created.");
@@ -497,6 +511,7 @@ class PrepareFiles
             string $makeFileDir = '',
             string $destDir = ''
     ) {
+        $cfg = Config::getConfig();
         $this->debugLog(__METHOD__ . ": currentDir is $currentDir");
         $this->debugLog(__METHOD__ . ": destDir is $destDir");
 
@@ -561,7 +576,7 @@ class PrepareFiles
 
                 if ($this->isFileTexfile($dir . '/' . $file)) {
                     $this->debugLog($file . ': possible Tex...');
-                    if ($this->isFileMainTexfile($dir . '/' . $file)) {
+                    if ($this->isFileMainTexfile($dir . '/' . $file, $texProcessor)) {
                         $this->debugLog($file .': Mainfile!');
                         $saveDir = getcwd();
                         chdir($dir);
@@ -631,6 +646,9 @@ class PrepareFiles
                         }
                         $targetBase = preg_replace('/\.tex$/', '', $file);
                         $generatedMakefile = str_replace('#TARGET#', $targetBase, $generatedMakefile);
+                        // texProcessor needs to be translated into option
+                        $texProcOpt = $cfg->validPdfTexProcessors[$texProcessor] ?? '-pdf';
+                        $generatedMakefile = str_replace('#TEXPROCOPT#', $texProcOpt, $generatedMakefile);
                         file_put_contents($dir . '/Makefile', $generatedMakefile);
                         chdir($saveDir);
 

@@ -99,6 +99,16 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->server->app = new stdClass();
     $config->server->app->latexml = '/opt/latexml/bin/latexml';
 
+    $config->defaultTexProcessor = 'pdflatex';
+
+    // List of valid TexProcessors, and translated as option to latexmk.
+    $config->validPdfTexProcessors = [
+        'pdftex' => '-pdflatex=pdftex',
+        'pdflatex' => '-pdf',
+        'xelatex' => '-pdfxe',
+        'luatex' => '-pdflua'
+    ];
+
 // typical linux distribution paths
 } else {
     $config->app->diff = '/usr/bin/diff';
@@ -119,6 +129,15 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->wc = '/usr/bin/wc';
     $config->app->xmllint = '/usr/bin/xmllint';
     $config->app->zip = '/usr/bin/zip';
+
+    $config->defaultTexProcessor = 'pdflatex';
+
+    // list of valid TexProcessors. Must be supported as option to latexmk
+    $config->validPdfTexProcessors = [
+        'pdftex',
+        'pdflatex',
+        'xelatex',
+    ];
 }
 /**
  * Modes for uncompressors

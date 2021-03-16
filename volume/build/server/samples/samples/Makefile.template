@@ -3,4 +3,5 @@ include $(PREFIX)/script/make/Makefile.paper.vars
 TARGET.base = #TARGET#
 STY.base = #STY#
 CLS.base = #CLS#
+TEXPROCOPT = #TEXPROCOPT#
 include $(PREFIX)/script/make/Makefile.paper.in
