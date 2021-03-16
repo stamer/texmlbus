@@ -616,14 +616,16 @@ class PrepareFiles
                         $generatedMakefile = $Makefile;
                         // write Makefile
                         // if we are in subdirectories below Manuscript
-                        // PREFIX needs to be adjusted
-                        $depth = substr_count(str_replace($this->stripArticleDir($currentDir), '', $dir), '/');
+                        $stripped = $this->stripArticleDir($dir);
+                        // directory might contain trailing slash
+                        $stripped = rtrim($stripped, '/');
                         $this->debugLog("Current: " . $currentDir);
-                        $this->debugLog("Stripped: " . $this->stripArticleDir($currentDir));
                         $this->debugLog("Dir: " . $dir);
+                        $this->debugLog("Stripped: " . $stripped);
+                        $depth = substr_count($stripped, '/');
                         $this->debugLog("Depth: $depth");
-                        if ($depth > 2) {
-                            $addDotDir = 'PREFIX = ' . str_repeat('../', $depth - 1);
+                        if ($depth > 0) {
+                            $addDotDir = 'PREFIX = ' . str_repeat('../', $depth + 2);
                             $this->debugLog($addDotDir);
                             $generatedMakefile = str_replace('PREFIX = ../../', $addDotDir, $generatedMakefile);
                         }
