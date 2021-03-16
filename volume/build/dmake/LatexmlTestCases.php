@@ -95,6 +95,7 @@ class LatexmlTestCases
         ['src' => 'structure/apackage.sty', 'dest' => 'structure_options/apackage.sty'],
         ['src' => 'structure/apackage.sty.ltxml', 'dest' => 'structure_options/apackage.sty.ltxml'],
         ['src' => 'structure/lit.bib', 'dest' => 'structure_bibsect/lit.bib'],
+        ['src' => 'tokenize/newlines-input.tex', 'dest' => 'tokenize_newlines/newlines_input.tex'],
         ['src' => 'tokenize/snippet.tex', 'dest' => 'tokenize_verb/snippet.tex'],
     ];
 
