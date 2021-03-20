@@ -1,7 +1,7 @@
 # Makefile.rule
 # defines the rule, which consists of target, prerequisite and recipe.
 $(TARGET.pdf): %.pdf: %.tex
-	$(LATEXMK) -pdf -f -interaction=nonstopmode $(firstword $<)
+	$(LATEXMK) $(TEXENGINEOPT) -f -interaction=nonstopmode $(firstword $<)
 
 pdfclean: backup
 	$(LATEXMK) -C '$(TARGET.base)'

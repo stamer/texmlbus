@@ -270,20 +270,35 @@ class PrepareFiles
 
     /**
      * Determines whether a given file is a main tex file.
+     *
+     * If it is a main tex file, $texEngine is filled with either
+     * default TexEngine or detected $texEngine.
      */
-    public function isFileMainTexfile(string $checkfile): bool
+    public function isFileMainTexfile(string $checkfile, &$texEngine): bool
     {
+        $cfg = Config::getConfig();
         if (!($contents = @file_get_contents($checkfile))) {
-            return FALSE;
+            return false;
         }
+        $texEngine = $cfg->defaultTexEngine;
 
         // Avoid comments
         $pattern = '/^\s*(?!%)\s*\\\\document(style|class)/mi';
 
         if (preg_match($pattern, $contents)) {
-            return TRUE;
+            // try to find hint for TexEngine
+            // recognize LaTeXML hint: %%% TeX-engine: xelatex
+            // recognize llmk hint: % latex = "xelatex"
+            if (preg_match('/^%%%\s*tex-engine:\s*"*(\w+)"*/mi', $contents, $matches)
+                || preg_match('/^%\s*latex\s*=\s*"*(\w+)"*/m', $contents, $matches)
+            ) {
+                if (in_array($matches[1], array_keys($cfg->validPdfTexEngines))) {
+                    $texEngine = $matches[1];
+                }
+            }
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 
@@ -404,7 +419,8 @@ class PrepareFiles
             $fullfilename = $dir . '/' . $file;
             if ($this->isFileTexfile($fullfilename)) {
                 $this->debugLog($file . ': possible Tex...');
-                if ($this->isFileMainTexfile($fullfilename)) {
+                // the detected $texEngine is not needed here
+                if ($this->isFileMainTexfile($fullfilename, $texEngine)) {
                     $this->debugLog($file .': Mainfile!');
                     $texFiles[] = $fullfilename;
                 }
@@ -476,6 +492,7 @@ class PrepareFiles
             fwrite($fp, 'TARGET.base = #TARGET#' . PHP_EOL);
             fwrite($fp, 'STY.base = #STY#' . PHP_EOL);
             fwrite($fp, 'CLS.base = #CLS#' . PHP_EOL);
+            fwrite($fp, 'TEXENGINEOPT = #TEXENGINEOPT#' . PHP_EOL);
             fwrite($fp, 'include $(PREFIX)/script/make/Makefile.paper.in' . PHP_EOL);
             fclose($fp);
             $this->debugLog("$template created.");
@@ -497,6 +514,7 @@ class PrepareFiles
             string $makeFileDir = '',
             string $destDir = ''
     ) {
+        $cfg = Config::getConfig();
         $this->debugLog(__METHOD__ . ": currentDir is $currentDir");
         $this->debugLog(__METHOD__ . ": destDir is $destDir");
 
@@ -561,7 +579,7 @@ class PrepareFiles
 
                 if ($this->isFileTexfile($dir . '/' . $file)) {
                     $this->debugLog($file . ': possible Tex...');
-                    if ($this->isFileMainTexfile($dir . '/' . $file)) {
+                    if ($this->isFileMainTexfile($dir . '/' . $file, $texEngine)) {
                         $this->debugLog($file .': Mainfile!');
                         $saveDir = getcwd();
                         chdir($dir);
@@ -631,6 +649,9 @@ class PrepareFiles
                         }
                         $targetBase = preg_replace('/\.tex$/', '', $file);
                         $generatedMakefile = str_replace('#TARGET#', $targetBase, $generatedMakefile);
+                        // texEngine needs to be translated into option
+                        $texEngineOpt = $cfg->validPdfTexEngines[$texEngine] ?? '-pdf';
+                        $generatedMakefile = str_replace('#TEXENGINEOPT#', $texEngineOpt, $generatedMakefile);
                         file_put_contents($dir . '/Makefile', $generatedMakefile);
                         chdir($saveDir);
 

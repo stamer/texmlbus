@@ -586,7 +586,7 @@ class UtilFile
 
 
     /**
-     * parse given files to find out whether current is actually a latex file
+     * parse given file to find out whether current is actually a latex file
      */
     public static function isFileLatexfile(string $checkfile): bool
     {
