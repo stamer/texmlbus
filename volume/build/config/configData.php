@@ -99,10 +99,10 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->server->app = new stdClass();
     $config->server->app->latexml = '/opt/latexml/bin/latexml';
 
-    $config->defaultTexProcessor = 'pdflatex';
+    $config->defaultTexEngines = 'pdflatex';
 
-    // List of valid TexProcessors, and translated as option to latexmk.
-    $config->validPdfTexProcessors = [
+    // List of valid TexEngines, and translated as option to latexmk.
+    $config->validPdfTexEngines = [
         'pdftex' => '-pdflatex=pdftex',
         'pdflatex' => '-pdf',
         'xelatex' => '-pdfxe',
@@ -130,10 +130,10 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->xmllint = '/usr/bin/xmllint';
     $config->app->zip = '/usr/bin/zip';
 
-    $config->defaultTexProcessor = 'pdflatex';
+    $config->defaultTexEngine = 'pdflatex';
 
-    // list of valid TexProcessors. Must be supported as option to latexmk
-    $config->validPdfTexProcessors = [
+    // list of valid TexEngines. Must be supported as option to latexmk
+    $config->validPdfTexEngines = [
         'pdftex',
         'pdflatex',
         'xelatex',
