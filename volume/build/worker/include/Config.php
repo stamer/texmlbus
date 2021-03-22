@@ -6,7 +6,7 @@
  *  Configuration
  *
  */
-namespace Server;
+namespace Worker;
 
 use Dmake\BaseConfig;
 use \RangeException;
@@ -22,13 +22,11 @@ class Config extends BaseConfig
 	public static function getConfig(
         ?string $subobj = null,
         bool $useConfigDb = true
-    ) : ?stdClass
+    ): ?stdClass
     {
         if (self::$config === null)
         {
-            $config = parent::getConfig();
-			require __DIR__ . '/../../config/configServer.php';
-
+            $config = parent::getConfig(null, false);
 			self::$config = $config;
 		}
 		if (!is_null($subobj)) {
