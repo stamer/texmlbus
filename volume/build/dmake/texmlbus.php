@@ -5,15 +5,13 @@
  *
  * Distributed make for TeX files.
  *
- * allows make jobs to be distributed among several hosts
- * needs password less ssh login (use public/private key with
- * EMPTY passphrase, the directory on which is worked should
- * be mounted on each host
+ * allows make jobs to be distributed among several hosts.
+ * Host are contacted via api via http.
  *
  * written by Heinrich Stamerjohanns, June 5th, 2007
  *            heinrich@stamerjohanns.de
  *
- * Minimum language level is php 7.3.
+ * Minimum language level is php 7.4.
  *
  */
 

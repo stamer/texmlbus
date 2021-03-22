@@ -7,6 +7,8 @@
 
 namespace Dmake;
 
+use Dmake\ApiResult;
+
 class UtilHost
 {
     public const STAT_DEACTIVATED = 0;
@@ -19,7 +21,6 @@ class UtilHost
     public static function checkHosts(array &$hosts): void
     {
         $cfg = Config::getConfig();
-        $ssh = $cfg->app->ssh;
 
         foreach ($hosts as $hostGroupName => $hostGroup) {
             foreach ($hostGroup as $hostkey => $val) {
@@ -28,23 +29,17 @@ class UtilHost
                     unset($hosts[$hostGroupName][$hostkey]);
                     continue;
                 }
-                $output = array();
-                $return_var = 0;
-                if (isset($val['user'])) {
-                    $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
-                    echo "Testing availability of " . $hostkey . '[' . $val['user'] . '@' . $val['hostname'] . "]..." . PHP_EOL;
-                } else {
-                    $execstr = $ssh . ' ' . $val['hostname'] . ' "echo \'$HOSTNAME\' OK; /bin/cat /proc/meminfo"';
-                    echo "Testing availability of " . $hostkey . '[' . $val['hostname'] . "]..." . PHP_EOL;
-                }
-                exec($execstr, $output, $return_var);
-                if (isset($output[0])) {
-                    $outstr = $output[0];
-                } else {
-                    $outstr = '';
-                }
-                echo $hostkey . ': ' . $return_var . ' ' . $outstr . PHP_EOL;
-                if ($return_var) {
+
+                $apr = new ApiWorkerRequest();
+                $apr->setWorker($val['hostname'])
+                    ->setCommand('meminfo');
+                echo "Testing availability of " . $hostkey . '[@' . $val['hostname'] . "]..." . PHP_EOL;
+                $apiResult = $apr->sendRequest();
+                $output = $apiResult->getOutput();
+                $shellReturnVar =  $apiResult->getShellReturnVar();
+                echo $hostkey . ': ' . $shellReturnVar . ' ' . $output[0] . PHP_EOL;
+
+                if ($shellReturnVar) {
                     echo "Cannot connect, disabling $hostkey for hosts." . PHP_EOL;
                     //$hosts[$hostkey]['status'] = self::STAT_DEACTIVATED;
                     unset($hosts[$hostGroupName][$hostkey]);
@@ -58,26 +53,26 @@ class UtilHost
                     $hosts[$hostGroupName][$hostkey]['memlimitRss'] = $memLimit['rss'];
                     $hosts[$hostGroupName][$hostkey]['memlimitVirtual'] = $memLimit['virtual'];
 
-                    $output = array();
-                    if (isset($val['user'])) {
-                        $execstr = $ssh . ' ' . $val['user'] . '@' . $val['hostname'] . ' cd ' . $val['dir'];
-                    } else {
-                        $execstr = $ssh . ' ' . $val['hostname'] . ' cd ' . $val['dir'];
-                    }
                     echo "Testing whether " . $val['dir'] . " exists..." . PHP_EOL;
-                    exec($execstr, $output, $return_var);
-                    if (isset($output[0])) {
-                        $outstr = $output[0];
-                    } else {
-                        $outstr = '';
-                    }
-                    echo $hostkey . ': ' . $return_var . ' ' . $outstr;
-                    if ($return_var) {
+                    $apr = new ApiWorkerRequest();
+                    $apr->setWorker($val['hostname'])
+                        ->setCommand('checkDir')
+                        ->setDirectory($val['dir']);
+                    $apiResult = $apr->sendRequest();
+                    $output = $apiResult->getOutput();
+
+                    echo $hostkey . ': '
+                        . $apiResult->getShellReturnVar()
+                        . ' '
+                        . $output[0]
+                        . PHP_EOL;
+
+                    if ($apiResult->getShellReturnVar()) {
                         echo "\nUnable to change to " . $val['dir'] . ", removing $hostkey for hosts." . PHP_EOL;
                         //$hosts[$hostkey]['status'] = self::STAT_DEACTIVATED;
                         unset($hosts[$hostGroupName][$hostkey]);
                     } else {
-                        echo "OK\n";
+                        echo "OK" . PHP_EOL;
                     }
                 }
             }
@@ -185,32 +180,9 @@ class UtilHost
                 }
                 continue;
             }
-
-            foreach ($hostArr as $hostname) {
-                $str = '/usr/bin/ssh-keyscan -H ' . $hostname . ' >> /home/dmake/.ssh/known_hosts';
-                exec($str, $output, $return_var);
-                if ($return_var != 0) {
-                    echo __METHOD__ . ': "' . $str . '" failed.' . PHP_EOL;
-                }
-            }
         }
 
         return $hostnames;
-    }
-
-    /**
-     * Run a program on a worker.
-     *
-     * @return mixed|string
-     */
-    public static function runOnWorker($hostGroupName, $execString)
-    {
-        $cfg = Config::getConfig();
-
-        $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' "' . $execString . '"';
-        $retstr = shell_exec($execstr);
-
-        return $retstr;
     }
 
     /**

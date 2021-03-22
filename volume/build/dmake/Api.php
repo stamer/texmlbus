@@ -11,6 +11,12 @@ require_once "IncFiles.php";
 
 use Server\RequestFactory;
 
+/**
+ * For Api calls within Buildsystem.
+ *
+ * Class Api
+ *
+ */
 class Api
 {
     public const NO_ACTION = 128;

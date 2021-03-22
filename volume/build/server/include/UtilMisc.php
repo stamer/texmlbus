@@ -6,6 +6,7 @@
  */
 namespace Server;
 
+use Dmake\ApiWorkerRequest;
 use Dmake\UtilStage;
 
 class UtilMisc
@@ -78,10 +79,14 @@ class UtilMisc
 
         $retArr = [];
         foreach ($hostGroups as $hostGroupName) {
-            $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' ' . $cfg->app->latexml . ' --VERSION 2>&1';
-            $retstr = shell_exec($execstr);
 
-            $arr = preg_split("/[\s)]+/", $retstr);
+            $apr = new ApiWorkerRequest();
+            $apr->setWorker($hostGroupName)
+                ->setCommand('latexmlversion');
+            $apiResult = $apr->sendRequest();
+            $retStr = implode("\n", $apiResult->getOutput());
+
+            $arr = preg_split("/[\s)]+/", $retStr);
             if (isset($arr[3])) {
                 $retArr[] = $hostGroupName . ': ' . $arr[3];
             } else {

@@ -20,7 +20,7 @@ RUN apk update \
     curl \
     git \
     nano \
-    openssh \
+    openssh-keygen \
     openssl \
     openntpd \
     php7 \
@@ -133,14 +133,6 @@ ENV APACHE_SERVER_NAME=dmake
 RUN addgroup dmake \
     && adduser -D -g "" -h "/home/dmake" -G dmake dmake \
     && passwd -u dmake
-
-RUN mkdir /home/dmake/.ssh
-COPY ssh/id_rsa.pub /home/dmake/.ssh/id_rsa.pub
-COPY ssh/id_rsa /home/dmake/.ssh/id_rsa
-
-RUN chown -R dmake:dmake /home/dmake/.ssh \
-    && chmod go-rwx /home/dmake/.ssh/id_rsa \
-    && chmod go-rwx /home/dmake/.ssh
 
 RUN mkdir -p /srv/texmlbus/build \
     && chown -R dmake:dmake /srv \

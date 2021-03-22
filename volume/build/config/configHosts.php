@@ -3,9 +3,9 @@
  * MIT License
  * (c) 2007 - 2019 Heinrich Stamerjohanns
  *
- * Array of hosts on which the jobs should be run
- * each host must be reachable via ssh, directory must be
- * mounted somehow.
+ * Array of hosts on which the jobs should be run.
+ * On these hosts a http server must be run, to be accessible
+ * via api.
  *
  * To change the task, you can either modify the Makefile
  * build/script/make/Makefile.paper.in
@@ -20,7 +20,6 @@ use Dmake\UtilStage;
  */
 define('MAKE_DEFAULT',
        'set -o pipefail; '
-       . $config->app->nice . ' -n 4 '
        . $config->app->make . ' -f Makefile');
 
 // __MAKELOG__ is replaced by $cfg->stages[$stage]->makeLog
@@ -30,7 +29,7 @@ define(
     'MAKE_PDF',
     'set -o pipefail; '
     . $config->app->make . ' -f Makefile pdfclean; '
-    . $config->app->nice . ' -n 4 ' . $config->app->make . ' -f Makefile pdf'
+    . $config->app->make . ' -f Makefile pdf'
 );
 
 /**

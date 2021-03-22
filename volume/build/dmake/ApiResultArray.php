@@ -8,6 +8,12 @@
 
 namespace Dmake;
 
+/**
+ * For Api calls within Buildsystem.
+ *
+ * Class Api
+ *
+ */
 class ApiResultArray extends ApiResult
 {
     protected $successArray;

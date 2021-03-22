@@ -6,9 +6,6 @@
  * Distributed make for ArXiv TeX files.
  *
  * allows make jobs to be distributed among several hosts
- * needs password less ssh login (use public/private key with
- * EMPTY passphrase, the directory on which is worked should
- * be mounted on each host
  *
  * written by Heinrich Stamerjohanns, June 5th, 2007
  *            heinrich@stamerjohanns.de
@@ -133,15 +130,6 @@ class Dmake
     public function grandchildMain($hostGroup, $host, $entry, $stage, $action)
     {
         $cfg = Config::getConfig();
-        $execstr = $cfg->app->ssh;
-
-        // we want to have a pty, otherwise remote killing will NOT work.
-        $args[0] = '-tt';
-        if (isset($host['user'])) {
-            $args[1] = $host['user'] . '@' . $host['hostname'];
-        } else {
-            $args[1] = $host['hostname'];
-        }
 
         $makeCommand = UtilStage::getMakeCommand(
             $host,
@@ -166,18 +154,22 @@ class Dmake
 
         $args[2] .= 'umask 0002; cd \'' . $sourceDir . '\';' . $makeCommand;
 
-        if (DBG_LEVEL & DBG_EXEC) {
-            echo $execstr . PHP_EOL;
-            echo $args[1] . PHP_EOL;
-            echo $args[2] . PHP_EOL;
-        }
 
         // must use pcntl_ since we want to REPLACE current process
-        pcntl_exec($execstr, $args);
+        //pcntl_exec($execstr, $args);
 
-        // pcntl_exec only returns on error
-        echo "Error executing $execstr!\n";
-        return true;
+        $awr = new ApiWorkerRequest();
+        $awr->setWorker('worker')
+            ->setCommand('make')
+            ->setStage($stage)
+            ->setMakeAction($action)
+            ->setDirectory($entry->filename . '/__texmlbus_worker');
+
+        $result = $awr->sendRequest();
+
+        //// pcntl_exec only returns on error
+        //echo "Error executing $execstr!\n";
+        //return true;
     }
 
     /*

@@ -17,6 +17,11 @@ services:
             context: src/latexml_dmake_edge
             dockerfile: Dockerfile
             target: latexml_dmake_edge
+            args:
+                # Sometimes a job (e.g. latexml) may run endlessly, limit
+                # the amount of time a job can run.
+                TIMEOUT_SECONDS: 1200
+
         environment:
             DOCKERIZED: 1
         networks:
@@ -26,11 +31,12 @@ services:
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
             - ./volume/build:/srv/texmlbus/build
-            - optdata_edge:/opt_edge
+            - optrun:/opt/run
+
 
 networks:
     texmlbus_net:
 volumes:
     # shared by latexml-dmake and texmlbus
-    optdata_edge:
+    optrun:
 

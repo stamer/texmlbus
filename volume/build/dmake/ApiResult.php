@@ -11,6 +11,12 @@ namespace Dmake;
 
 use JsonSerializable;
 
+/**
+ * For Api calls within Buildsystem.
+ *
+ * Class Api
+ *
+ */
 class ApiResult implements JsonSerializable
 {
     /**

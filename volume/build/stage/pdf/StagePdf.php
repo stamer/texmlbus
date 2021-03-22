@@ -46,6 +46,7 @@ class StagePdf extends AbstractStage
      */
     public static function register(): array
     {
+        $cfg = Config::getConfig();
         $stage = 'pdf';
         $config = [
             // the name of the stage
@@ -60,6 +61,8 @@ class StagePdf extends AbstractStage
             // therefore two different pdf environments can be used
             'hostGroup' => 'worker',
             // the name of the table where target specific results are stored
+            'command' => 'set -o pipefail; '
+                . $cfg->app->make . ' -f Makefile',
             'dbTable' => 'retval_' . $stage,
             // titles on statistic page
             'tableTitle' => $stage,
