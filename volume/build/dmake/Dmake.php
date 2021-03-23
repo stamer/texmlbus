@@ -88,7 +88,6 @@ class Dmake
         exit;
     }
 
-
     // alarm handler for child
     public function sigAlrm($signo)
     {
@@ -167,6 +166,7 @@ class Dmake
 
         $result = $awr->sendRequest();
 
+        return $result;
         //// pcntl_exec only returns on error
         //echo "Error executing $execstr!\n";
         //return true;
@@ -203,7 +203,8 @@ class Dmake
 
             case 0:
                 // child (grandchild),
-                exit($this->grandchildMain($hostGroup, $host, $entry, $stage, $action));
+                $apiResult = $this->grandchildMain($hostGroup, $host, $entry, $stage, $action);
+                exit($apiResult->getShellReturnVar());
 
             default:
                 // parent (this child)
@@ -233,6 +234,13 @@ class Dmake
                         $pid = pcntl_wait($status);
                         pcntl_signal_dispatch();
                     }
+                }
+
+                $retval = pcntl_wexitstatus($status);
+                echo "Child exit value: $retval" . PHP_EOL;
+
+                if ($retval === CURLE_OPERATION_TIMEDOUT) {
+                    $childAlarmed = true;
                 }
 
                 if (DBG_LEVEL & DBG_CHILD_RETVAL) {

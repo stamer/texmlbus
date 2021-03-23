@@ -168,6 +168,7 @@ class ApiWorkerRequest implements \JsonSerializable
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_TIMEOUT, $cfg->timeout->default);
+        //curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
                            'Content-Type: application/json',
@@ -176,6 +177,9 @@ class ApiWorkerRequest implements \JsonSerializable
         );
 
         $json = curl_exec($ch);
+        if ($json === false) {
+            return new ApiResult(false, 'CURL ERROR', curl_errno($ch));
+        }
 
         $result = json_decode($json, true);
 
