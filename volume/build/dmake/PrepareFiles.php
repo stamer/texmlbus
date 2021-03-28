@@ -580,7 +580,7 @@ class PrepareFiles
                 if ($this->isFileTexfile($dir . '/' . $file)) {
                     $this->debugLog($file . ': possible Tex...');
                     if ($this->isFileMainTexfile($dir . '/' . $file, $texEngine)) {
-                        $this->debugLog($file .': Mainfile!');
+                        $this->debugLog($file . ': Mainfile!');
                         $saveDir = getcwd();
                         chdir($dir);
                         $maintexfile = $dir . '/.maintexfile';
@@ -634,7 +634,12 @@ class PrepareFiles
                         $generatedMakefile = $Makefile;
                         // write Makefile
                         // if we are in subdirectories below Manuscript
-                        $stripped = $this->stripArticleDir($dir);
+                        if ($destDir === '') {
+                            $stripped = $this->stripArticleDir($dir);
+                        } else {
+                            $newDir = str_replace(dirname($currentDir), $destDir, $currentDir);
+                            $stripped = $this->stripArticleDir($newDir);
+                        }
                         // directory might contain trailing slash
                         $stripped = rtrim($stripped, '/');
                         $this->debugLog("Current: " . $currentDir);
