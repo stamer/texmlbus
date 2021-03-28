@@ -1,37 +1,47 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007-2021 Heinrich Stamerjohanns
  *
  *
+ */
+
+/**
+ * File still needs to be 7.3 compatible, as it runs on worker.
  */
 namespace Worker;
 
 use Dmake\ApiWorkerRequest;
 use Dmake\ApiResult;
-use Dmake\ApiResultArray;
 use Server\ServerRequest;
+
+use stdClass;
 
 class ApiWorkerHandler
 {
     private $request;
     private $awr;
+    private $resultAsJson;
 
+    private $childTerminated = false;
     private $path;
     private $action;
+
+    private $debug = true;
 
     public function __construct(
         ServerRequest $request,
         ApiWorkerRequest $awr,
         bool $resultAsJson = false
     ) {
+        pcntl_async_signals(true);
         $this->request = $request;
         $this->awr = $awr;
         $this->resultAsJson = $resultAsJson;
 
         $this->path = parse_url($request->getServerParam('REQUEST_URI'), PHP_URL_PATH);
 
-        $matches = array();
+        $matches = [];
         preg_match('/.*?api\/(.*)$/', $this->path, $matches);
 
         if (empty($matches[1])) {
@@ -41,14 +51,107 @@ class ApiWorkerHandler
         $this->action = $matches[1];
     }
 
+    private function debug($message)
+    {
+        if ($this->debug) {
+            error_log($message);
+        }
+    }
     /**
+     * Possibly kill still running child if the client drops the connection.
+     * @param stdClass $childData
      *
+     */
+    public function apiShutdown($childData)
+    {
+        $this->debug('apiShutdown...');
+
+        if ($childData->signalChildren) {
+            $this->terminateChildren($childData);
+        }
+        exit;
+    }
+
+    private function terminateChildren($childData)
+    {
+        // self and children
+        error_log("Killing child processes...");
+        $processes = array_reverse($this->getProcessChildren($childData->childPid));
+        foreach ($processes as $pid) {
+            $this->debug("Killing $pid");
+            posix_kill($pid, SIGKILL);
+        }
+    }
+
+    /**
+     * Parse process list into array and return a list
+     * of all children (any depth) of given pid.
+     * @param $pid
+     * @return mixed
+     */
+    private function getProcessChildren($pid)
+    {
+        // Possibly alpine specific.
+        $output = shell_exec('/bin/ps -o pid,ppid');
+        $output = trim($output);
+        $lines = explode("\n", $output);
+        $first = true;
+        foreach ($lines as $line) {
+            if ($first) {
+                $first = false;
+                continue;
+            }
+            preg_match('/\s+(\d+)\s+(\d+)/', $line, $matches);
+            $pids[$matches[1]] = $matches[2];
+        }
+        $result = [];
+        $processes = $this->getChildren($pid, $pids, $result);
+        return $processes;
+    }
+
+    /**
+     * Parse data recursively
+     */
+    private function getChildren(int $pid, array $pids, &$result) {
+        if (isset($pids[$pid])) {
+            foreach ($pids as $key => $ppid) {
+                if ($ppid == $pid) {
+                    $result[] = $key;
+                    $this->getChildren($key, $pids, $result);
+                }
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @param int $signo
+     */
+    private function sigUsr2($signo)
+    {
+        // reinstall, older OS might need it
+        pcntl_signal(SIGUSR2, [$this, 'sigUsr2']);
+        $this->debug( "Caught SIGUSR2");
+        $this->childTerminated = true;
+    }
+
+    /**
+     * Also creates output.
      */
     public function execute(): void
     {
+        if ($this->resultAsJson) {
+            header("Content-Type: application/json");
+        } else {
+            // create debug output in browser
+            header("Content-Type: text/plain");
+        }
+
+        $this->debug("Action: $this->action");
+        
         switch ((string)$this->action) {
             case '':
-                $apiResult = new ApiResult(self::NO_ACTION, 'No action given.');
+                $apiResult = new ApiResult(false, 'No action given.');
                 break;
             case 'checkDir':
                 $apiResult = $this->checkDir();
@@ -57,7 +160,7 @@ class ApiWorkerHandler
                 $apiResult = $this->latexmlversion();
                 break;
             case 'make':
-                $apiResult = $this->make();
+                $apiResult = $this->runner();
                 break;
             case 'meminfo':
                 $apiResult = $this->meminfo();
@@ -73,31 +176,154 @@ class ApiWorkerHandler
         }
 
         if ($this->resultAsJson) {
-            header("Content-Type: application/json");
             echo json_encode($apiResult, JSON_OBJECT_AS_ARRAY);
         } else {
             // create debug output in browser
-            header("Content-Type: text/plain");
             echo 'Success: ' . (int)$apiResult->getSuccess() . PHP_EOL;
             echo 'Output: ' . implode(PHP_EOL, $apiResult->getOutput()) . PHP_EOL;
             echo 'ShellReturn: ' . $apiResult->getShellReturnVar() . PHP_EOL;
         }
     }
 
-    public function exitBadRequest($message)
+    public function exitBadRequest(string $message)
     {
         header($this->request->getServerParam('SERVER_PROTOCOL') . ' 400 Bad Request');
+        header("Content-Type: text/plain");
         echo $message;
         exit;
     }
 
-    public function exitError($message)
+    public function exitError(string $message)
     {
         header("Content-Type: text/plain");
         echo $message . PHP_EOL;
         exit;
     }
 
+    public function runner() : ApiResult
+    {
+        $cfg = Config::getConfig();
+        $childData = new stdClass();
+        $childData->signalChildren = false;
+        $childData->childPid = 0;
+        register_shutdown_function([$this, 'apiShutdown'], $childData);
+
+        $pid = pcntl_fork();
+
+        switch ($pid) {
+            case -1:
+                error_log(__METHOD__  . "fork failed");
+                break;
+
+            case 0:
+                // Child
+                // yield()
+                usleep(5);
+                $this->debug("ChildPid: " . posix_getpid() . ', Parent: ' . posix_getppid());
+
+                // do the actual conversion
+                $apiResult = $this->make();
+                $data = serialize($apiResult);
+
+                // A socket pair that would typically be used does not work
+                // for unknown reasons in this php-fpm environment.
+                // Well, files work as well...
+                $filename = '/tmp/ApiResult_' . posix_getpid() . 'obj';
+                file_put_contents($filename, $data);
+
+                // signal parent
+                posix_kill(posix_getppid(), SIGUSR2);
+
+                // Wait to be killed by parent, this process may not
+                // exit in php-fpm environment.
+                // Keep running so grandchildren can be found.
+                sleep(5);
+
+                // Fallback if not yet killed by parent
+                $this->debug('Process ' . posix_getpid() . ' killing itself...');
+                posix_kill(posix_getpid(), SIGTERM);
+                break; // make IDE happy..
+
+            default:
+                // Parent
+                // Install signal handler, so child can signal termination.
+                pcntl_signal(SIGUSR2, [$this, 'sigUsr2']);
+
+                $childData->childPid = $pid;
+                $this->debug('ChildPid: ' . $childData->childPid);
+
+                // In order to detect a dropped connection by the client,
+                // data needs to be sent to client.
+                $i = 0;
+                $childData->signalChildren = true;
+                $this->debug("Waiting for children");
+
+                // Simulate wait() NOHANG, because child may not die.
+                // Therefore child sends SIGUSR2 when finished.
+                // Signal handler sets childTerminated.
+                while (!$this->childTerminated) {
+                    $i++;
+
+                    $this->debug($i . ': Running...');
+
+                    /**
+                     * The connection might be closed by client, long running scripts should finish then.
+                     * In order to detect a dropped connection, data needs to be sent to client.
+                     * php-fpm must be configured to disable output-buffering.
+                     * <Directory ....>
+                     * <FilesMatch "\.php$">
+                     *     SetHandler "proxy:unix:/run/php-fpm.sock|fcgi://localhost"
+                     * </FilesMatch>
+                     * </Directory>
+                     * <Proxy "fcgi://localhost/" enablereuse=on flushpackets=on max=10>
+                     * </Proxy>
+                     */
+                    echo " "; // Send spaces, so json-data is not bothered.
+                    ob_flush();
+                    flush();
+                    sleep(1);
+
+                    // This should never happen as connection will already have been closed by client.
+                    if ($i > $cfg->timeout->default + 5) {
+                        break;
+                    }
+                }
+
+                // Children do not need to be signaled any more,
+                // as all child processes have terminated.
+                if ($this->childTerminated) {
+                    $this->debug('Child terminated...');
+                    $childData->signalChildren = false;
+                } else {
+                    $this->debug('Timeout waiting for child');
+                }
+
+                $filename = '/tmp/ApiResult_' . $childData->childPid . 'obj';
+                if (file_exists($filename)) {
+                    $data = file_get_contents($filename);
+                    unlink($filename);
+                    $apiResult = unserialize($data);
+                } else {
+                    $apiResult = new ApiResult(
+                        false,
+                        'Timout waiting for child',
+                        ApiResult::TIMEOUT
+                    );
+                    // Children are explicitly terminated,
+                    // apiShutdown() should not try again.
+                    $childData->signalChildren = false;
+                    $this->terminateChildren($childData);
+                }
+
+                posix_kill($childData->childPid, SIGKILL);
+
+                // Child processes are already gone, but needs to be called to avoid zombies.
+                // Parent will never actually wait, but child resources are cleaned up.
+                pcntl_waitpid($childData->childPid, $status);
+
+                return $apiResult;
+        }
+    }
 
     public function make() : ApiResult
     {
@@ -116,10 +342,10 @@ class ApiWorkerHandler
         $execStr = 'PATH=/bin:/usr/bin; export PATH;';
         $execStr .= 'cd ' . ARTICLEDIR . '/' . $this->awr->getDirectory() . ';';
         $execStr .= $cfg->stages[$stage]->command . ' ' . $action;
-        if (isset($cfg->stage[$stage]->makelog)) {
-            $execStr .= '2>&1 | tee ' . $cfg->stage[$stage]->makelog;
+        if (isset($cfg->stages[$stage]->makeLog)) {
+            $execStr .= ' 2>&1 | tee ' . $cfg->stages[$stage]->makeLog;
         }
-
+        $this->debug("Executing: $execStr");
         exec($execStr, $output, $shellReturnVar);
 
         $apr->setOutput($output);

@@ -40,22 +40,6 @@ class Dmake
         }
     }
 
-    /**
-     * signal handler for returning grandchildren
-     */
-    public function sigGrandchild($signo)
-    {
-        global $pid;
-
-        // reinstall, older OS might need it
-        pcntl_signal(SIGCHLD, [$this, 'sigGrandchild']);
-
-        if (DBG_LEVEL & DBG_SIGNAL) {
-            echo "Child caught grantchild SIGCHLD\n";
-        }
-    }
-
-
     // install handler for master being killed
     public function sigHup($signo)
     {
@@ -88,45 +72,10 @@ class Dmake
         exit;
     }
 
-    // alarm handler for child
-    public function sigAlrm($signo)
-    {
-        // this variable should be unique in each process
-        global $cpid;
-        // this variable should be unique in each process
-        global $gpid;
-
-        echo "$cpid child alarmed\n";
-
-        // kill grandchildren and therefore remote job
-        if (DBG_LEVEL & DBG_EXEC) {
-            echo "$cpid child: killing grandchild $gpid...\n";
-        }
-        flush();
-        $retval = posix_kill($gpid, SIGTERM);
-        if ($retval) {
-            if (DBG_LEVEL & DBG_ALARM) {
-                echo "SIGTERM SUCCESS\n";
-            }
-        } else {
-            if (DBG_LEVEL & DBG_ALARM) {
-                echo "SIGTERM FAILED\n";
-            }
-            $retval = posix_kill($gpid, SIGKILL);
-            if ($retval) {
-                if (DBG_LEVEL & DBG_ALARM) {
-                    echo "SIGKILL SUCCESS\n";
-                }
-            } elseif (DBG_LEVEL & DBG_ALARM) {
-                echo "SIGKILL FAILED\n";
-            }
-        }
-    }
-
     /*
-     * the code the grandchild runs
+     * prepare request and run on worker
      */
-    public function grandchildMain($hostGroup, $host, $entry, $stage, $action)
+    public function runWorker($hostGroup, $host, $entry, $stage, $action)
     {
         $cfg = Config::getConfig();
 
@@ -191,64 +140,66 @@ class Dmake
          * while grandchild will remotely execute the code
          */
 
-        pcntl_signal(SIGCHLD, [$this, 'sigGrandchild']);
         $cpid = posix_getpid();
 
-        $pid = pcntl_fork();
+        //$pid = pcntl_fork();
 
-        switch ($pid) {
-            case -1:
-                echo "$cpid child_main: fork failed";
-                break;
+        //switch ($pid) {
+          //  case -1:
+          //      echo "$cpid child_main: fork failed";
+          //      break;
 
-            case 0:
+          //  case 0:
                 // child (grandchild),
-                $apiResult = $this->grandchildMain($hostGroup, $host, $entry, $stage, $action);
-                exit($apiResult->getShellReturnVar());
+                $apiResult = $this->runWorker($hostGroup, $host, $entry, $stage, $action);
+                $childAlarmed = ($apiResult->getShellReturnVar() == CURLE_OPERATION_TIMEDOUT);
+                $status = $apiResult->getShellReturnVar();
 
-            default:
-                // parent (this child)
-                if (DBG_LEVEL & DBG_ALARM) {
-                    echo "$cpid child_main: Installing sigAlrm..." . PHP_EOL;
-                }
-                // $gpid is pid of grandchild
-                $gpid = $pid;
-                pcntl_signal(SIGALRM, [$this, 'sigAlrm'], true);
-                pcntl_alarm($timeout);
+          //      exit($apiResult->getShellReturnVar());
+
+          //  default:
+          //      // parent (this child)
+          //      if (DBG_LEVEL & DBG_ALARM) {
+          //          echo "$cpid child_main: Installing sigAlrm..." . PHP_EOL;
+          //      }
+          //      // $gpid is pid of grandchild
+          //      $gpid = $pid;
+          //      pcntl_signal(SIGALRM, [$this, 'sigAlrm'], true);
+          //      pcntl_alarm($timeout);
 
                 // either alarm or child finishes
-                $pid = pcntl_wait($status);
-                pcntl_signal_dispatch();
+          //      $pid = pcntl_wait($status);
+          //      pcntl_signal_dispatch();
 
-                // determine whether alarm went off..
-                if (pcntl_alarm(0)) {
-                    // if alarm still running, remaining seconds are returned...
-                    $childAlarmed = false;
-                } else {
-                    $childAlarmed = true;
-                }
+          //      // determine whether alarm went off..
+          //      if (pcntl_alarm(0)) {
+          //          // if alarm still running, remaining seconds are returned...
+          //          $childAlarmed = false;
+          //      } else {
+          //          $childAlarmed = true;
+          //      }
 
-                if (!$childAlarmed) {
-                    // why was this needed?.. Spurious wakeups?
-                    while (!pcntl_wifexited($status)) {
-                        $pid = pcntl_wait($status);
-                        pcntl_signal_dispatch();
-                    }
-                }
+          //      if (!$childAlarmed) {
+          //          // why was this needed?.. Spurious wakeups?
+          //          while (!pcntl_wifexited($status)) {
+          //              $pid = pcntl_wait($status);
+          //              pcntl_signal_dispatch();
+          //          }
+          //      }
 
-                $retval = pcntl_wexitstatus($status);
-                echo "Child exit value: $retval" . PHP_EOL;
+          //      $retval = pcntl_wexitstatus($status);
+          //      echo "Child exit value: $retval" . PHP_EOL;
 
-                if ($retval === CURLE_OPERATION_TIMEDOUT) {
-                    $childAlarmed = true;
-                }
+          //      if ($retval === CURLE_OPERATION_TIMEDOUT) {
+          //          $childAlarmed = true;
+          //      }
 
-                if (DBG_LEVEL & DBG_CHILD_RETVAL) {
-                    echo "Child returns status: $status" . PHP_EOL;
-                }
-                if (DBG_LEVEL & DBG_ALARM) {
-                    echo "State of childAlarmed: " . (int) $childAlarmed . PHP_EOL;
-                }
+          //      if (DBG_LEVEL & DBG_CHILD_RETVAL) {
+          //          echo "Child returns status: $status" . PHP_EOL;
+          //      }
+          //      if (DBG_LEVEL & DBG_ALARM) {
+          //          echo "State of childAlarmed: " . (int) $childAlarmed . PHP_EOL;
+          //      }
 
                 /*
                  * Parse Logfiles of dependent stages
@@ -294,7 +245,7 @@ class Dmake
                     echo "$cpid child_main: Finishing" . PHP_EOL;
                 }
         }
-    }
+    //}
 }
 
 

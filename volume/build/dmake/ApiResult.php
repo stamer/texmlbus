@@ -19,6 +19,9 @@ use JsonSerializable;
  */
 class ApiResult implements JsonSerializable
 {
+    const RESULT_OK = 0;
+    const TIMEOUT = 99;
+
     /**
      * Success of action
      * @var bool
@@ -67,7 +70,7 @@ class ApiResult implements JsonSerializable
         return $this->output;
     }
 
-    public function getShellReturnVar(): int
+    public function getShellReturnVar(): ?int
     {
         return $this->shellReturnVar;
     }

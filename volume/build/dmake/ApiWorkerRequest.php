@@ -177,8 +177,11 @@ class ApiWorkerRequest implements \JsonSerializable
         );
 
         $json = curl_exec($ch);
+        error_log("Result ApiWorkerRequest: " . print_r($json, 1));
+
         if ($json === false) {
             return new ApiResult(false, 'CURL ERROR', curl_errno($ch));
+            error_log('Curl Error: ' . curl_errno($ch));
         }
 
         $result = json_decode($json, true);
@@ -189,6 +192,7 @@ class ApiWorkerRequest implements \JsonSerializable
             }
             return new ApiResult(false, $json, 99);
         } else {
+
             return new ApiResult($result['success'], $result['output'], $result['shellReturnVar']);
         }
     }
