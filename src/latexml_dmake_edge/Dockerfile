@@ -14,7 +14,10 @@ RUN apk add \
     openrc \
     php-cli \
     php-fpm \
-    php-json
+    php-json \
+    php-pcntl \
+    php-posix \
+    php-sysvshm 
 
 RUN addgroup dmake \
     && adduser -D -g "" -h "/home/dmake" -G dmake dmake \
@@ -39,8 +42,11 @@ ENV TIMEOUT_SECONDS=$TIMEOUT_SECONDS
 # configure apache
 RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/build/worker/htdocs#" /etc/apache2/httpd.conf \
     && sed -i '/LoadModule rewrite_module/s/^#//g' /etc/apache2/httpd.conf \
-    && printf "\n<Directory \"/srv/texmlbus/build/worker/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\n<FilesMatch \"\\.php\$\">\nSetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n</FilesMatch>\n</Directory>\n" >> /etc/apache2/httpd.conf \
-    && sed -i "s#^Timeout.*#Timeout ${TIMEOUT_SECONDS}#" /etc/apache2/conf.d/default.conf
+    && sed -i "s#^Timeout.*#Timeout ${TIMEOUT_SECONDS}#" /etc/apache2/conf.d/default.conf \
+    && printf "\n<Directory \"/srv/texmlbus/build/worker/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\n<FilesMatch \"\\.php\$\">\nSetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "</FilesMatch>\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "</Directory>\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "<Proxy \"fcgi://localhost/\" enablereuse=on flushpackets=on max=10>\n</Proxy>\n" >> /etc/apache2/conf.d/default.conf
 
 # configure php-fpm
 RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \

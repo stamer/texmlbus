@@ -13,6 +13,7 @@ namespace Worker;
 
 use Dmake\ApiWorkerRequest;
 use Dmake\ApiResult;
+
 use Server\ServerRequest;
 
 use stdClass;
@@ -27,7 +28,10 @@ class ApiWorkerHandler
     private $path;
     private $action;
 
+    private $factorSeconds = 5;
+
     private $debug = true;
+
 
     public function __construct(
         ServerRequest $request,
@@ -208,6 +212,11 @@ class ApiWorkerHandler
         $childData->childPid = 0;
         register_shutdown_function([$this, 'apiShutdown'], $childData);
 
+        $startTime = microtime(true);
+
+        // Alternatively SharedTmpFile can be used, it does not
+        // really matter.
+        $shared = new SharedMem();
         $pid = pcntl_fork();
 
         switch ($pid) {
@@ -223,17 +232,12 @@ class ApiWorkerHandler
 
                 // do the actual conversion
                 $apiResult = $this->make();
-                $data = serialize($apiResult);
-
-                // A socket pair that would typically be used does not work
-                // for unknown reasons in this php-fpm environment.
-                // Well, files work as well...
-                $filename = '/tmp/ApiResult_' . posix_getpid() . 'obj';
-                file_put_contents($filename, $data);
+                $result = $shared->put($apiResult);
 
                 // signal parent
                 posix_kill(posix_getppid(), SIGUSR2);
 
+                $shared->detach();
                 // Wait to be killed by parent, this process may not
                 // exit in php-fpm environment.
                 // Keep running so grandchildren can be found.
@@ -281,28 +285,29 @@ class ApiWorkerHandler
                     echo " "; // Send spaces, so json-data is not bothered.
                     ob_flush();
                     flush();
-                    sleep(1);
+
+                    // Might be woken up by signal SIGUSR2
+                    sleep($this->factorSeconds);
 
                     // This should never happen as connection will already have been closed by client.
-                    if ($i > $cfg->timeout->default + 5) {
+                    if ($i * $this->factorSeconds > $cfg->timeout->default + 5) {
                         break;
                     }
                 }
 
-                // Children do not need to be signaled any more,
-                // as all child processes have terminated.
                 if ($this->childTerminated) {
                     $this->debug('Child terminated...');
+                    // Children do not need to be signaled any more,
+                    // as all child processes have terminated.
                     $childData->signalChildren = false;
                 } else {
                     $this->debug('Timeout waiting for child');
                 }
 
-                $filename = '/tmp/ApiResult_' . $childData->childPid . 'obj';
-                if (file_exists($filename)) {
-                    $data = file_get_contents($filename);
-                    unlink($filename);
-                    $apiResult = unserialize($data);
+                if ($this->childTerminated
+                    && $shared->exists()
+                ) {
+                    $apiResult = $shared->get();
                 } else {
                     $apiResult = new ApiResult(
                         false,
@@ -320,6 +325,10 @@ class ApiWorkerHandler
                 // Child processes are already gone, but needs to be called to avoid zombies.
                 // Parent will never actually wait, but child resources are cleaned up.
                 pcntl_waitpid($childData->childPid, $status);
+                $shared->remove();
+
+                $usedTime = microtime(true) - $startTime;
+                error_log("Time needed: $usedTime");
 
                 return $apiResult;
         }

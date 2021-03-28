@@ -6,16 +6,19 @@
  * include all needed files
  */
 
-require __DIR__ . '/../../vendor/autoload.php';
-require_once 'Config.php';
-require_once 'ApiWorkerHandler.php';
-
 $currentDir = dirname(__FILE__);
 $buildDir = dirname(__FILE__, 3);
 
+require __DIR__ . '/../../vendor/autoload.php';
+require_once 'Config.php';
+require_once 'AbstractSharedResource.php';
+require_once 'SharedTmpFile.php';
+require_once 'SharedMem.php';
+require_once 'ApiWorkerHandler.php';
+
+
 use Worker\Config;
 use Dmake\UtilStage;
-use Dmake\ApiWorkerRequest;
 
 Config::getConfig(null, false);
 

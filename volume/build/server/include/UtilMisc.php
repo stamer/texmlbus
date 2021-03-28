@@ -88,7 +88,13 @@ class UtilMisc
 
             $arr = preg_split("/[\s)]+/", $retStr);
             if (isset($arr[3])) {
-                $retArr[] = $hostGroupName . ': ' . $arr[3];
+                $retArr[] = $hostGroupName
+                            . ': ' . $arr[3]
+                            . ';'
+                            . ($arr[4] ?? '')
+                            . ' '
+                            . ($arr[5] ?? '');
+
             } else {
                 $retArr[] = $hostGroupName . ': Unknown';
             }
