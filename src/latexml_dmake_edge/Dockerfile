@@ -17,7 +17,7 @@ RUN apk add \
     php-json \
     php-pcntl \
     php-posix \
-    php-sysvshm 
+    php-sysvshm
 
 RUN addgroup dmake \
     && adduser -D -g "" -h "/home/dmake" -G dmake dmake \
@@ -46,7 +46,19 @@ RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/build/worker/htdocs#" /etc
     && printf "\n<Directory \"/srv/texmlbus/build/worker/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\n<FilesMatch \"\\.php\$\">\nSetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n" >> /etc/apache2/conf.d/default.conf \
     && printf "</FilesMatch>\n" >> /etc/apache2/conf.d/default.conf \
     && printf "</Directory>\n" >> /etc/apache2/conf.d/default.conf \
-    && printf "<Proxy \"fcgi://localhost/\" enablereuse=on flushpackets=on max=10>\n</Proxy>\n" >> /etc/apache2/conf.d/default.conf
+    && printf "# Never use 'enablereuse=on' with unix domain sockets.\n"  >> /etc/apache2/conf.d/default.conf \
+    && printf "# php-fpm will get stuck with processes in finishing state.\n" >> /etc/apache2/conf.d/default.conf\
+    && printf "<Proxy \"fcgi://localhost/\" flushpackets=on max=10>\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "</Proxy>\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "# Enable 'status' and 'ping' page\n"  >> /etc/apache2/conf.d/default.conf \
+    && printf "<LocationMatch \"/(ping|status)\">\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "SetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "</LocationMatch>\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "# Enable *real-time* 'status' page\n"  >> /etc/apache2/conf.d/default.conf \
+    && printf "#<IfModule alias_module>\n"  >> /etc/apache2/conf.d/default.conf \
+    && printf "#Alias /realtime-status \"/var/lib/php7/fpm/status.html\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "#</IfModule>\n" >> /etc/apache2/conf.d/default.conf
+
 
 # configure php-fpm
 RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
@@ -55,8 +67,9 @@ RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
     && sed -i "s#^;listen.owner\s*=.*#listen.owner = dmake#" /etc/php7/php-fpm.d/www.conf \
     && sed -i "s#^;listen.group\s*=.*#listen.group = dmake#" /etc/php7/php-fpm.d/www.conf \
     && sed -i "s#^;listen.mode\s*=.*#listen.mode = 0666#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php7/php-fpm.d/www.conf
-
+    && sed -i "s#^pm.max_children\s*=.*#pm.max_children = 15#" /etc/php7/php-fpm.d/www.conf \
+    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php7/php-fpm.d/www.conf \
+    && sed -i 's#;pm.status_path#pm.status_path#' /etc/php7/php-fpm.d/www.conf
 
 RUN mkdir /bootstrap
 ADD start.sh /bootstrap/
