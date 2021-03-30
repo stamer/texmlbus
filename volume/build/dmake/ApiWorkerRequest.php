@@ -21,6 +21,7 @@ class ApiWorkerRequest implements \JsonSerializable
 {
     protected $worker = '';
     protected $command = '';
+    protected $host;
     protected $stage = '';
     protected $makeAction = '';
     protected $directory = '';
@@ -55,6 +56,24 @@ class ApiWorkerRequest implements \JsonSerializable
     public function setCommand($command)
     {
         $this->command = $command;
+        return $this;
+    }
+
+    /**
+     * @return array|object (via json_decode)
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * @var array|object (via json_decode)
+     * @return ApiWorkerRequest
+     */
+    public function setHost($host): ApiWorkerRequest
+    {
+        $this->host = $host;
         return $this;
     }
 
@@ -161,7 +180,15 @@ class ApiWorkerRequest implements \JsonSerializable
             error_log(__METHOD__ . ": Empty command!");
         }
 
-        $url = sprintf('http://%s/api/%s', $this->getWorker(), $this->getCommand());
+        if (isset($this->getHost()['hostname'])) {
+            // Specific host (by ip).
+            $hostname = $this->getHost()['hostname'];
+        } else {
+            // General host (by hostname).
+            $hostname = $this->getWorker();
+        }
+
+        $url = sprintf('http://%s/api/%s', $hostname, $this->getCommand());
         $data = json_encode($this);
 
         $ch = curl_init($url);

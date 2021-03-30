@@ -14,6 +14,7 @@ namespace Worker;
 use Dmake\ApiWorkerRequest;
 use Dmake\ApiResult;
 
+use Dmake\UtilStage;
 use Server\ServerRequest;
 
 use stdClass;
@@ -348,12 +349,37 @@ class ApiWorkerHandler
             $this->exitBadRequest("Empty action");
         }
 
-        $execStr = 'PATH=/bin:/usr/bin; export PATH;';
-        $execStr .= 'cd ' . ARTICLEDIR . '/' . $this->awr->getDirectory() . ';';
-        $execStr .= $cfg->stages[$stage]->command . ' ' . $action;
-        if (isset($cfg->stages[$stage]->makeLog)) {
-            $execStr .= ' 2>&1 | tee ' . $cfg->stages[$stage]->makeLog;
+        $host = (array) $this->awr->getHost();
+        $makeCommand = UtilStage::getMakeCommand(
+            $host,
+            $action,
+            $cfg->stages[$stage]->makeLog);
+
+        $execStr = '';
+        if (isset($host['path'])) {
+            // We need to put this in front to make sure we get the right latexml
+            $execStr .= 'export PATH=' . $host['path'] . ':$PATH;';
+        } else {
+            $execStr .= 'export PATH=/bin:/usr/bin' . ':$PATH;';
         }
+
+        if (isset($host['memlimitRss'])) {
+            // Limit the amount of memory the worker may use.
+            $execStr .= 'ulimit -m ' . $host['memlimitRss'] . '; ';
+        }
+        if (isset($host['memlimitVirtual'])) {
+            // Limit the amount of memory the worker may use.
+            $execStr .= 'ulimit -v ' . $host['memlimitVirtual'] . '; ';
+        }
+
+        $sourceDir = UtilStage::getSourceDir(
+            $host['dir'],
+            $this->awr->getDirectory(),
+            $this->awr->getWorker()
+        );
+
+        $execStr .= 'umask 0002; cd \'' . $sourceDir . '\';' . $makeCommand;
+
         $this->debug("Executing: $execStr");
         exec($execStr, $output, $shellReturnVar);
 
