@@ -20,8 +20,11 @@ $request = RequestFactory::create();
 // this will only decide whether output is written or returned as json
 // no security implication
 // for ajax requests and format=json return json
-$resultAsJson = ('XMLHttpRequest' == ($request->getServerParam('HTTP_X_REQUESTED_WITH', '')))
-            || ($request->getParam('format', '') === 'json');
+$resultAsJson = (
+    $request->getServerParam('HTTP_X_REQUESTED_WITH', '') === 'XMLHttpRequest'
+    || $request->getParam('format', '') === 'json'
+    || $request->getServerParam('HTTP_ACCEPT') === 'application/json'
+);
 
 if ($cfg->auth->useJwToken) {
     JwToken::authenticate();

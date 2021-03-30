@@ -5,6 +5,7 @@
  *
  */
 
+use Dmake\Config;
 
  /**
   * Class StagePdf
@@ -13,12 +14,16 @@ class StagePdfEdge extends StagePdf
 {
     public static function register(): array
     {
+        $cfg = Config::getConfig();
+
         $stage = 'pdf_edge';
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
             'target' => 'pdf', // pdf is correct
             'hostGroup' => 'worker_edge',
+            'command' => 'set -o pipefail; '
+                . $cfg->app->make . ' -f Makefile',
             'dbTable' => 'retval_' . $stage,
             'tableTitle' => $stage,
             'toolTip' => 'PDF creation.',

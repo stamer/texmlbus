@@ -8,6 +8,7 @@
 namespace Dmake\Clsloader;
 
 use Dmake\AbstractClsLoader;
+use Dmake\ApiWorkerRequest;
 use Dmake\UtilFile;
 use Dmake\UtilHost;
 use Dmake\UtilStylefile;
@@ -27,10 +28,16 @@ class ElsearticleClsLoader extends AbstractClsLoader
 
     public function install() : string
     {
+        // returns full path
         $destDir = parent::install();
-        $execDir = $destDir . '/elsarticle';
-        $execStr = 'cd ' . $execDir .' && /usr/bin/pdftex elsarticle.ins';
-        $result = UtilHost::runOnWorker('worker', $execStr);
+
+        $awr = new ApiWorkerRequest();
+        $awr->setWorker('worker')
+            ->setCommand('pdftex')
+            ->setDirectory($destDir . '/elsarticle')
+            ->setParameter('elsarticle.ins');
+
+        $result = $awr->sendRequest();
         return $destDir;
     }
 }

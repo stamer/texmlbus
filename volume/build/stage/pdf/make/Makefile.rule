@@ -7,7 +7,7 @@ $(TARGET.pdf): %.pdf: %.tex
 	$(LATEXMK) $(TEXENGINEOPT) -f -interaction=nonstopmode $(firstword $<)
 
 pdfclean: backup
-	$(LATEXMK) -C '$(TARGET.base)'
+	$(LATEXMK) $(TEXENGINEOPT) -C '$(TARGET.base)'
 
 CLEAN += pdfclean
 ALLCLEAN += pdfclean

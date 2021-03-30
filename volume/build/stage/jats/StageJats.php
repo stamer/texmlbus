@@ -23,12 +23,16 @@ class StageJats extends AbstractStage
 
     public static function register(): array
     {
+        $cfg = Config::getConfig();
+
         $stage = 'jats';
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
             'target' => $stage,
             'hostGroup' => 'worker',
+            'command' => 'set -o pipefail; '
+                . $cfg->app->make . ' -f Makefile',
             'parseXml' => true,
             'timeout' => 1200,
             'dbTable' => 'retval_' . $stage,

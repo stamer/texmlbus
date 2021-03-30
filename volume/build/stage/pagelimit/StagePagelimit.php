@@ -20,12 +20,16 @@ class StagePagelimit extends AbstractStage
 
     public static function register(): array
     {
+        $cfg = Config::getConfig();
+
         $stage = 'pagelimit';
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
             'target' => $stage,
             'hostGroup' => 'worker',
+            'command' => 'set -o pipefail; '
+                . $cfg->app->make . ' -f Makefile',
             'dbTable' => 'retval_' . $stage,
             'tableTitle' => $stage,
             'toolTip' => $stage,

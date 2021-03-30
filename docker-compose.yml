@@ -46,6 +46,11 @@ services:
             context: src/latexml_dmake
             dockerfile: Dockerfile
             target: latexml_dmake
+            args:
+                # Sometimes a job (e.g. latexml) may run endlessly, limit
+                # the amount of time a job can run.
+                TIMEOUT_SECONDS: 1200
+
         environment:
             DOCKERIZED: 1
         networks:

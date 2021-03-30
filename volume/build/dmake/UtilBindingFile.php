@@ -172,10 +172,14 @@ class UtilBindingFile
         foreach ($hostGroups as $hostGroupName) {
             // the string needs to be \''string'\' ...
             // the string is also base64_encoded, to circumvent encoding " problems
-            $execstr = $cfg->app->ssh . ' dmake@' . $hostGroupName . ' php ' . BUILDDIR . '/script/php/testStyClsSupport.php '
-                . "\\\\\''" . base64_encode(json_encode($parameter)) . "'\\\\\'";
-            $retstr = shell_exec($execstr);
-            $result = json_decode($retstr, true);
+            $apr = new ApiWorkerRequest();
+            $apr->setWorker($hostGroupName)
+                ->setCommand('testStyClsSupport')
+                ->setParameter($parameter);
+            $apiResult = $apr->sendRequest();
+            $retStr = implode("\n", $apiResult->getOutput());
+            // script also encoded answer in json
+            $result = json_decode($retStr, true);
         }
         return $result;
     }

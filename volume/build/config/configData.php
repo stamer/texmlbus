@@ -87,7 +87,6 @@ if ($dockerized || $ostype == 'linux-musl') {
 
     $config->app->make = '/usr/bin/make';
     $config->app->nice = '/bin/nice';
-    $config->app->ssh = '/usr/bin/ssh'; // -o BatchMode=yes;
     $config->app->unrar = '/usr/bin/unrar';
     $config->app->unzip = '/usr/bin/unzip';
     $config->app->wc = '/usr/bin/wc';
@@ -123,7 +122,6 @@ if ($dockerized || $ostype == 'linux-musl') {
 
     $config->app->make = '/usr/bin/make';
     $config->app->nice = '/usr/bin/nice';
-    $config->app->ssh = '/usr/bin/ssh'; // -o BatchMode=yes;
     $config->app->unrar = '/usr/bin/unrar';
     $config->app->unzip = '/usr/bin/unzip';
     $config->app->wc = '/usr/bin/wc';

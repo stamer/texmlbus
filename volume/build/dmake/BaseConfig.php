@@ -26,13 +26,18 @@ class BaseConfig
     /**
      * Gets the config object, or the subobject of config.
      */
-    public static function getConfig(?string $subobj = null): ?stdClass
+    public static function getConfig(
+        ?string $subobj = null,
+        bool $useConfigDb = true
+    ): ?stdClass
     {
         if (self::$config === null) {
             $config = new stdClass();
             require __DIR__ . '/../config/configGeneral.php';
             require __DIR__ . '/../config/configData.php';
-            require __DIR__ . '/../config/configDb.php';
+            if ($useConfigDb) {
+                require __DIR__ . '/../config/configDb.php';
+            }
             self::$config = $config;
         }
 

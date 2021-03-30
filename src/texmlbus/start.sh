@@ -80,14 +80,6 @@ if [ ! -z "$PHP_XDEBUG_ENABLED" ]
 		echo 'xdebug.remote_log=/tmp/xdebug.log' >> /etc/php7/php.ini;
 fi
 
-# find entry for host
-# 'worker' must be defined in docker-compose.yml it is texmlbus_latexml_dmake_1
-/bin grep worker /home/dmake/.ssh/known_hosts >/dev/null 2>&1
-if [[ "$?" != "0" ]]; then
-    ssh-keyscan -H worker >> /home/dmake/.ssh/known_hosts
-    chown dmake:dmake /home/dmake/.ssh/known_hosts
-fi
-
 echo "chmod /srv/texmlbus/articles..."
 if [[ ! -d /srv/texmlbus/articles ]]; then
     echo "Unable to find articles volume!"
