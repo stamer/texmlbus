@@ -37,7 +37,7 @@ class UtilHost
                 $apiResult = $apr->sendRequest();
                 $output = $apiResult->getOutput();
                 $shellReturnVar =  $apiResult->getShellReturnVar();
-                echo $hostkey . ': ' . $shellReturnVar . ' ' . $output[0] . PHP_EOL;
+                // echo $hostkey . ': ' . $shellReturnVar . ' ' . $output[0] . PHP_EOL;
 
                 if ($shellReturnVar) {
                     echo "Cannot connect, disabling $hostkey for hosts." . PHP_EOL;
