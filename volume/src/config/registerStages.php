@@ -17,7 +17,7 @@ $config = Config::getConfig();
 
 // this file carries the current dynamically determined
 // list of active stages
-define('ACTIVESTAGESFILE', BUILDDIR . '/run/activestages.json');
+define('ACTIVESTAGESFILE', SRCDIR . '/run/activestages.json');
 
 /*
  * The list of (enabled) stages.

@@ -479,7 +479,7 @@ class PrepareFiles
             $this->debugLog("Directory: " . $directory);
             $this->debugLog("stripped: " . $this->stripArticleDir($directory));
             $this->debugLog(__METHOD__ . ": numBaseDir: " . $numBaseDir);
-            $prefix = str_repeat('../', $numBaseDir) . '../../build';
+            $prefix = str_repeat('../', $numBaseDir) . '../../src';
             $this->debugLog(__METHOD__ . ": prefix: " . $prefix);
 
             $fp = fopen($template, 'w');

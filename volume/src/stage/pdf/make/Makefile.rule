@@ -1,7 +1,7 @@
 # Makefile.rule
 # defines the rule, which consists of target, prerequisite and recipe.
 
-# compatibility for old Makefile.texmplate
+# compatibility for old Makefile.template
 TEXENGINEOPT ?= -pdf
 $(TARGET.pdf): %.pdf: %.tex
 	$(LATEXMK) $(TEXENGINEOPT) -f -interaction=nonstopmode $(firstword $<)

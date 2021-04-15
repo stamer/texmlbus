@@ -136,6 +136,10 @@ if [[ ! -d /opt/run ]]; then
 fi
 chmod ugo+rwx /opt/run
 
+if [[ ! -e /srv/texmlbus/build ]]; then
+    ln -s /srv/texmlbus/src /srv/texmlbus/build
+fi
+
 cd /srv/texmlbus/src/
 sudo -u dmake /usr/local/bin/composer install
 
