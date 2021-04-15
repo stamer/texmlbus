@@ -32,7 +32,7 @@ services:
 
     latexml:
         build:
-            context: src/LaTeXML
+            context: docker/LaTeXML
             dockerfile: ../LaTeXML-Dockerfile
             #dockerfile: release/docker/Dockerfile
             target: latexml_base
@@ -43,7 +43,7 @@ services:
 
     latexml_dmake:
         build:
-            context: src/latexml_dmake
+            context: docker/latexml_dmake
             dockerfile: Dockerfile
             target: latexml_dmake
             args:
@@ -59,12 +59,12 @@ services:
                     - worker
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
-            - ./volume/build:/srv/texmlbus/build
+            - ./volume/src:/srv/texmlbus/src
             - optrun:/opt/run
 
     texmlbus:
         build:
-            context: src/texmlbus
+            context: docker/texmlbus
             dockerfile: Dockerfile
         depends_on:
             - mariadb
@@ -111,9 +111,9 @@ services:
             - "127.0.0.1:${TEXMLBUS_HTTPS:-8443}:443"
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
-            - ./volume/build:/srv/texmlbus/build
+            - ./volume/src:/srv/texmlbus/src
             # have access to latexmls style files
-            - ./src/LaTeXML:/opt/latexml
+            - ./docker/LaTeXML:/opt/latexml
             - optrun:/opt/run
         command: '/bin/bash'
 

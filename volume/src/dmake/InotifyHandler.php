@@ -53,7 +53,7 @@ class InotifyHandler
             $this->active = true;
         }
         if ($this->debug) {
-            error_log('BUILDDIR: ' . BUILDDIR);
+            error_log('SRCDIR: ' . SRCDIR);
         }
 
         $hostGroups = UtilStage::getHostGroups();

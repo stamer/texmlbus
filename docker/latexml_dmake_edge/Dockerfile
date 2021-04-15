@@ -40,10 +40,10 @@ COPY apps/latexpand/latexpand /usr/bin
 
 ENV TIMEOUT_SECONDS=$TIMEOUT_SECONDS
 # configure apache
-RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/build/worker/htdocs#" /etc/apache2/httpd.conf \
+RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/worker/htdocs#" /etc/apache2/httpd.conf \
     && sed -i '/LoadModule rewrite_module/s/^#//g' /etc/apache2/httpd.conf \
     && sed -i "s#^Timeout.*#Timeout ${TIMEOUT_SECONDS}#" /etc/apache2/conf.d/default.conf \
-    && printf "\n<Directory \"/srv/texmlbus/build/worker/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\n<FilesMatch \"\\.php\$\">\nSetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "\n<Directory \"/srv/texmlbus/src/worker/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\n<FilesMatch \"\\.php\$\">\nSetHandler \"proxy:unix:/run/php-fpm.sock|fcgi://localhost\"\n" >> /etc/apache2/conf.d/default.conf \
     && printf "</FilesMatch>\n" >> /etc/apache2/conf.d/default.conf \
     && printf "</Directory>\n" >> /etc/apache2/conf.d/default.conf \
     && printf "# Never use 'enablereuse=on' with unix domain sockets.\n"  >> /etc/apache2/conf.d/default.conf \

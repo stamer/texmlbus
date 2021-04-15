@@ -25,7 +25,7 @@ $className = $request->getQueryParam('name', '');
 
 if (!empty($className)) {
     try {
-        $filename = BUILDDIR . '/dmake/clsloader/' . $className . '.php';
+        $filename = SRCDIR . '/dmake/clsloader/' . $className . '.php';
         require_once $filename;
         $nsClassName = "Dmake\\ClsLoader\\" . $className;
         $obj = new $nsClassName;

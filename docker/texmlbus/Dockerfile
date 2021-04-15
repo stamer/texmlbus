@@ -113,12 +113,12 @@ RUN sed -i "s/#LoadModule\ rewrite_module/LoadModule\ rewrite_module/" /etc/apac
     && sed -i "s/#LoadModule\ session_cookie_module/LoadModule\ session_cookie_module/" /etc/apache2/httpd.conf \
     && sed -i "s/#LoadModule\ session_crypto_module/LoadModule\ session_crypto_module/" /etc/apache2/httpd.conf \
     && sed -i "s/#LoadModule\ deflate_module/LoadModule\ deflate_module/" /etc/apache2/httpd.conf \
-    && sed -i "s#^DocumentRoot \".*#DocumentRoot \"/srv/texmlbus/build/server/htdocs\"#g" /etc/apache2/httpd.conf \
-    && sed -i "s#^DocumentRoot \".*#DocumentRoot \"/srv/texmlbus/build/server/htdocs\"#g" /etc/apache2/conf.d/ssl.conf \
-    && sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/build/server/htdocs#" /etc/apache2/httpd.conf \
-    && sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/build/server/htdocs#" /etc/apache2/conf.d/ssl.conf \
-    && printf "\n<Directory \"/srv/texmlbus/build/server/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\nIndexOptions Charset=utf8 FancyIndexing HTMLTable ScanHTMLTitles\nOptions -ExecCGI -Includes\nIndexIgnore .gitignore .ht* upload\\nAddType text/plain .log\n<IfModule mod_expires.c>\nExpiresActive On\nExpiresDefault \"access plus 1 second\"\n</IfModule>\n</Directory>\n" >> /etc/apache2/httpd.conf \
-    && printf "\n<Directory \"/srv/texmlbus/build/server/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\nIndexOptions Charset=utf-8 FancyIndexing HTMLTable ScanHTMLTitles\nOptions +Indexes -ExecCGI -Includes\nIndexIgnore .gitignore .ht* upload\nAddType text/plain .log\n<IfModule mod_expires.c>\nExpiresActive On\nExpiresDefault \"access plus 1 second\"\n</IfModule>\n</Directory>\n" >> /etc/apache2/conf.d/ssl.conf \
+    && sed -i "s#^DocumentRoot \".*#DocumentRoot \"/srv/texmlbus/src/server/htdocs\"#g" /etc/apache2/httpd.conf \
+    && sed -i "s#^DocumentRoot \".*#DocumentRoot \"/srv/texmlbus/src/server/htdocs\"#g" /etc/apache2/conf.d/ssl.conf \
+    && sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/server/htdocs#" /etc/apache2/httpd.conf \
+    && sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/server/htdocs#" /etc/apache2/conf.d/ssl.conf \
+    && printf "\n<Directory \"/srv/texmlbus/src/server/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\nIndexOptions Charset=utf8 FancyIndexing HTMLTable ScanHTMLTitles\nOptions -ExecCGI -Includes\nIndexIgnore .gitignore .ht* upload\\nAddType text/plain .log\n<IfModule mod_expires.c>\nExpiresActive On\nExpiresDefault \"access plus 1 second\"\n</IfModule>\n</Directory>\n" >> /etc/apache2/httpd.conf \
+    && printf "\n<Directory \"/srv/texmlbus/src/server/htdocs\">\nAllowOverride All\nAddDefaultCharset utf-8\nIndexOptions Charset=utf-8 FancyIndexing HTMLTable ScanHTMLTitles\nOptions +Indexes -ExecCGI -Includes\nIndexIgnore .gitignore .ht* upload\nAddType text/plain .log\n<IfModule mod_expires.c>\nExpiresActive On\nExpiresDefault \"access plus 1 second\"\n</IfModule>\n</Directory>\n" >> /etc/apache2/conf.d/ssl.conf \
     && printf "\nAlias \"/files\" \"/srv/texmlbus/articles\"\n" >> /etc/apache2/httpd.conf \
     && printf "\nAlias \"/files\" \"/srv/texmlbus/articles\"\n" >> /etc/apache2/ssl.conf \
     && printf "\n<Directory \"/srv/texmlbus/articles\">\nRequire all granted\nAllowOverride All\nAddDefaultCharset utf-8\nIndexOptions Charset=utf-8 FancyIndexing HTMLTable ScanHTMLTitles\nOptions +Indexes -ExecCGI -Includes\nIndexIgnore .gitignore .ht* upload\nAddType text/plain .log\n<IfModule mod_expires.c>\nExpiresActive On\nExpiresDefault \"access plus 1 second\"\n</IfModule>\n</Directory>\n" >> /etc/apache2/httpd.conf \
@@ -134,11 +134,11 @@ RUN addgroup dmake \
     && adduser -D -g "" -h "/home/dmake" -G dmake dmake \
     && passwd -u dmake
 
-RUN mkdir -p /srv/texmlbus/build \
+RUN mkdir -p /srv/texmlbus/src \
     && chown -R dmake:dmake /srv \
     && chmod -R 755 /srv
 
-VOLUME ["/srv/texmlbus/build"]
+VOLUME ["/srv/texmlbus/src"]
 
 # installation finished
 RUN rm -f /var/cache/apk/*

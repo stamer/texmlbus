@@ -3,7 +3,7 @@ version: '3.4'
 services:
     latexml_edge:
         build:
-            context: src/LaTeXML_edge
+            context: docker/LaTeXML_edge
             dockerfile: ../LaTeXML-Dockerfile_edge
             #dockerfile: release/docker/Dockerfile
             target: latexml_base_edge
@@ -14,7 +14,7 @@ services:
 
     latexml_dmake_edge:
         build:
-            context: src/latexml_dmake_edge
+            context: docker/latexml_dmake_edge
             dockerfile: Dockerfile
             target: latexml_dmake_edge
             args:
@@ -30,7 +30,7 @@ services:
                     - worker_edge
         volumes:
             - ./volume/articles:/srv/texmlbus/articles
-            - ./volume/build:/srv/texmlbus/build
+            - ./volume/src:/srv/texmlbus/src
             - optrun:/opt/run
 
 

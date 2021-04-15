@@ -455,7 +455,7 @@ class ApiWorkerHandler
             $this->exitBadRequest('Empty Parameter');
         }
 
-        $execStr = '/usr/bin/php ' . BUILDDIR . '/script/php/testStyClsSupport.php '
+        $execStr = '/usr/bin/php ' . SRCDIR . '/script/php/testStyClsSupport.php '
             . "\\\\\''" . base64_encode(json_encode($parameter)) . "'\\\\\'";
 
         exec($execStr, $output, $shellReturnVar);

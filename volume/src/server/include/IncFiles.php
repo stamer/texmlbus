@@ -8,12 +8,12 @@
 
 require __DIR__ . '/../../vendor/autoload.php';
 $currentDir = dirname(__FILE__);
-$buildDir = dirname(__FILE__, 3);
+$srcDir = dirname(__FILE__, 3);
 
 use Server\Config;
 use Dmake\UtilStage;
 
-require_once $buildDir .'/config/registerStages.php';
+require_once $srcDir .'/config/registerStages.php';
 
 // some stages might have been disabled.
 UtilStage::determineActiveStages();

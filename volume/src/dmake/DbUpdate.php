@@ -19,7 +19,7 @@ namespace Dmake;
  */
 class DbUpdate
 {
-    public const UPGRADEDIR = BUILDDIR . '/config/sql';
+    public const UPGRADEDIR = SRCDIR . '/config/sql';
 
     public function execute(): void
     {

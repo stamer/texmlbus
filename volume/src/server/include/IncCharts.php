@@ -5,7 +5,7 @@
  *
  * include all needed files
  */
-$buildDir = dirname(__FILE__, 3);
-//require_once $buildDir . '/dmake/ChartJs.php';
-//require_once $buildDir . '/dmake/ChartJsDataset.php';
-//require_once $buildDir . '/dmake/HistorySum.php';
+$srcDir = dirname(__FILE__, 3);
+//require_once $srcDir . '/dmake/ChartJs.php';
+//require_once $srcDir . '/dmake/ChartJsDataset.php';
+//require_once $srcDir . '/dmake/HistorySum.php';

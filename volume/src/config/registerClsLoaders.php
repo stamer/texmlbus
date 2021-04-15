@@ -18,7 +18,7 @@ $config = Config::getConfig();
 
 // this file carries the current dynamically determined
 // list of active stages
-define('CLSLOADERDIR', BUILDDIR . '/dmake/clsloader');
+define('CLSLOADERDIR', SRCDIR . '/dmake/clsloader');
 
 $files = UtilFile::listDir(
     CLSLOADERDIR,

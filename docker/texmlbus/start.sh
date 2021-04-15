@@ -136,7 +136,7 @@ if [[ ! -d /opt/run ]]; then
 fi
 chmod ugo+rwx /opt/run
 
-cd /srv/texmlbus/build/
+cd /srv/texmlbus/src/
 sudo -u dmake /usr/local/bin/composer install
 
 # Start (ensure apache2 PID not left behind first) to stop auto start crashes if didn't shut down properly
@@ -149,4 +149,4 @@ echo "Starting apache..."
 httpd
 
 echo "Starting texmlbus..."
-sudo DOCKERIZED=${DOCKERIZED} MYSQL_USER=${MYSQL_USER} MYSQL_PASSWORD=${MYSQL_PASSWORD} MYSQL_HOST=${MYSQL_HOST} MYSQL_DATABASE=${MYSQL_DATABASE} DBG_LEVEL=${DBG_LEVEL} TIMEOUT_SECONDS=${TIMEOUT_SECONDS} MEMLIMIT_PERCENT=${MEMLIMIT_PERCENT} MEMLIMIT_ABSOLUTE=${MEMLIMIT_ABSOLUTE} -u dmake /usr/bin/php /srv/texmlbus/build/dmake/texmlbus.php
+sudo DOCKERIZED=${DOCKERIZED} MYSQL_USER=${MYSQL_USER} MYSQL_PASSWORD=${MYSQL_PASSWORD} MYSQL_HOST=${MYSQL_HOST} MYSQL_DATABASE=${MYSQL_DATABASE} DBG_LEVEL=${DBG_LEVEL} TIMEOUT_SECONDS=${TIMEOUT_SECONDS} MEMLIMIT_PERCENT=${MEMLIMIT_PERCENT} MEMLIMIT_ABSOLUTE=${MEMLIMIT_ABSOLUTE} -u dmake /usr/bin/php /srv/texmlbus/src/dmake/texmlbus.php

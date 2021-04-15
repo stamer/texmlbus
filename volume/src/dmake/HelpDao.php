@@ -18,7 +18,7 @@ class HelpDao
     public static $placeholder =  [
         '__BASEDIR__' => BASEDIR,
         '__MAKEDIR__' => MAKEDIR,
-        '__BUILDDIR__' =>  BUILDDIR,
+        '__SRCDIR__' =>  SRCDIR,
         '__ARTICLEDIR__' => ARTICLEDIR,
         '__UPLOADDIR__' => UPLOADDIR,
         '__STYDIR__' =>  STYDIR,

@@ -23,7 +23,7 @@ define('MAKEDIR', BASEDIR);
 /**
  * Location of sourcecode.
  */
-define('BUILDDIR', BASEDIR . '/build');
+define('SRCDIR', BASEDIR . '/src');
 
 /**
  * Location of articles.
@@ -43,22 +43,22 @@ define('UPLOADDIR', ARTICLEDIR . '/upload');
 /**
  * Location of additional sty/ltxml files provided by build system
  */
-define('STYDIR', BUILDDIR . '/sty');
+define('STYDIR', SRCDIR . '/sty');
 
 /**
  * Location of additional programs
  */
-define('BINDIR', BUILDDIR . '/bin');
+define('BINDIR', SRCDIR . '/bin');
 
 /**
  * @deprecated
  */
-define('STYARXMLIVDIR', BUILDDIR . '/sty.arxmliv');
+define('STYARXMLIVDIR', SRCDIR . '/sty.arxmliv');
 
 /**
  * Location of webserver related files.
  */
-define('SERVERDIR', BUILDDIR . '/server');
+define('SERVERDIR', SRCDIR . '/server');
 
 /**
  * Location of publically accessible files of webserver

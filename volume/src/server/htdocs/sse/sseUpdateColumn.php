@@ -7,10 +7,10 @@
  */
 require_once "../../include/IncFiles.php";
 /**
- * @var string $buildDir
+ * @var string $srcDir
  */
-require_once $buildDir . '/dmake/InotifyHandler.php';
-require_once $buildDir . '/dmake/StatEntry.php';
+require_once $srcDir . '/dmake/InotifyHandler.php';
+require_once $srcDir . '/dmake/StatEntry.php';
 
 use Dmake\InotifyHandler;
 use Dmake\RetvalDao;
