@@ -1,6 +1,6 @@
-function deleteSet(element, set)
+function dropSet(element, set)
 {
-    modalConfirm('Delete set', 'Articles will be deleted in database and also from the filesystem.<br />Do you really want to delete set <em>' + set + '</em>?', function() {
+    modalConfirm('Drop set', 'Articles will be removed from DB, but will stay in filesystem.<br />Do you really want to drop set <em>' + set + '</em>?', function() {
         showMessage('Deleting ' + set + '...',
                     '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Scanning and importing...</span></div></div>',
                     ''
@@ -12,7 +12,7 @@ function deleteSet(element, set)
         });
 
         $.ajax({
-            url: "/ajax/deleteSet.php?set=" + set,
+            url: "/ajax/dropSet.php?set=" + set,
             method: "GET",
             dataType: 'json',
             success: function (data) {
@@ -27,15 +27,15 @@ function deleteSet(element, set)
                     if (data.result['message']) {
                         message += '<h5>' + data.result['message'] + '</h5>';
                     }
-                    if (data.result['documentsDeleted']) {
-                        message += data.result['documentsDeleted'] + " article" + (data.result['documentsDeleted'] != 1 ? 's' : '') + " deleted from set <em>" + data.result['destSet'] + "</em>.";
+                    if (data.result['documentsDropped']) {
+                        message += data.result['documentsDropped'] + " article" + (data.result['documentsDropped'] != 1 ? 's' : '') + " dropped from set <em>" + data.result['destSet'] + "</em>.";
                         msgClass = 'success';
                         fadeMsec = 1000;
                     } else {
-                        message += "No articles have been deleted.";
+                        message += "No articles have been dropped.";
                         msgClass = 'info';
                     }
-                    showMessage('Sets Delete', message, msgClass, 2500);
+                    showMessage('Sets Drop', message, msgClass, 2500);
                     $(element).parent('div').hide();
                 }
             },
@@ -45,6 +45,6 @@ function deleteSet(element, set)
             }
         });
     }, function() {
-            showMessage('Deleting set ' + set, 'Delete action canceled.', 'info', 1500);
+            showMessage('Dropping set ' + set, 'Drop action canceled.', 'info', 1500);
     });
 }

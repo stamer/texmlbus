@@ -15,6 +15,7 @@ $dao = Dao::getInstance();
 
 $page = new Page('Manage Sets');
 $page->addScript('/js/deleteSet.js');
+$page->addScript('/js/dropSet.js');
 $page->addCss('
 <link href="/css/select2.min.css" rel="stylesheet" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -57,6 +58,11 @@ echo '<h4>Manage Sets ' . $page->info('manageSets') . '</h4>';
 ?>
     <div style="margin-bottom: 10px;">
 
+        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="dropSet(this, '<?=htmlspecialchars($set->getName())?>')">
+            <i class="fas fa-times-circle"></i>
+            <span></span>
+        </button>
+        &nbsp;
         <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSet(this, '<?=htmlspecialchars($set->getName())?>')">
             <i class="fas fa-trash"></i>
               <span></span>

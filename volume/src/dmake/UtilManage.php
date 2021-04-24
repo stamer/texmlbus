@@ -61,21 +61,28 @@ class UtilManage
     }
 
     /**
-     * deletes a complete set from DB and filesystem
+     * deletes a complete set only from DB
      */
-    public static function deleteSet(string $set): int
+    public static function dropSet(string $set): int
     {
         // find all entries for set
         $ids = StatEntry::getIdsBySet($set);
         $count = 0;
-        foreach ($ids as $id)
-        {
+        foreach ($ids as $id) {
             // delete entries in all retval tables
-           self::deleteFromAllRetvalTablesById($id);
+            self::deleteFromAllRetvalTablesById($id);
             // delete entry in StatEntry
-           $result = StatEntry::deleteById($id);
-           $count += (int) $result;
+            $result = StatEntry::deleteById($id);
+            $count += (int)$result;
         }
+        return $count;
+    }
+    /**
+     * deletes a complete set from DB and filesystem
+     */
+    public static function deleteSet(string $set): int
+    {
+        $count = self::dropSet($set);
         // delete all files in set
         UtilFile::deleteDirR(ARTICLEDIR . '/' . $set);
         return $count;
