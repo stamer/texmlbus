@@ -1,4 +1,4 @@
-PREFIX = ../../build
+PREFIX = ../../src
 include $(PREFIX)/script/make/Makefile.paper.vars
 TARGET.base = #TARGET#
 STY.base = #STY#
