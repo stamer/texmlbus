@@ -30,13 +30,31 @@ class UtilHost
                     continue;
                 }
 
-                $apr = new ApiWorkerRequest();
-                $apr->setWorker($val['hostname'])
-                    ->setCommand('meminfo');
-                echo "Testing availability of " . $hostkey . '[@' . $val['hostname'] . "]..." . PHP_EOL;
-                $apiResult = $apr->sendRequest();
-                $output = $apiResult->getOutput();
-                $shellReturnVar =  $apiResult->getShellReturnVar();
+                // some hosts may not yet be available, try several times and wait.
+                $count = 1;
+                $maxTries = 4;
+                while ($count < $maxTries) {
+                    $apr = new ApiWorkerRequest();
+                    $apr->setWorker($val['hostname'])
+                        ->setCommand('meminfo');
+                    echo "$count: Testing availability of " . $hostkey . '[@' . $val['hostname'] . "]..." . PHP_EOL;
+                    $apiResult = $apr->sendRequest();
+                    $output = $apiResult->getOutput();
+                    $shellReturnVar = $apiResult->getShellReturnVar();
+                    if (!$shellReturnVar) {
+                        // Success
+                        break;
+                    } else {
+                        $count++;
+                        if ($count == $maxTries) {
+                            // no need to wait any more
+                            break;
+                        }
+                        $sleepSeconds = 2;
+                        echo "$count: Cannot connect to $hostkey, sleeping $sleepSeconds seconds..." . PHP_EOL;
+                        sleep($sleepSeconds);
+                    }
+                }
                 // echo $hostkey . ': ' . $shellReturnVar . ' ' . $output[0] . PHP_EOL;
 
                 if ($shellReturnVar) {
