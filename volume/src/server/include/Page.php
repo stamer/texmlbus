@@ -234,6 +234,7 @@ class Page
                     echo '  <li class=""><a href="/installSty.php">Install class and sty files</a></li>' . PHP_EOL;
                     echo '  <li class="mt-3"><a href="/createSamples.php">Create sample set</a></li>' . PHP_EOL;
                     echo '  <li class=""><a href="/createLatexmlTest.php">Create latexml test-cases set</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/fixMakefiles.php">Fix Makefiles</a></li>' . PHP_EOL;
                     echo '</ul>' . PHP_EOL;
                     ?>
                 </div>

@@ -503,6 +503,39 @@ class PrepareFiles
     }
 
     /**
+     * Code has been moved from build to src.
+     * Makefiles will still work inside docker, but not outside.
+     * Adapt Makefiles accordingly.
+     * @return int
+     */
+    public function fixMakefile(string $directory)
+    {
+        $files = ['Makefile', 'Makefile.template'];
+        $totalCount = 0;
+        foreach ($files as $file) {
+            $filename = $directory . '/' . $file;
+            error_log($filename);
+            if (!is_file($filename)) {
+                continue;
+            }
+            $count = 0;
+            $content = file_get_contents($filename);
+            $content = preg_replace('/^PREFIX =(.*)build$/m', 'PREFIX = ${1}src', $content, -1, $count);
+
+            if ($count) {
+                $result = file_put_contents($filename, $content);
+                if (!$result) {
+                    error_log("Failed to write to $filename!");
+                    $count = 0;
+                }
+            }
+            $totalCount += $count;
+        }
+
+        return $totalCount;
+    }
+
+    /**
      * Tries to import a tex file in the given directory.
      * If $destDir is not empty, it will be moved to $destDir.
      * It also implicitly assumes that file has been uploaded to UPLOADDIR/tmp ...
@@ -776,6 +809,17 @@ class PrepareFiles
             }
         }
         return $retval ?? self::FILENOTFOUND;
+    }
+
+    /**
+     * Returns all children of given directory.
+     */
+    public function getAllSubDirs(string $directory): array
+    {
+        $result_dirs = array($directory);
+        $current_depth = 0;
+        UtilFile::listDirR($directory, $result_dirs, $current_depth, true, true, '');
+        return $result_dirs;
     }
 
     /**
