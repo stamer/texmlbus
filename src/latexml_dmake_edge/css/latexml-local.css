@@ -1,6 +1,0 @@
-/*
- * needs to be changed at two places:
- * src/latexml_dmake/css/latexml-local.css
- * volume/build/server/htdocs/css/latexml-local.css
- */
-.ltx_page_main { background-color: white; }

@@ -1,7 +1,0 @@
-PREFIX = ../../build
-include $(PREFIX)/script/make/Makefile.paper.vars
-TARGET.base = #TARGET#
-STY.base = #STY#
-CLS.base = #CLS#
-TEXENGINEOPT = #TEXENGINEOPT#
-include $(PREFIX)/script/make/Makefile.paper.in

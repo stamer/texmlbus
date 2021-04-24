@@ -1,0 +1,6 @@
+/*
+ * needs to be changed at two places:
+ * docker/latexml_dmake/css/latexml-local.css
+ * volume/src/server/htdocs/css/latexml-local.css
+ */
+.ltx_page_main { background-color: white; }
