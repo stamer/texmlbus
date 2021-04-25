@@ -20,6 +20,12 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Ma
 8. # press Ctrl-C to stop the system.
 ```
 
+## Run several workers
+In order to run several (here three) workers in parallel enter
+```
+docker-compose up --scale latexml_dmake=3
+```
+
 ## Usage
 
 Install and start the app as described above.
@@ -31,6 +37,10 @@ Install and start the app as described above.
 4. Goto <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_documents_start.png" target="_texmlbus">Documents alphabetically</a> to see the documents.
 5. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_sample_documents.png" target="_texmlbus">__queue__</a> to convert a document.
 6. Click on <a href="https://github.com/stamer/texmlbus/wiki/images/texmlbus_sample_documents.png" target="_texmlbus">__Destfile__</a> to see the converted document.
+
+## Upgrade ##
+
+If you upgrade from previous versions, you might want to adapt your makefiles to the new source code layout. Go to `Import / Manage` --> Fix Makefiles and click on the button there. 
 
 ## Documentation
 
