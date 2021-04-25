@@ -26,7 +26,7 @@
 
 \author{Heinrich Stamerjohanns}
 
-\date{2020-05-17}
+\date{2021-04-25}
 
 \usepackage{fancyhdr}
 \usepackage{xcolor}
@@ -92,10 +92,10 @@
 \section{TeX BUild System for Markup Languages}
 
 \subsection{Overview}
-Texmlbus supports the conversion process of documents written in \latex .
-Documents can not only converted to pdf, but also to other output formats -- in particular markup languages such as html. In particular, conversion to XML and MathML is supported via [LaTeXML](https://dlmf.nist.gov/LaTeXML/). Texmlbus can schedule jobs among several workers (possibly on different hosts), extract and analyze the conversion process of each document and store results in its own database. Result documents as well as statistics about the results of the build process can be easily retrieved using a web browser.
+Texmlbus (Tex to XML BUild System) supports the conversion process of documents written in \latex .
+Documents can not only be converted to pdf, but also to other output formats -- such as markup languages like html. In particular, conversion to XML, HTML and MathML is supported via \href{https://dlmf.nist.gov/LaTeXML/}{LaTeXML}. Texmlbus can schedule jobs among several workers (possibly on different hosts), can extract and analyze the conversion process of each document and store results in its own database. Result documents as well as statistics about the results of the build process can be easily retrieved using a web browser.
 
- The system runs inside several docker containers and consists of a webserver, a build system and a database that is by default \textbf{only accessible to the local machine}, where it is started on. One or more workers convert the documents. It is supposed to run on your local machine and is by default not accessible from other machines.
+The system runs inside several docker containers and consists of a webserver, a build system and a database that is by default \textbf{only accessible to the local machine}, where it is started on. One or more workers convert the documents. It is supposed to run on your local machine and is by default not accessible from other machines.
 
 \begin{shaded}
 \subsection*{Caution}
@@ -130,6 +130,10 @@ Documents can not only converted to pdf, but also to other output formats -- in 
 \item Go to \texttt{http://localhost:8080}
 \item press \texttt{Ctrl-C} to stop the system.
 \end{enumerate}
+
+\subsubsection{Run several workers}
+In order to run several (here three) workers in parallel enter\\
+\texttt{docker-compose up --scale latexml\_dmake=3}
 
 \subsection{First steps}
 \begin{enumerate}
@@ -226,21 +230,25 @@ The system consists of three docker containers.
 
 \begin{table}[h]
 \begin{center}
-\begin{tabular}{|p{6cm}|p{6.5cm}|}
+\begin{tabular}{|p{7cm}|p{7.5cm}|}
 \hline
 \texttt{texmlbus/docker-compose.yml} & Configuration file for docker compose.\\
 \hline
-\texttt{texmlbus/src} & Configuration files for docker containers.\\
+\texttt{texmlbus/texmlbus-edge.yml} & Use alpine-edge (newer texlive) and LaTeML-edge.\\
 \hline
-\texttt{texmlbus/src/LaTeXML} &
+\texttt{texmlbus/phpmyadmin.yml} & Access database via http://localhost:8081.\\
+\hline
+\texttt{texmlbus/docker} & Configuration files for docker containers.\\
+\hline
+\texttt{texmlbus/docker/LaTeXML} &
 	git repository for \LaTeX ML. It is used as parent configuration for the worker.\\
 \hline
 
-\texttt{texmlbus/src/latexml\_dmake} &
+\texttt{texmlbus/docker/latexml\_dmake} &
 	Worker configuration using \LaTeX ML.\\
 \hline
 
-\texttt{texmlbus/src/texmlbus} &
+\texttt{texmlbus/docker/texmlbus} &
 	Configuration file for the texmlbus build system.\\
 \hline
 
@@ -260,23 +268,21 @@ The system consists of three docker containers.
 	Sample articles.\\
 \hline
 
-\texttt{texmlbus/volume/build} &
+\texttt{texmlbus/volume/src} &
 	Source code of the build system.\\ 
 \hline
 
-\texttt{texmlbus/volume/build/server/htdocs} &
+\texttt{texmlbus/volume/src/server/htdocs} &
 	Directory that is served by the web server.\\
 \hline
-\texttt{texmlbus/volume/db/mysql} &
-	Database directory of the mysql database.\\ 
+\texttt{texmlbus/volume/db/init} &
+	Database dump to initialize database.\\ 
 \hline
 \end{tabular}
 \end{center}
 \end{table}
 
-Additional Latexml binding files are located at \texttt{texmlbus/build/sty}.
-
-
+Additional Latexml binding files are located at \texttt{texmlbus/src/sty}.
 
 \section{Extending the Build system}
 
@@ -312,7 +318,8 @@ However there is a simple API and an external program \texttt{workqueue} that ca
 
 \subsection{API}
 
-The Build System can be controlled by a simple API to add, remove and schedule articles. Currently no authentication takes place, as the whole website and the API can only be accessed locally.
+Texmlbus can be controlled interactively via the web browser. But it is also possible
+to control the build system by a simple API to add, remove and schedule articles. Currently no authentication takes place, as the whole website and the API can only be accessed locally.
 
 Requests are being sent via GET or POST HTTP requests, the answer format is plain text for browsers or json for ajax requests. Json format can be forced by adding a \texttt{format=json} parameter.
 
@@ -447,7 +454,7 @@ as a member of the arxivml group at Jacobs University Bremen.
 
 H. Stamerjohanns, M. Kohlhase , D. Ginev , C. David, and B. Miller. Transforming large collections of scientific publications to XML. Mathematics in Computer Science 3, 299 (2010).
 
-H. Stamerjohanns and M. Kohlhase. Transforming the arχiv to XML.
+H. Stamerjohanns and M. Kohlhase. Transforming the ar$\chi$iv to XML.
 In Serge Autexier, John Campbell, J. Rubio, Volker Sorge, Masakasu
 Suzuki, and Freek Wiedijk, editors, 9th International Conference,
 AISC 2008 15th Symposium, Calculemus 2008 7th International Con-
@@ -455,7 +462,6 @@ ference, MKM 2008 Birmingham, UK, July 28 - August 1, 2008, Intelligent Computer
 
 This open source version has been sponsored by 
 \href{https://www.overleaf.com}{Overleaf}.
-
 
 \end{document}
 
