@@ -296,7 +296,7 @@ class RetvalDao
                 s.id = j.id
             WHERE
                 j.missing_macros LIKE :macro
-                AND s.set LIKE :set
+                AND s.`set` = :set
             ORDER BY
                 j.date_created DESC
             LIMIT
@@ -304,7 +304,7 @@ class RetvalDao
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':macro', '%' . $macro . '%');
-        $stmt->bindValue(':set', '%' . $set . '%');
+        $stmt->bindValue(':set', $set);
 
         $stmt->execute();
         return $stmt->fetchAll();
@@ -341,7 +341,7 @@ class RetvalDao
                     j.id = s.id
                 WHERE
                     j.missing_macros != ''
-                    AND s.`set` LIKE :set
+                    AND s.`set` = :set
                 ORDER BY
                     j.date_modified";
 
@@ -655,7 +655,7 @@ class RetvalDao
                     j.id = s.id
                 WHERE
                     j.retval = :retval
-                    AND s.`set` like :set";
+                    AND s.`set` = :set";
 
             $stmt = $dao->prepare($query);
             $stmt->bindValue(':retval', $retval);
@@ -701,7 +701,7 @@ class RetvalDao
                     j.id = s.id
                 WHERE
                     j.retval = :retval
-                    AND s.`set` like :set";
+                    AND s.`set` = :set";
 
             $stmt = $dao->prepare($query);
             $stmt->bindValue(':retval', $retval);
