@@ -1215,7 +1215,7 @@ class StatEntry
         if ($set != '') {
             $where = '
                 WHERE
-                    filename like :set ';
+                    `set` = :set ';
         } else {
             $where = '';
         }
@@ -1238,7 +1238,7 @@ class StatEntry
 
         $stmt = $dao->prepare($query);
         if ($set != '') {
-            $stmt->bindValue(':set', $set . '%');
+            $stmt->bindValue(':set', $set);
         }
 
         $stmt->execute();
@@ -1284,7 +1284,7 @@ class StatEntry
         if ($set != '') {
             $where = '
                 WHERE
-                    s.filename like :set ';
+                    s.`set` = :set ';
         } else {
             $where = '
                 WHERE 1 ';
@@ -1309,7 +1309,7 @@ class StatEntry
 
         $stmt = $dao->prepare($query);
         if ($set != '') {
-            $stmt->bindValue(':set', $set . '%');
+            $stmt->bindValue(':set', $set);
         }
         $stmt->bindValue(':retval', $retval);
 

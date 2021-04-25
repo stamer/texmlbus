@@ -29,7 +29,7 @@ class UtilManage
         // delete the entry itself.
         if ($statEntry) {
             error_log("Deleting from DB: id: $id, " . $statEntry->getFilename());
-            $success = (int)StatEntry::deleteById($id);
+            $success = (int) StatEntry::deleteById($id);
             if ($success) {
                 error_log("$id deleted.");
                 // delete file in filesystem
@@ -47,7 +47,8 @@ class UtilManage
                 // dirs[2] = 'setname/subdir1'
                 // dirs[3] = 'setname'
                 foreach ($dirs as $subdir) {
-                    $numDocuments = StatEntry::getCountByDirPrefix($subdir);
+                    // add /, so directories with same prefix are not considered.
+                    $numDocuments = StatEntry::getCountByDirPrefix($subdir . '/');
                     if (!$numDocuments) {
                         UtilFile::deleteDirR(ARTICLEDIR . '/' . $subdir);
                         error_log("Deleting directory" . ARTICLEDIR . '/' . $subdir);
