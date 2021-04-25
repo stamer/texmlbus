@@ -77,7 +77,7 @@ echo '<h3>Create sample set ' . $page->info('sample') . '</h3>';
             <p>
             Please press the button below to import the sample documents.
             </p>
-                  <button type="submit" class="btn btn-primary" name="submit"  onclick="scanFiles('samples'); return false;">Scan samples directory</button>
+                  <button type="submit" class="btn btn-primary" name="submit"  onclick="scanFiles('samples', true); return false;">Scan samples directory</button>
 <?php
               }
 ?>

@@ -1,6 +1,8 @@
-function scanFiles(set)
+function scanFiles(set, rewrite)
 {
     var debug = false;
+    var intrewrite = rewrite ? 1 : 0;
+
     if (set === null) {
         showMessage('Set is empty', 'Please select a set from the given list.', 'warning', 2000);
         return;
@@ -16,7 +18,7 @@ function scanFiles(set)
     });
 
     $.ajax({
-        url: "/ajax/scanFiles.php?set="+set,
+        url: "/ajax/scanFiles.php?set="+set+"&rewrite="+intrewrite,
         method: "GET",
         dataType: 'json',
         success: function(data) {

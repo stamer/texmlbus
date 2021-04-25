@@ -80,7 +80,7 @@ echo '<h3>Create LaTeXML test cases ' . $page->info('sample') . '</h3>';
             <p>
             Please press the button below to import the LaTeXML test cases.
             </p>
-                  <button type="submit" class="btn btn-primary" name="submit"  onclick="scanFiles('latexml-test'); return false;">Scan latexml-test directory</button>
+                  <button type="submit" class="btn btn-primary" name="submit"  onclick="scanFiles('latexml-test', true); return false;">Scan latexml-test directory</button>
 <?php
               }
 ?>
