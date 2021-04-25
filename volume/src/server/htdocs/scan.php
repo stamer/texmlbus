@@ -1,7 +1,7 @@
 <?php
 /**
  * Released under MIT License
- * (c) 2007 - 2017 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  */
 require_once "../include/IncFiles.php";
@@ -45,26 +45,26 @@ $page->showHeader('import');
 
 echo '<h4>Scan and import articles ' . $page->info('scan') . '</h4>';
 ?>
-
-      <div class="container">
-          <p>
-              The article directory is <em><?=ARTICLEDIR ?></em>.
-          </p>
-          <form id="scanFiles">
-              <div>
-                  Select set:
+    <div class="container">
+        <p>
+          The article directory is <em><?=ARTICLEDIR ?></em>.
+        </p>
+        <form id="scanFiles">
+            <div>
+                <p>
+                  <input id="rewrite" type="checkbox" name="rewrite" value="1" checked="checked">&nbsp;Rewrite Makefile.template
+                </p>
+                Select set:
                 <select id="destset" name="destset" class="js-data-get-subdirs" style="width: 400px"></select> <?=$page->info('scan-select', 0.9) ?>
-              </div>
-            <div class="mt-4">
-
-                <button class="btn btn-primary" type="submit" name="submit" onclick="scanFiles($('#destset').val()); return false;">Scan</button>
             </div>
-          </form>
-      </div>
+            <div class="mt-4">
+                <button class="btn btn-primary" type="submit" name="submit" onclick="scanFiles($('#destset').val(), $('#rewrite').is(':checked')); return false;">Scan</button>
+            </div>
+        </form>
+    </div>
 
     <script>
         $('#myModal').modal('hide');
-
     </script>
 <?php
 

@@ -463,17 +463,15 @@ class PrepareFiles
 
     /**
      * Tries to return the content of Makefile.template in given directory.
-     * If it does not exist create default Makefile.template.
+     * If it does not exist or rewrite is set, create default Makefile.template.
      * @return bool|string
      */
-    public function getMakefileContent(string $directory)
+    public function getMakefileContent(string $directory, bool $rewrite = true)
     {
         $template = $directory . '/Makefile.template';
 
         // possibly create makefile
-        if (!is_file($template)) {
-            $this->debugLog("$template not found!");
-
+        if (!is_file($template) || $rewrite) {
             // determine the number of ../ to add.
             $numBaseDir = substr_count($this->stripArticleDir($directory), '/');
             $this->debugLog("Directory: " . $directory);
@@ -545,7 +543,8 @@ class PrepareFiles
     public function importTex(
             string $currentDir,
             string $makeFileDir = '',
-            string $destDir = ''
+            string $destDir = '',
+            bool $rewrite = false
     ) {
         $cfg = Config::getConfig();
         $this->debugLog(__METHOD__ . ": currentDir is $currentDir");
@@ -559,7 +558,7 @@ class PrepareFiles
             }
         }
 
-        $Makefile = $this->getMakefileContent($makeFileDir);
+        $Makefile = $this->getMakefileContent($makeFileDir, $rewrite);
 
         $this->findAndUncompressFiles($currentDir);
 

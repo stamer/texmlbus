@@ -23,6 +23,7 @@ $request = RequestFactory::create();
 $response = ResponseFactory::create();
 
 $set = $request->getQueryParam('set', '');
+$rewrite = (bool) $request->getQueryParam('rewrite', 0);
 
 $pf = new PrepareFiles();
 
@@ -44,7 +45,7 @@ foreach ($subDirs as $subDir) {
     }
 
     try {
-        $result = $pf->importTex($directory . '/' . $subDir, $directory);
+        $result = $pf->importTex($directory . '/' . $subDir, $directory, '', $rewrite);
         if (is_string($result)) {
             $documentsImported++;
         }
