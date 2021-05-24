@@ -90,7 +90,7 @@ class UtilMisc
             if (isset($arr[3])) {
                 $retArr[] = $hostGroupName
                             . ': ' . $arr[3]
-                            . ';'
+                            . ' '
                             . ($arr[4] ?? '')
                             . ' '
                             . ($arr[5] ?? '');

@@ -15,8 +15,8 @@ services:
                     - dbserver
 
         # Uncomment, if you want to access db via local connection (e.g. IDE)
-        # you might need to explicitly set 127.0.0.1 in your configuration 
-        # and not localhost there. Please also note the different port 3307 to 
+        # you might need to explicitly set 127.0.0.1 in your configuration
+        # and not localhost there. Please also note the different port 3307 to
         # not interfere with a local database installation.
         #ports:
             # - "127.0.0.1:${TEXMLBUS_MYSQL:-3307}:3306"
@@ -28,17 +28,52 @@ services:
             - data-mysql:/var/lib/mysql
 
         # work around innodb problem under windows
-        command: 'mysqld --innodb-flush-method=fsync'
+        # uses its own volume, should be ok, now.
+        # command: 'mysqld --innodb-flush-method=fsync'
+
+    latexml_base:
+        build:
+            # needs access to LaTeXML as well
+            context: docker
+            dockerfile: latexml_base/Dockerfile
+            target: latexml_base
+            args:
+                # Sometimes a job (e.g. latexml) may run endlessly, limit
+                # the amount of time a job can run.
+                TIMEOUT_SECONDS: 1200
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
+        command: 'echo "Ok, that this container exits."'
+
+    latexml_git:
+        build:
+            # needs access to modules
+            context: .
+            dockerfile: docker/latexml_git/Dockerfile
+            target: latexml_git
+        depends_on:
+            - latexml_base
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
+        command: 'echo "OK, that this container exits."'
+        volumes:
+            - ./.git/modules/src/LaTeXML:/.git
 
     latexml:
         build:
             context: docker/LaTeXML
             dockerfile: ../LaTeXML-Dockerfile
             #dockerfile: release/docker/Dockerfile
-            target: latexml_base
+            target: latexml
             args:
-                - WITH_TEXLIVE=yes
                 - WITH_TESTS=no
+        depends_on:
+            - latexml_git
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
         command: 'echo "OK, that this container exits."'
 
     latexml_dmake:
@@ -46,10 +81,8 @@ services:
             context: docker/latexml_dmake
             dockerfile: Dockerfile
             target: latexml_dmake
-            args:
-                # Sometimes a job (e.g. latexml) may run endlessly, limit
-                # the amount of time a job can run.
-                TIMEOUT_SECONDS: 1200
+        depends_on:
+            - latexml
 
         environment:
             DOCKERIZED: 1
@@ -85,17 +118,17 @@ services:
             # the amount of time a job can run.
             TIMEOUT_SECONDS: 1200
             # Memory limits
-            # Version 3 of docker does not easily allow to set ulimits 
+            # Version 3 of docker does not easily allow to set ulimits
             # any more. But we also want to set limits regarding the real
-            # available memory, therefore only a percentage of can be set. 
-            # It is still possible to set a fixed absolute limit though. 
+            # available memory, therefore only a percentage of can be set.
+            # It is still possible to set a fixed absolute limit though.
             # The smaller result value will be set.
-            # 
+            #
             # Sometimes a job (e.g. latexml) may start to use huge amounts
             # of memory. Here you can limit the amount, so the docker host
             # does not become unresponsive.
             # The percentage of available memory a worker may use.
-            # If you use several workers on the same host, you might 
+            # If you use several workers on the same host, you might
             # want to decrease this value.
             MEMLIMIT_PERCENT: 50
             #MEMLIMIT_ABSOLUTE: 8G
