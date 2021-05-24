@@ -1,0 +1,4 @@
+# Makefile.stage
+# names the target and prerequisites
+XML_EDGE_STAGEDIR = $(PREFIX)/stage/xml_edge
+

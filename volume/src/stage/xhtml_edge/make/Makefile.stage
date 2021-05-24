@@ -1,0 +1,4 @@
+# Makefile.stage
+# names the target and prerequisites
+XHTML_EDGE_STAGEDIR = $(PREFIX)/stage/xhtml_edge
+

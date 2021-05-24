@@ -30,9 +30,11 @@ define('ACTIVESTAGESFILE', SRCDIR . '/run/activestages.json');
  */
 $stages = [
     'pdf' => ['class' => 'StagePdf', 'enabled' => true],
-    'pdf_edge' => ['class' => 'StagePdfEdge', 'enabled' => true],
     'xml' => ['class' => 'StageXml', 'enabled' => true],
     'xhtml' => ['class' => 'StageXhtml', 'enabled' => true],
+    'pdf_edge' => ['class' => 'StagePdfEdge', 'enabled' => true],
+    'xml_edge' => ['class' => 'StageXmlEdge', 'enabled' => true],
+    'xhtml_edge' => ['class' => 'StageXhtmlEdge', 'enabled' => true],
     'jats' => ['class' => 'StageJats', 'enabled' => true],
     'pagelimit' => ['class' => 'StagePagelimit', 'enabled' => true],
 ];
