@@ -1,10 +1,11 @@
-build/server/htdocs/info.php
+docker/LaTeXML_edge/
 volume/articles/
 !volume/articles/upload
 !volume/articles/upload/tmp
-volume/build/doc/manual.pdf
-volume/build/run/activestages.json
-volume/build/vendor
+volume/src/doc/manual.pdf
+volume/src/run/activestages.json
+volume/src/server/htdocs/info.php
+volume/src/vendor
 volume/db/mysql/
 *.swp
 *.kate-swp
