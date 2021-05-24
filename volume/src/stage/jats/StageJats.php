@@ -26,10 +26,12 @@ class StageJats extends AbstractStage
         $cfg = Config::getConfig();
 
         $stage = 'jats';
+        $target = 'jats';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => $stage,
+            'target' => $target,
             'hostGroup' => 'worker',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -39,9 +41,9 @@ class StageJats extends AbstractStage
             'tableTitle' => 'plain jats',
             'toolTip' => 'Plain Jats conversion.',
             'destFile' => '%MAINFILEPREFIX%.jats.xml',
-            'stdoutLog' => $stage . '.stdout.log', // this needs to match entry in Makefile
-            'stderrLog' => $stage . '.stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'stdoutLog' => $target . '.stdout.log', // this needs to match entry in Makefile
+            'stderrLog' => $target . '.stderr.log', // needs to match entry in Makefile
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => ['xml'], // which log files need to be parsed?
             'showRetval' => [
                 'unknown' => false,

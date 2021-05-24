@@ -31,10 +31,12 @@ class StageXmlEdge extends StageXml
         $cfg = Config::getConfig();
 
         $stage = 'xml_edge';
+        $target = 'xml';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'xml',
+            'target' => $target,
             'hostGroup' => 'worker_edge',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -46,7 +48,7 @@ class StageXmlEdge extends StageXml
             'destFile' => '%MAINFILEPREFIX%.tex.xml',
             'stdoutLog' => 'stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => [],
             'showRetval' => [
                 'unknown' => true,

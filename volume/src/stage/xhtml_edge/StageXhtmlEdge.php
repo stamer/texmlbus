@@ -21,10 +21,12 @@ class StageXhtmlEdge extends StageXhtml
         $cfg = Config::getConfig();
 
         $stage = 'xhtml_edge';
+        $target = 'xhtml';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'xhtml',
+            'target' => $target,
             'hostGroup' => 'worker_edge',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -33,9 +35,9 @@ class StageXhtmlEdge extends StageXhtml
             'toolTip' => 'Xhtml creation.',
             'timeout' => 1200,
             'destFile' => '%MAINFILEPREFIX%.xhtml',
-            'stdoutLog' => 'xhtml.stdout.log',  // this needs to match entry in Makefile
-            'stderrLog' => 'xhtml.stderr.log',  // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'stdoutLog' => $target . '.stdout.log',  // this needs to match entry in Makefile
+            'stderrLog' => $target . '.stderr.log',  // needs to match entry in Makefile
+            'makeLog' => 'make_' . $target . '.log',
             // which log files need to be parsed?
             // the dependent stage needs to have the same hostGroup as this stage
             'dependentStages' => ['xml_edge'],

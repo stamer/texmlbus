@@ -17,10 +17,12 @@ class StagePdfEdge extends StagePdf
         $cfg = Config::getConfig();
 
         $stage = 'pdf_edge';
+        $target = 'pdf';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => 'pdf', // pdf is correct
+            'target' => $target,
             'hostGroup' => 'worker_edge',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -33,7 +35,7 @@ class StagePdfEdge extends StagePdf
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             'showRetval' => [
                 'unknown' => true,
