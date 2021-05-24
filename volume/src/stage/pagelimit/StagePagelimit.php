@@ -23,10 +23,12 @@ class StagePagelimit extends AbstractStage
         $cfg = Config::getConfig();
 
         $stage = 'pagelimit';
+        $target = 'pagelimit';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => $stage,
+            'target' => $target,
             'hostGroup' => 'worker',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -38,7 +40,7 @@ class StagePagelimit extends AbstractStage
             'destFile' => '%MAINFILEPREFIX%.pagelimit.html',
             'stdoutLog' => 'pagelimit.stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'pagelimit.stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             /* retvals to be shown */
             'showRetval' => [

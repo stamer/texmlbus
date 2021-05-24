@@ -48,6 +48,8 @@ class StagePdf extends AbstractStage
     {
         $cfg = Config::getConfig();
         $stage = 'pdf';
+        $target = 'pdf';
+
         $config = [
             // the name of the stage
             'stage' => $stage,
@@ -55,7 +57,7 @@ class StagePdf extends AbstractStage
             'classname' => __CLASS__,
             // the target of makefile, most times same as stage, but
             // pdf and pdf_edge have the same target pdf
-            'target' => $stage,
+            'target' => $target,
             // the hostGroup
             // pdf has worker as hostGroup, pdf_edge has worker_edge
             // therefore two different pdf environments can be used
@@ -75,7 +77,7 @@ class StagePdf extends AbstractStage
             'destFile' => '%MAINFILEPREFIX%.pdf',
             'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
             'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => [], // which log files need to be parsed?
             'showRetval' => [
                 'unknown' => true,

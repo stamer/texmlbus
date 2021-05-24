@@ -31,10 +31,12 @@ class StageXml extends AbstractStage
         $cfg = Config::getConfig();
 
         $stage = 'xml';
+        $target = 'xml';
+
         $config = [
             'stage' => $stage,
             'classname' => __CLASS__,
-            'target' => $stage,
+            'target' => $target,
             'hostGroup' => 'worker',
             'command' => 'set -o pipefail; '
                 . $cfg->app->make . ' -f Makefile',
@@ -46,7 +48,7 @@ class StageXml extends AbstractStage
             'destFile' => '%MAINFILEPREFIX%.tex.xml',
             'stdoutLog' => 'stdout.log', // this needs to match entry in Makefile
             'stderrLog' => 'stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $stage . '.log',
+            'makeLog' => 'make_' . $target . '.log',
             'dependentStages' => [],
             'showRetval' => [
                 'unknown' => true,
