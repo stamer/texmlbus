@@ -34,6 +34,31 @@ table, th, td {
     font-size: 0.6rem;
 }
 
+/* pull button on retval_abc */
+.abc_pull {
+    border-color: rgba(53, 220, 69, 0.3);
+    padding: 0.25rem 0.25rem;
+    position: absolute; bottom: 1.5rem; left: 0.1rem;
+    font-size: 0.6rem;
+    scale: 0.65;
+}
+
+.btn-overleaf {
+  color: #fff;
+}
+
+.btn-overleaf:hover {
+  color: #fff;
+  background-color: #c1faba;
+  border-color: #138a07;
+}
+
+.btn-overleaf:focus, .btn-overleaf.focus {
+  box-shadow: 0 0 0 0.2rem rgba(225, 83, 97, 0.5);
+}
+
+
+
 /* cancel button on retval_abc */
 .queue_warning {
     background-color: rgba(255, 193, 7, 0.3);

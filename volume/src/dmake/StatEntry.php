@@ -24,9 +24,12 @@ class StatEntry
     public $set = '';
     public $filename = '';
     public $sourcefile = '';
-    public $timeout = -1;
     public $hostgroup = '';
+    public $timeout = -1;
     public $errmsg = '';
+    protected $project_id = ''; // id of project in cloud
+    protected $project_src = ''; // cloud provider
+
     public $wq_id = 0;
     public $wq_priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
     public $wq_action = self::WQ_ACTION_NONE;
@@ -206,6 +209,26 @@ class StatEntry
         $this->sourcefile = $sourcefile;
     }
 
+    public function getProjectId(): string
+    {
+        return $this->project_id;
+    }
+
+    public function setProjectId(string $project_id): void
+    {
+        $this->project_id = $project_id;
+    }
+
+    public function getProjectSrc(): string
+    {
+        return $this->project_src;
+    }
+
+    public function setProjectSrc(string $project_src): void
+    {
+        $this->project_src = $project_src;
+    }
+
     /**
      * Returns the TeX source (it is guaranteed to have a .tex suffix).
      */
@@ -260,7 +283,9 @@ class StatEntry
                 sourcefile      = :i_sourcefile,
                 hostgroup       = :i_hostgroup,
                 timeout         = :i_timeout,
-                errmsg          = :i_errmsg
+                errmsg          = :i_errmsg,
+                project_id      = :i_project_id,
+                project_src     = :i_project_src
             ON DUPLICATE KEY UPDATE
                 date_modified   = :u_date_modified,
                 wq_priority     = :u_wq_priority,
@@ -272,8 +297,10 @@ class StatEntry
                 sourcefile      = :u_sourcefile,
                 hostgroup       = :u_hostgroup,
                 timeout         = :u_timeout,
-                errmsg          = :u_errmsg';
-
+                errmsg          = :u_errmsg,
+                project_id      = :u_project_id,
+                project_src     = :u_project_src
+            ';
         $stmt = $dao->prepare($query);
 
         $stmt->bindValue(':date_created', $cfg->now->datestamp);
@@ -297,6 +324,10 @@ class StatEntry
         $stmt->bindValue(':u_timeout', $this->timeout);
         $stmt->bindValue(':i_errmsg', $this->errmsg);
         $stmt->bindValue(':u_errmsg', $this->errmsg);
+        $stmt->bindValue(':i_project_id', $this->project_id);
+        $stmt->bindValue(':u_project_id', $this->project_id);
+        $stmt->bindValue(':i_project_src', $this->project_src);
+        $stmt->bindValue(':u_project_src', $this->project_src);
 
         $success = $stmt->execute();
 
@@ -356,6 +387,12 @@ class StatEntry
         }
         if (isset($row['errmsg'])) {
             $se->setErrmsg($row['errmsg']);
+        }
+        if (isset($row['project_id'])) {
+            $se->setProjectId($row['project_id']);
+        }
+        if (isset($row['project_src'])) {
+            $se->setProjectSrc($row['project_src']);
         }
 
         return $se;
@@ -998,7 +1035,8 @@ class StatEntry
         string $hostGroupName = '',
         string $stage = '',
         string $action = 'none',
-        string $retval = 'unknown'): bool
+        ?string $projectId = null,
+        ?string $projectSrc = null): bool
     {
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
@@ -1007,14 +1045,14 @@ class StatEntry
         // Therefore check for matching subpath, not the exact file.
         if (!StatEntry::pathMatches($directory, $minDepth)) {
             $entry = new StatEntry;
-            $entry->filename = $directory;
-            $entry->sourcefile = $sourcefile;
-            $entry->retval = $retval;
+            $entry->setFilename($directory);
+            $entry->setSourcefile($sourcefile);
+            $entry->setProjectId($projectId);
+            $entry->setProjectSrc($projectSrc);
             $entry->save();
 
             $wqe = new WorkqueueEntry();
             $wqe->setStatisticId($entry->getId()); // Id has just been created.
-            $wqe->setStage($stage);
             $wqe->setDateModified($cfg->now->datestamp);
             $wqe->setPriority(0);
             $wqe->setAction($action);

@@ -78,6 +78,7 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->diff = '/usr/bin/diff';
     $config->app->epstopdf = '/usr/bin/repstopdf'; // restricted epstopdf
     $config->app->file = '/usr/bin/file';
+    $config->app->git = '/usr/bin/git';
     $config->app->gunzip = '/bin/gunzip';
     $config->app->gzip = '/bin/gzip';
 
@@ -113,6 +114,7 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->diff = '/usr/bin/diff';
     $config->app->epstopdf = '/usr/bin/repstopdf'; // restricted epstopdf
     $config->app->file = '/usr/bin/file';
+    $config->app->git = '/usr/bin/git';
     $config->app->gunzip = '/usr/bin/gunzip';
     $config->app->gzip = '/usr/bin/gzip';
 

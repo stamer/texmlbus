@@ -24,6 +24,7 @@ use Dmake\DbUpdate;
 use Dmake\Dmake;
 use Dmake\DmakeStatus;
 use Dmake\InotifyHandler;
+use Dmake\GitControl;
 use Dmake\StatEntry;
 use Dmake\UtilHost;
 use Dmake\UtilStage;

@@ -544,7 +544,9 @@ class PrepareFiles
             string $currentDir,
             string $makeFileDir = '',
             string $destDir = '',
-            bool $rewrite = false
+            bool $rewrite = false,
+            string $projectId = '',
+            string $projectSrc = ''
     ) {
         $cfg = Config::getConfig();
         $this->debugLog(__METHOD__ . ": currentDir is $currentDir");
@@ -720,7 +722,16 @@ class PrepareFiles
                             $toAdd = preg_replace('#^' . ARTICLEDIR . '/#', '', $dir);
                         }
                         $this->debugLog("Checking $toAdd, $file");
-                        if (StatEntry::addNew($toAdd, $file, 1, 'none', 'unknown')) {
+                        if (StatEntry::addNew(
+                            $toAdd,
+                            $file,
+                            1,
+                            'none',
+                            'unknown',
+                            'none',
+                            $projectId,
+                            $projectSrc)
+                        ) {
                             $this->debugLog("Added $file.");
                             // Add only one file per subdir
                             return $file;

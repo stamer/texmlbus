@@ -111,8 +111,8 @@ services:
             MYSQL_PASSWORD: websecret
             MYSQL_HOST: dbserver
             MYSQL_DATABASE: buildsysdb
-            PHP_UPLOAD_MAX_FILESIZE: 256M
-            PHP_POST_MAX_SIZE: 256M
+            PHP_UPLOAD_MAX_FILESIZE: 2G
+            PHP_POST_MAX_SIZE: 2G
 
             # Sometimes a job (e.g. latexml) may run endlessly, limit
             # the amount of time a job can run.

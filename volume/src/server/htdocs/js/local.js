@@ -20,6 +20,17 @@ function getCookie(cookieName) {
     return '';
 }
 
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
 function openHelp(id) {
     showUrlInModal('/ajax/getHelp.php?id=' + id);
 }
@@ -104,6 +115,46 @@ function modalConfirm(title, question, onConfirm, onCancel = null)
         '            <button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>\n');
     $('#confirmOk').unbind().one('click', fClose).one('click', delayedOnConfirm);
     $('#confirmCancel').unbind().one("click", fClose).one('click', delayedOnCancel);
+
+    $('#myModal').modal('show');
+}
+
+function modalPassword(title, text, onLogin, onCancel = null)
+{
+    var fClose = function(){
+        $('#myModal').modal("hide");
+        $('.modal-footer').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
+    };
+
+    var delayedOnLogin = function(event) {
+        setTimeout(onLogin, 500);
+    }
+
+    var delayedOnCancel = function() {
+        setTimeout(onCancel, 500);
+    }
+
+    $('.modal-header').attr('class', 'modal-header');
+    $('.modal-title').html(title);
+
+    $('.modal-body').html(text
+        + '<form id="loginForm">'
+        + '<div class="form-group"> '
+        + '<label for="modalpass" class="col-form-label">Password:</label>'
+        + '<input type="password" name="modalpass" class="form-control" id="modalpass">'
+        + '<div style="margin-top: 20px; text-align: end">'
+        + '    <button type="button" id="submitLogin" class="btn btn-primary">Submit</button>'
+        + '</div>'
+        + '</div>'
+        + '</form>'
+    );
+    $('.modal-footer').html('<button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>\n');
+    $('#submitLogin').unbind().one('click', fClose).one('click', delayedOnLogin);
+    $('#confirmCancel').unbind().one("click", fClose).one('click', delayedOnCancel);
+
+    $("#loginForm").submit(function(event) {
+        event.preventDefault();
+    });
 
     $('#myModal').modal('show');
 }

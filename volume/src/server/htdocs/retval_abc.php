@@ -9,6 +9,7 @@ require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\RetvalDao;
 use Dmake\UtilStage;
+use Dmake\SharedMem;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -17,6 +18,7 @@ use Server\View;
 $page = new Page('Alphabetic list');
 $page->addScript('/js/deleteDocument.js');
 $page->addScript('/js/sseUpdateColumn.js');
+$page->addScript('/js/pullDocument.js');
 $page->showHeader('retval_abc');
 
 $cfg = Config::getConfig();
@@ -106,10 +108,11 @@ foreach ($stages as $stage) {
     $rows = RetvalDao::getEntries($stage, $joinTable, $set, $sqlOrderBy, $sqlSortBy, $min, $max_pp);
 
     foreach ($rows as $row) {
-		// will be set several times, not a problem...
+        // will be set several times, not a problem...
         $stat[$row['id']]['all']['s_date_modified'] = $row['s_date_modified'];
         $stat[$row['id']]['all']['filename'] = $row['filename'];
         $stat[$row['id']]['all']['sourcefile'] = $row['sourcefile'];
+        $stat[$row['id']]['all']['project_id'] = $row['project_id'];
         $stat[$row['id']][$stage]['wq_priority'] = $row['wq_priority'];
         $stat[$row['id']][$stage]['wq_action'] = $row['wq_action'];
         $stat[$row['id']][$stage]['retval'] = $row['retval'];
@@ -122,15 +125,15 @@ foreach ($stages as $stage) {
 ?>
 <table border="0">
 <tr>
-	<th>No.</th>
+    <th>No.</th>
     <th>Date&nbsp;&nbsp;<a title="Sort by ascending date" href="<?=$urlSortDateAsc ?>">&#9662;</a><a title="Sort by descending date" href="<?=$urlSortDateDesc ?>">&#9652;</a></th>
     <th>Directory&nbsp;&nbsp;<a title="Sort by ascending name" href="<?=$urlSortNameAsc ?>">&#9662;</a><a title="Sort by descending name" href="<?=$urlSortNameDesc ?>">&#9652;</a></th>
 <?php
 foreach ($stages as $stage) {
     $target = $cfg->stages[$stage]->target;
-	echo '<th style="min-width:138px">';
-	echo '<small>'.$stage.'</small><br />';
-	$ids = array_keys($stat);
+    echo '<th style="min-width:138px">';
+    echo '<small>'.$stage.'</small><br />';
+    $ids = array_keys($stat);
     echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . implode(',', $ids) . '],\'' . $stage . '\', \'' . $target.'\'); return false">queue</a>'.PHP_EOL;
     if ($set != '') {
         echo '&nbsp;&nbsp;<a style="font-size: 60%" href="/#" onclick="javascript:rerunBySet(\'' . $set . '\', \'' . $stage . '\', \'' . $target . '\'); return false">queue set</a>' . PHP_EOL;
@@ -157,27 +160,32 @@ foreach ($stat as $id => $entry) {
 
     $prefix = basename($entry['all']['sourcefile'], '.tex');
 
-	echo "<tr>\n";
-	$count++;
-	$no = $count + $min;
-	if (isset($entry['all']['s_date_modified'])) {
-		$date_modified = $entry['all']['s_date_modified'];
-	} else {
-		$date_modified = '';
-	}
-	if (isset($entry['all']['filename'])) {
-		$filename = $entry['all']['filename'];
-	} else {
-		$filename = '';
-	}
+    echo "<tr>\n";
+    $count++;
+    $no = $count + $min;
+    if (isset($entry['all']['s_date_modified'])) {
+        $date_modified = $entry['all']['s_date_modified'];
+    } else {
+        $date_modified = '';
+    }
+    if (isset($entry['all']['filename'])) {
+        $filename = $entry['all']['filename'];
+    } else {
+        $filename = '';
+    }
 
-	echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
+    echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
+    if (!empty($entry['all']['project_id'])) {
+        echo '<button type="button" class="btn btn-overleaf abc_pull" onclick="pullDocument(this, ' . $id . ')">';
+        echo '<img src="/css/img/overleaf16.svg" />';
+        echo '<span></span></button>';
+    }
     echo '<button type="button" class="btn btn-danger delete abc_delete" onclick="deleteDocument(this, ' . $id . ')">';
     echo '<i class="fas fa-trash"></i>';
     echo '<span></span></button>';
     echo '</td>' . PHP_EOL;
-	echo View::renderDateCell($id, $date_modified);
-	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a></td>' . PHP_EOL;
+    echo View::renderDateCell($id, $date_modified);
+    echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a></td>' . PHP_EOL;
 
     foreach ($stages as $stage) {
         $directory = UtilStage::getSourceDir('files', $entry['all']['filename'], $cfg->stages[$stage]->hostGroup) . '/';
@@ -231,7 +239,7 @@ foreach ($stat as $id => $entry) {
     echo '</tr>'.PHP_EOL;
 
     // Line below for prev_retval for given stage
-	echo '<tr style="height:6px">'.PHP_EOL;
+    echo '<tr style="height:6px">'.PHP_EOL;
     echo '<td style="text-align:right; font-size: 11px">previous</td>'.PHP_EOL;
     foreach ($stages as $stage) {
         if (isset($entry[$stage]['prev_retval'])) {

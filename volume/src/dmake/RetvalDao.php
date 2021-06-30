@@ -158,6 +158,8 @@ class RetvalDao
                 s.id,
                 s.sourcefile,
                 s.filename,
+                s.project_id,
+                s.project_src,
                 wq.priority as wq_priority,
                 wq.action as wq_action
             FROM

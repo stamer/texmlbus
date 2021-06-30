@@ -227,6 +227,7 @@ class Page
                     <?php
                     echo '<ul class="nav bd-sidenav">' . PHP_EOL;
                     echo '  <li class=""><a href="/upload.php">Upload texfiles and import</a></li>' . PHP_EOL;
+                    echo '  <li class=""><a href="/importOverleaf.php">Import from Overleaf</a></li>' . PHP_EOL;
                     echo '  <li class=""><a href="/scan.php">Scan directory for documents</a></li>' . PHP_EOL;
                     echo '  <li class=""><a href="/manageSets.php">Manage sets</a></li>' . PHP_EOL;
                     echo '  <li class="mt-3"><a href="/uploadSty.php">Upload class and sty for global use</a></li>' . PHP_EOL;

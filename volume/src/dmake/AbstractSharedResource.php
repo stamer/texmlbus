@@ -13,10 +13,7 @@
  *
  */
 
-/**
- * File still needs to be 7.3 compatible, as it runs on worker.
- */
-namespace Worker;
+namespace Dmake;
 
 /**
  *
@@ -26,17 +23,17 @@ abstract class AbstractSharedResource
 {
     private $resource;
 
-    public abstract function __construct($key = null);
+    public abstract function __construct(int $key = null, int $size = 10000);
 
-    public abstract function put($data) :bool;
+    public abstract function put(?string $data) :bool;
 
-    public abstract function has();
+    public abstract function has() :bool;
 
-    public abstract function get();
+    public abstract function get() :?string;
 
     public abstract function detach() :bool;
 
     public abstract function remove() :bool;
 
-    public abstract function exists();
+    public abstract function exists() :bool;
 }

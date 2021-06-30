@@ -46,32 +46,33 @@ RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/lo
 
 # Setup apache and php
 RUN apk add \
-	php7-apcu \
-	php7-bcmath \
-	php7-bz2 \
-	php7-ctype \
-	php7-curl \
-	php7-dom \
-	php7-exif \
-	php7-ftp \
-	php7-gd \
-	php7-gettext \
-	php7-mbstring \
-	php7-mysqli \
+    php7-apcu \
+    php7-bcmath \
+    php7-bz2 \
+    php7-ctype \
+    php7-curl \
+    php7-dom \
+    php7-exif \
+    php7-ftp \
+    php7-gd \
+    php7-gettext \
+    php7-mbstring \
+    php7-mysqli \
     php7-pcntl \
-	php7-pdo \
-	php7-pdo_mysql \
+    php7-pdo \
+    php7-pdo_mysql \
     php7-posix \
-	php7-redis \
-	php7-session \
-	php7-soap \
-	php7-tokenizer \
-	php7-xdebug \
-	php7-xml \
-	php7-xmlreader \
-	php7-xmlrpc \
-	php7-xmlwriter \
-	php7-zip
+    php7-redis \
+    php7-session \
+    php7-sysvshm \
+    php7-soap \
+    php7-tokenizer \
+    php7-xdebug \
+    php7-xml \
+    php7-xmlreader \
+    php7-xmlrpc \
+    php7-xmlwriter \
+    php7-zip
 
 # only available in testing, but unstable
 # php7-pecl-inotify
