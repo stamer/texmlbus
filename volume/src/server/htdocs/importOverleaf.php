@@ -27,10 +27,6 @@ $page->addCss('
           display: none;
         }
       }
-    /* jquery.fileupload bootstrap4 fix */ 
-    .fade.in {
-        opacity: 1
-    }
     /* bootstrap4 modal fix */
     .modal-backdrop {
         /* bug fix - no overlay */    
@@ -39,10 +35,6 @@ $page->addCss('
     .modal {
         z-index: 10001;
     }
-    .btn {
-        font-size: 0.8rem;
-    }
-    
     </style>
 ');
 
@@ -54,17 +46,16 @@ $statsTab = $page->getRequest()->getCookieParam('statsTab', 'tab-1');
 if ($set != '') {
     echo '<h4>Import from Overleaf to <em>'.htmlspecialchars($set).'</em> <span class="fas fa-info-circle"></span></h4>'.PHP_EOL;
 } else {
-    echo '<h4>Import articles from Overleaf' . $page->info('import_overleaf') . '</h4>';
+    echo '<h4>Import articles from Overleaf' . $page->info('import-overleaf') . '</h4>';
 }
 ?>
-
-      <div class="container">
-      <form
-        id="importOverleaf"
-        action="/importOverleaf.php"
-        method="POST"
-        enctype="multipart/form-data"
-      >
+    <div class="container">
+        <form
+            id="importOverleaf"
+            action="/importOverleaf.php"
+            method="POST"
+            enctype="multipart/form-data"
+        >
         <noscript
           ><input
             type="hidden"
@@ -72,21 +63,44 @@ if ($set != '') {
             value="/importOverleaf.php"
         /></noscript>
 
+        <p>&nbsp;</p>
 
-          <p>&nbsp;</p>
+        <div class="form-group row">
+            <label for="destset" class="col-sm-3 col-form-label">Set to import to</label>
+            <div class="col-sm-8">
+                <select id="destset" name="destset" style="width:100%" class="js-data-get-sets form-control"></select>
+            </div>
+            <div class="col">
+                <?=$page->info('import-overleaf-select', 1.0, '-5px') ?>
+            </div>
         </div>
-
-        <select id="destset" name="destset" class="js-data-get-sets" style="width: 400px"></select> <?=$page->info('upload-select', 0.9) ?>
-        <p></p>
-        <label for="project" style="min-width:90px">ProjectId</label>
-        <input type="text" id="project_id" name="project_id" placeholder="Id of project"/> <?=$page->info('upload-select', 0.9) ?>
-        <p></p>
-        <label for="name" style="min-width:90px">Name</label>
-        <input type="text" id="name" name="name" placeholder="Name"/> <?=$page->info('upload-select', 0.9) ?>
-        <p></p>
-        <label for="username" style="min-width:90px">Username</label>
-        <input type="text" id="username" name="username" />
-        <p></p>
+        <div class="form-group row">
+            <label for="project" class="col-sm-3 col-form-label">ProjectId</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="project_id" name="project_id" placeholder="Id of project"/>
+            </div>
+            <div class="col">
+                <?=$page->info('import-overleaf-projectid', 1.0, '-5px') ?>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="name" class="col-sm-3 col-form-label">Name</label>
+            <div class="col-sm-8">
+            <input type="text" class="form-control" id="name" name="name" placeholder="The project name you would like to use" />
+            </div>
+            <div class="col">
+                <?=$page->info('import-overleaf-name', 1.0, '-5px') ?>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="username" class="col-sm-3 col-form-label">Username</label>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Your username"/>
+            </div>
+            <div class="col">
+                <?=$page->info('import-overleaf-username', 1.0, '-5px') ?>
+            </div>
+        </div>
         <button class="btn btn-primary" type="submit" name="submit" onclick="importOverleaf($('#destset').val(), $('#name').val(), $('#project_id').val(), $('#username').val()); return false;">Import project</button>
       </form>
     </div>
@@ -102,6 +116,5 @@ $(".js-data-get-sets").select2({
     dataType: "json"
     }
 });';
-
 
 $page->showFooter($deferJS);

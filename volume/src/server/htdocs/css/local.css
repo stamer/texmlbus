@@ -37,10 +37,10 @@ table, th, td {
 /* pull button on retval_abc */
 .abc_pull {
     border-color: rgba(53, 220, 69, 0.3);
-    padding: 0.25rem 0.25rem;
-    position: absolute; bottom: 1.5rem; left: 0.1rem;
+    padding: 0.05rem 0.05rem;
+    position: absolute; bottom: 1.8rem; left: 0.5rem;
+    width: 66%;
     font-size: 0.6rem;
-    scale: 0.65;
 }
 
 .btn-overleaf {
@@ -49,12 +49,12 @@ table, th, td {
 
 .btn-overleaf:hover {
   color: #fff;
-  background-color: #c1faba;
+  background-color: #97f68c;
   border-color: #138a07;
 }
 
 .btn-overleaf:focus, .btn-overleaf.focus {
-  box-shadow: 0 0 0 0.2rem rgba(225, 83, 97, 0.5);
+  box-shadow: 0 0 0 0.2rem rgba(151, 246, 140, 0.5);
 }
 
 
