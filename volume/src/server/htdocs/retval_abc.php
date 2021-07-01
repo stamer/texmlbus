@@ -176,11 +176,11 @@ foreach ($stat as $id => $entry) {
 
     echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
     if (!empty($entry['all']['project_id'])) {
-        echo '<button type="button" class="btn btn-overleaf abc_pull" onclick="pullDocument(this, ' . $id . ')">';
-        echo '<img src="/css/img/overleaf16.svg" />';
+        echo '<button type="button" class="btn btn-overleaf abc_pull" title="Pull from overleaf" onclick="pullDocument(this, ' . $id . ')">';
+        echo '<img src="/css/img/overleaf24.svg" />';
         echo '<span></span></button>';
     }
-    echo '<button type="button" class="btn btn-danger delete abc_delete" onclick="deleteDocument(this, ' . $id . ')">';
+    echo '<button type="button" class="btn btn-danger delete abc_delete" title="Delete document" onclick="deleteDocument(this, ' . $id . ')">';
     echo '<i class="fas fa-trash"></i>';
     echo '<span></span></button>';
     echo '</td>' . PHP_EOL;
