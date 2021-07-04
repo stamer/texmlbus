@@ -105,6 +105,7 @@ class GitControl
         string $path,
         string $username,
         string $password,
+        bool $cache,
         string $destDir) :array
     {
         $cachedPassword = false;
@@ -134,7 +135,7 @@ class GitControl
             throw new \Exception('Failed to clone: ' . $lastline);
         }
 
-        if (!$cachedPassword) {
+        if ($cache && !$cachedPassword) {
             $this->putCredentials(
                 $protocol,
                 $host,
@@ -151,7 +152,7 @@ class GitControl
         return $result;
     }
 
-    public function execCommand(string $command, string $dir, ?string $password) :array
+    public function execCommand(string $command, string $dir, ?string $password, bool $cache) :array
     {
         $cfg = Config::getConfig();
         $cachedPassword = false;
@@ -194,7 +195,7 @@ class GitControl
             throw new \Exception('Failed to ' . $command . ': ' . $lastline);
         }
 
-        if (!$cachedPassword) {
+        if ($cache && !$cachedPassword) {
             $this->putCredentials(
                 GitControl::OVERLEAF_PROTOCOL,
                 GitControl::OVERLEAF_HOST,
@@ -219,7 +220,8 @@ class GitControl
         string $projectId,
         string $destDir,
         string $username,
-        string $password
+        string $password,
+        bool $cache = false
     ) :array
     {
         $path = '/' . $projectId;
@@ -230,6 +232,7 @@ class GitControl
             $path,
             $username,
             $password,
+            $cache,
             $destDir);
 
         return $result;

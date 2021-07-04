@@ -29,6 +29,9 @@ $id = $request->getParam('id');
 
 // If credentials are cache, password will be just empty.
 $password = $request->getParam('password');
+// param ist either 'true' or 'false'
+$cacheParam = $request->getParam('cache', 'false');
+$cache = ($cacheParam === 'true');
 
 $entry = StatEntry::getById($id);
 
@@ -56,7 +59,7 @@ $dir = ARTICLEDIR . '/' . $entry->getFilename();
 
 try {
     $git = new GitControl();
-    $out = $git->execCommand(GitControl::PULL, $dir, $password);
+    $out = $git->execCommand(GitControl::PULL, $dir, $password, $cache);
 } catch (Throwable $t) {
     $data['result'] = [
         'message' => $t->getMessage(),

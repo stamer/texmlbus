@@ -33,6 +33,9 @@ $projectSrc = 'overleaf';
 
 $username = $request->getParam('username', '');
 $password = $request->getParam('password', '');
+// param ist either 'true' or 'false'
+$cacheParam = $request->getParam('cache', 'false');
+$cache = ($cacheParam === 'true');
 
 if (empty($set)) {
     $out['message'] = "No set specified, please select a set where to import to.";
@@ -90,7 +93,7 @@ try {
     $tmpDir = UtilFile::createTempDir(sys_get_temp_dir());
     $tmpDir .= '/' . $projectId;
 
-    $execResult = $git->cloneOverleaf($projectId, $tmpDir, $username, $password);
+    $execResult = $git->cloneOverleaf($projectId, $tmpDir, $username, $password, $cache);
 } catch (Throwable $t) {
     $data['result'] = [
         'message' => $t->getMessage(),

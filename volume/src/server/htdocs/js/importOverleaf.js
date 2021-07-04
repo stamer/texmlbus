@@ -35,8 +35,9 @@ function runModalImport(data) {
         return;
     }
     if (needsPassword) {
-        modalPassword('Pull document', 'Please authenticate ' + username, function () {
+        modalPassword('Import document', 'Please authenticate <em>' + username + '</em>', function () {
             var password = $('#modalpass').val();
+            var cache = $('#modalcache').is(':checked');
 
             showMessage('Importing to ' + set + '...',
                 '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Scanning and importing...</span></div></div>',
@@ -51,7 +52,7 @@ function runModalImport(data) {
             $.ajax({
                 url: "/ajax/importOverleaf.php",
                 method: "POST",
-                data: {'set': set, 'name': name, 'project_id': project_id, 'username': username, 'password': password},
+                data: {'set': set, 'name': name, 'project_id': project_id, 'username': username, 'password': password, 'cache': cache},
                 dataType: 'json',
                 success: function (data) {
                     importOverleafSuccess(data);
