@@ -41,6 +41,11 @@ class SharedTmpFile extends AbstractSharedResource
         return ($success !== false);
     }
 
+    public function has()
+    {
+        return is_file($this->resource);
+    }
+
     public function get()
     {
         $data = file_get_contents($this->resource);
