@@ -142,12 +142,17 @@ function modalPassword(title, text, onLogin, onCancel = null)
         + '<div class="form-group"> '
         + '<label for="modalpass" class="col-form-label">Password:</label>'
         + '<input type="password" name="modalpass" class="form-control" id="modalpass">'
+        + '</div>'
+        + '<div class="form-check">'
+        + '<input type="checkbox" class="form-check-input" name="modalcache" id="modalcache">'
+        + '<label class="form-check-label" for="modalcache">Cache credentials</label>'
+        + '</div>'
         + '<div style="margin-top: 20px; text-align: end">'
         + '    <button type="button" id="submitLogin" class="btn btn-primary">Submit</button>'
         + '</div>'
-        + '</div>'
         + '</form>'
     );
+
     $('.modal-footer').html('<button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>\n');
     $('#submitLogin').unbind().one('click', fClose).one('click', delayedOnLogin);
     $('#confirmCancel').unbind().one("click", fClose).one('click', delayedOnCancel);

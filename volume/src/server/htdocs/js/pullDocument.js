@@ -28,6 +28,8 @@ function runModal(data) {
     if (needsPassword) {
         modalPassword('Pull document from Overleaf', 'Please authenticate <em>' + username + '</em>:', function () {
             var password = $('#modalpass').val();
+            var cache = $('#modalcache').is(':checked');
+
             showMessage('Pulling document...',
                 '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Pulling...</span></div></div>',
                 ''
@@ -41,7 +43,7 @@ function runModal(data) {
             $.ajax({
                 url: "/ajax/pullDocument.php",
                 method: "POST",
-                data: {id: id, password: password},
+                data: {id: id, password: password, cache: cache},
                 dataType: 'json',
                 success: function (data) {
                     pullDocumentSuccess(data);

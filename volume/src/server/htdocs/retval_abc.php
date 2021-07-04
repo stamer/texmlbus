@@ -160,7 +160,12 @@ foreach ($stat as $id => $entry) {
 
     $prefix = basename($entry['all']['sourcefile'], '.tex');
 
-    echo "<tr>\n";
+    if (!empty($entry['all']['project_id'])) {
+        $style = 'style="height: 60px"';
+    } else {
+        $style = '';
+    }
+    echo "<tr $style>\n";
     $count++;
     $no = $count + $min;
     if (isset($entry['all']['s_date_modified'])) {
