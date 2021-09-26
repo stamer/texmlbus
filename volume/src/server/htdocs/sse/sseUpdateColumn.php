@@ -91,7 +91,7 @@ while (1) {
         $prefix = basename($entry['sourcefile'], '.tex');
 
         $stage = $entry['stage'];
-        $date_modified = $entry['s_date_modified'];
+        $date_modified = $entry['date_modified'];
         $id = $entry['id'];
         $target = $cfg->stages[$stage]->target;
 
@@ -149,7 +149,7 @@ while (1) {
 
         $dateColumn = View::renderDateCell(
             $entry['id'],
-            $date_modified
+            $entry['s_date_modified']
         );
 
         $data = [
