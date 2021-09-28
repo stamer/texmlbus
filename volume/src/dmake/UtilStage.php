@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  */
 
@@ -100,14 +100,22 @@ class UtilStage
         string $articleDir,
         string $directory,
         string $hostGroupName
-    ): void {
+    ): void
+    {
+        $cfg = Config::getConfig();
+
         $sourceDir = $articleDir . '/' . $directory;
-        $destDir = $articleDir . '/' . $directory . '/__texmlbus_' . $hostGroupName;
-        if (!file_exists($destDir)) {
-            echo "DestDirectory is: $destDir" . PHP_EOL;
-            UtilFile::linkR($sourceDir, $destDir, '/__texmlbus_' . '/', '/\\.bbl$|Makefile$/');
-            UtilFile::adjustMakefilePrefix($destDir, 1);
-        }
+        $destDir = $articleDir . '/' . $directory . '/' . $cfg->server->workerPrefix . $hostGroupName;
+
+        /*
+         * It is not necessary to recreate worker directories any more.
+         * Any file changes via remote updates are automatically synchronized to worker dirs.
+         * Local updates are also handled in linkR(), only missing piece is currently
+         * local deletes.
+         */
+        echo "DestDirectory is: $destDir" . PHP_EOL;
+        UtilFile::linkR($sourceDir, $destDir, '/' . $cfg->server->workerPrefix . '/', '/\\.bbl$|Makefile$/');
+        UtilFile::adjustMakefilePrefix($destDir, 1);
     }
 
     public static function getSourceDir(
@@ -118,7 +126,7 @@ class UtilStage
         $cfg = Config::getConfig();
 
         if ($cfg->linkSourceFiles) {
-            $sourceDir = $articleDir . '/' . $directory . '/__texmlbus_' . $hostGroup;
+            $sourceDir = $articleDir . '/' . $directory . '/' . $cfg->server->workerPrefix . $hostGroup;
         } else {
             $sourceDir = $articleDir . '/' . $directory;
         }

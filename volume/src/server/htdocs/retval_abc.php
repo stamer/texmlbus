@@ -19,6 +19,7 @@ $page = new Page('Alphabetic list');
 $page->addScript('/js/deleteDocument.js');
 $page->addScript('/js/sseUpdateColumn.js');
 $page->addScript('/js/pullDocument.js');
+$page->addScript('/js/resetDocument.js');
 $page->showHeader('retval_abc');
 
 $cfg = Config::getConfig();

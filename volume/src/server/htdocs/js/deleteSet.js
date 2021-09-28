@@ -2,7 +2,7 @@ function deleteSet(element, set)
 {
     modalConfirm('Delete set', 'Articles will be deleted in database and also from the filesystem.<br />Do you really want to delete set <em>' + set + '</em>?', function() {
         showMessage('Deleting ' + set + '...',
-                    '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Scanning and importing...</span></div></div>',
+                    '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Deleting ' + set + '...</span></div></div>',
                     ''
         );
 

@@ -89,16 +89,21 @@ function pullDocumentSuccess(data)
 {
     var message = '';
     var msgClass = '';
-    var fadeMsec = 800;
+    var fadeMsec = 10000;
 
     if (data.result) {
-        if (data.result['message']) {
-            message += '<h5>' + data.result['message'] + '</h5>';
-        }
         if (data.result['success']) {
+            if (data.result['output']) {
+                message += data.result['output'] + '<br><br>';
+            } else if (data.result['message']) {
+                    message += '<h5>' + data.result['message'] + '</h5>';
+            }
             message += "Document updated.";
             msgClass = 'success';
         } else {
+            if (data.result['message']) {
+                message += '<h5>' + data.result['message'] + '</h5>';
+            }
             message += "Document has not been updated.";
             msgClass = 'warning';
             fadeMsec = 10000;
