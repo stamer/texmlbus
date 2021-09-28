@@ -3,7 +3,7 @@ function deleteDocument(element, id)
     var debug = false;
     modalConfirm('Delete document', 'Do you really want to delete this document?', function() {
         showMessage('Deleting document...',
-                    '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Scanning and importing...</span></div></div>',
+                    '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Deleting document...</span></div></div>',
                     ''
         );
 

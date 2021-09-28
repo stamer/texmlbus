@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  */
 
@@ -62,6 +62,29 @@ class UtilManage
     }
 
     /**
+     * Removes entries from the retval tables and deletes the
+     * worker directories.
+     */
+    public static function resetDocument(int $id): int
+    {
+        // delete entries in all retvalTables
+        $totalRows = self::resetAllRetvalTablesById($id);
+        $statEntry = StatEntry::getById($id);
+        // remove worker directories
+        if ($statEntry) {
+            error_log("Resetting from DB: id: $id, " . $statEntry->getFilename());
+            $directory = ARTICLEDIR . '/' . $statEntry->getFilename();
+            $workerDirectories = UtilFile::findWorkerDirectories($directory);
+            foreach ($workerDirectories as $workerDirectory) {
+                UtilFile::deleteDirR($directory . '/' . $workerDirectory);
+            }
+            return $totalRows;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
      * deletes a complete set only from DB
      */
     public static function dropSet(string $set): int
@@ -92,16 +115,37 @@ class UtilManage
     /**
      * deletes all corresponding entries from RetvalTables
      */
-    public static function deleteFromAllRetvalTablesById(int $id): bool
+    public static function deleteFromAllRetvalTablesById(int $id): int
     {
         static $retvalTables = null;
+
         if ($retvalTables === null) {
             $retvalTables = self::getRetvalTables();
         }
+        $totalRows = 0;
         foreach ($retvalTables as $retvalTable) {
-            RetvalDao::deleteById($retvalTable, $id);
+            $rowCount = RetvalDao::deleteById($retvalTable, $id);
+            $totalRows += $rowCount;
         }
-        return true;
+        return $totalRows;
+    }
+
+    /**
+     * deletes all corresponding entries from RetvalTables
+     */
+    public static function resetAllRetvalTablesById(int $id): int
+    {
+        static $retvalTables = null;
+
+        if ($retvalTables === null) {
+            $retvalTables = self::getRetvalTables();
+        }
+        $totalRows = 0;
+        foreach ($retvalTables as $retvalTable) {
+            $rowCount = RetvalDao::resetById($retvalTable, $id);
+            $totalRows += $rowCount;
+        }
+        return $totalRows;
     }
 
     /**

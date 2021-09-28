@@ -6,9 +6,8 @@
  */
 require_once "../../include/IncFiles.php";
 
-use Dmake\PrepareFiles;
 use Dmake\JwToken;
-use Dmake\UtilFile;
+use Dmake\GitAction;
 use Dmake\GitControl;
 use Dmake\StatEntry;
 use Server\Config;
@@ -27,9 +26,9 @@ $data = [];
 
 $id = $request->getParam('id');
 
-// If credentials are cache, password will be just empty.
+// If credentials are cached, password will be just empty.
 $password = $request->getParam('password');
-// param ist either 'true' or 'false'
+// Param ist either 'true' or 'false'.
 $cacheParam = $request->getParam('cache', 'false');
 $cache = ($cacheParam === 'true');
 
@@ -60,6 +59,9 @@ $dir = ARTICLEDIR . '/' . $entry->getFilename();
 try {
     $git = new GitControl();
     $out = $git->execCommand(GitControl::PULL, $dir, $password, $cache);
+    // Not just the current Dir, but also worker directories need to be updated.
+    $gitAction = new GitAction($dir);
+    $gitAction->updateWorkerDirectories($out['output']);
 } catch (Throwable $t) {
     $data['result'] = [
         'message' => $t->getMessage(),
@@ -69,6 +71,7 @@ try {
     exit;
 }
 
+$out['output'] = implode('<br>', $out['output']);
 $data['result'] = $out;
 $response->json($data);
 exit;

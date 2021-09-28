@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2017 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  * A class to handle queries to RetvalTables.
  *
@@ -25,6 +25,30 @@ class RetvalDao
             WHERE
                 id = :id";
 
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':id', $id);
+
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Reset entry from join table by id.
+     */
+    public static function resetById(string $joinTable, int $id): int
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            UPDATE
+                $joinTable
+            SET
+                retval = NULL,
+                prev_retval = NULL,
+                date_modified = NOW()
+            WHERE
+                id = :id";
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':id', $id);

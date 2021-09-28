@@ -9,7 +9,7 @@ namespace Dmake;
 
 class GitControl
 {
-    const PULL = 'pull';
+    const PULL = 'pull -ff';
     const VALID_COMMANDS = [self::PULL];
 
     const OVERLEAF_PROTOCOL = 'https';
@@ -152,7 +152,7 @@ class GitControl
         return $result;
     }
 
-    public function execCommand(string $command, string $dir, ?string $password, bool $cache) :array
+    public function execCommand(string $command, string $dir, ?string $password, bool $cache): array
     {
         $cfg = Config::getConfig();
         $cachedPassword = false;
@@ -180,9 +180,11 @@ class GitControl
             throw new \Exception('Failed to determine password, please try again');
         }
 
+        //$this->configure();
+
         $script = $this->getScriptHeader($password)
             . 'cd ' . '"' . $dir . '"' . PHP_EOL
-            . $cfg->app->git . ' ' . $command . ' 2>&1'
+            . 'HOME=' . $cfg->server->homeDir . ' ' . $cfg->app->git . ' ' . $command . ' 2>&1'
             . '; rm -f $GIT_ASKPASS';
 
         $lastline = exec($script, $output, $return_var);
@@ -207,6 +209,7 @@ class GitControl
         $result = [
             'return_var' => $return_var,
             'message' => $lastline,
+            'output' => $output,
             'success' => ($return_var === 0)
         ];
         return $result;

@@ -1,12 +1,10 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2019 Heinrich Stamerjohanns
+ * (c) 2007 - 2021 Heinrich Stamerjohanns
  *
  */
 namespace Dmake;
-
-use Dmake\StatEntry;
 
 class UtilFile
 {
@@ -312,6 +310,26 @@ class UtilFile
     }
 
     /**
+     * Copies file $src to $dest, even if the destDir does not yet exist.
+     */
+    public static function copy(string $src, string $dest, int $permissions = 0777): bool
+    {
+        $destDir = dirname($dest);
+        if (!is_dir($destDir)) {
+            $success = mkdir($destDir, $permissions, true);
+            if (!$success) {
+                return $success;
+            }
+        }
+        $success = copy($src, $dest);
+        if (!$success) {
+            return $success;
+        }
+        $success = chmod($dest, $permissions);
+        return $success;
+    }
+
+    /**
      * On Windows it is still not possible to rename across file-system boundaries. :(
      * Therefore everything is done manually.
      */
@@ -340,17 +358,22 @@ class UtilFile
         string $dest,
         string $ignorePattern, // pattern of directories/files to ignore
         string $copyPattern // pattern of files to copy
-        ): bool
+    ): bool
     {
         if (is_dir($src)) {
-            if (preg_match($ignorePattern, $src)) {
+            if ($ignorePattern !== '' && preg_match($ignorePattern, $src)) {
                 echo "Ignoring $src..." . PHP_EOL;
                 return true;
             }
-            $success = mkdir($dest);
-            if (!$success) {
-                error_log(__METHOD__ . ": Failed to create $dest");
-                return false;
+            if (!is_dir($dest)) {
+                if (is_file($dest)) {
+                    unlink($dest);
+                }
+                $success = mkdir($dest);
+                if (!$success) {
+                    error_log(__METHOD__ . ": Failed to create $dest");
+                    return false;
+                }
             }
             $files = scandir($src);
             foreach ($files as $file)
@@ -360,23 +383,54 @@ class UtilFile
                     self::linkR("$src/$file", "$dest/$file", $ignorePattern, $copyPattern);
                 }
         } elseif (file_exists($src)) {
-            if (preg_match($ignorePattern, $src)) {
+            if ($ignorePattern !== '' && preg_match($ignorePattern, $src)) {
                 echo "Ignoring $src..." . PHP_EOL;
                 return true;
             }
-            if (preg_match($copyPattern, $src)) {
+            if ($copyPattern !== '' && preg_match($copyPattern, $src)) {
                 echo "Copying $src -> $dest" . PHP_EOL;
-                $result = copy($src, $dest);
+                $result = self::copy($src, $dest);
             } else {
-                $result = link($src, $dest);
+                $result = self::updateRegularFileLink($src, $dest);
             }
             return $result;
         }
         return true;
     }
 
+    /*
+     * Create or update hard link, if $src is newer.
+     * The directory of $dest does not need to exist.
+     */
+    public static function updateRegularFileLink($src, $dest): bool
+    {
+        if (!file_exists($dest)) {
+            $destDir = dirname($dest);
+            if (!is_dir($destDir)) {
+                $result = mkdir($destDir, 0777, true);
+                if (!$result) {
+                    return $result;
+                }
+            }
+            $result = link($src, $dest);
+        } else {
+            $srcStat = stat($src);
+            $destStat = stat($dest);
+            // if ino is the same, there is an existing hard link
+            if ($srcStat['ino'] != $destStat['ino']) {
+                if ($srcStat['mtime'] > $destStat['mtime']) {
+                    unlink($dest);
+                    $result = link($src, $dest);
+                }
+            } else {
+                $result = true;
+            }
+        }
+        return $result;
+    }
+
     /**
-     * write a file atomically
+     * Write a file atomically
      */
     public static function filePutContentsAtomic(
         string $filename,
@@ -713,5 +767,30 @@ class UtilFile
             throw new \ErrorException("Download of $url failed.");
         }
         curl_close($ch);
+    }
+
+    /**
+     * Find current worker directories that need to be updated.
+     */
+    public static function findWorkerDirectories(string $directory): array
+    {
+        $cfg = Config::getConfig();
+        $workerDirectories = [];
+        $currentDir = getcwd();
+        chdir($directory);
+        $dirs = glob($cfg->server->workerPrefix . '*');
+
+        foreach ($dirs as $key => $dir) {
+            if (is_dir($dir)) {
+                $workerDirectories[] = $dir;
+            }
+        }
+        chdir($currentDir);
+        return $workerDirectories;
+    }
+
+    public static function isFileNewerThan($file, $thanfile) 
+    {
+        return filemtime($file) > filemtime($thanfile);
     }
 }

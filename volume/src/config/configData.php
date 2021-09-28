@@ -99,6 +99,10 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->server->app = new stdClass();
     $config->server->app->latexml = '/opt/latexml/bin/latexml';
 
+    $config->server->user = 'dmake';
+    $config->server->homeDir = '/home/dmake';
+    $config->server->workerPrefix = '__texmlbus_';
+
     $config->defaultTexEngines = 'pdflatex';
 
     // List of valid TexEngines, and translated as option to latexmk.
@@ -129,6 +133,10 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->app->wc = '/usr/bin/wc';
     $config->app->xmllint = '/usr/bin/xmllint';
     $config->app->zip = '/usr/bin/zip';
+
+    $config->server->user = 'dmake';
+    $config->server->homeDir = '/home/dmake';
+    $config->server->workerPrefix = '__texmlbus_';
 
     $config->defaultTexEngine = 'pdflatex';
 

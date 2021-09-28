@@ -12,7 +12,7 @@ class View
      * Render a single result cell.
      */
     public static function renderRetvalCell(
-        string $retval,
+        ?string $retval,
         string $stderrFileLink,
         string $destFileLink,
         string $id,
@@ -24,6 +24,9 @@ class View
     {
         $str = '';
         $cfg = Config::getConfig();
+        if ($retval === null) {
+            $retval = 'unknown';
+        }
         // the current retval for given stage
         if ($retval != 'unknown') {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$retval]];
@@ -71,7 +74,12 @@ class View
     public static function renderDateCell(string $id, string $dateModified): string
     {
         return '<td class="right" id="td_' . $id . '_date" rowspan="2">' . $dateModified
-                . '<br /><br /><span class="grey">' . $id . '</span></td>' . PHP_EOL;
+                . '<br /><br /><span class="grey">' . $id . '</span><br>'
+                . '<button type="button" class="btn btn reset abc_reset" title="Reset document" onclick="resetDocument(this, ' . $id . ')">'
+                . '<i class="fas fa-undo"></i>'
+                . '<span></span></button>'
+
+                . '</td>' . PHP_EOL;
     }
 
     /**
