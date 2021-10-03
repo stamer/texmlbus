@@ -331,7 +331,7 @@ class StageXml extends AbstractStage
 
                 // matches[3] ==> num_xmarg
                 // matches[4] ==> ok_xmarg
-                $xmarg_pattern = '@(.*?)(^   XMArg: )(\d+)/(\d+)@m';
+                $xmarg_pattern = '@(.*?)(^   XMArg:? )(\d+)/(\d+)@m';
                 $matches = [];
                 preg_match($xmarg_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
@@ -347,7 +347,7 @@ class StageXml extends AbstractStage
 
                 // matches[3] ==> num_xmath
                 // matches[4] ==> ok_xmath
-                $xmath_pattern = '@(.*?)(^   XMath: )(\d+)/(\d+)@m';
+                $xmath_pattern = '@(.*?)(^   XMath:? )(\d+)/(\d+)@m';
                 preg_match($xmath_pattern, $content, $matches);
 
                 if (isset($matches[3])) {
@@ -357,7 +357,7 @@ class StageXml extends AbstractStage
                     $res->ok_xmath = $matches[4];
                 }
 
-                $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
+                $fatal_pattern = '@(.*?)(^Fatal:?)(\S*)\s+(.*)@m';
                 preg_match($fatal_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     print_r($matches);
@@ -368,7 +368,7 @@ class StageXml extends AbstractStage
                      $res->retval = 'fatal_error';
                      $res->errmsg = $matches[4];
                 } else {
-                    $warning_pattern = '@(.*?)(^Conversion complete: )(.*?)(\d*)(\s*)(warning)@m';
+                    $warning_pattern = '@(.*?)(^Conversion complete:? )(.*?)(\d*)(\s*)(warning)@m';
                     preg_match($warning_pattern, $content, $matches);
                     if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                         print_r($matches);
@@ -379,7 +379,7 @@ class StageXml extends AbstractStage
                         $res->retval = 'warning';
                     }
 
-                    $error_pattern = '@(.*?)(^Conversion complete: )(.*?)(\d*)(\s*)(error)@m';
+                    $error_pattern = '@(.*?)(^Conversion complete:? )(.*?)(\d*)(\s*)(error)@m';
                     preg_match($error_pattern, $content, $matches);
                     if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                         print_r($matches);
@@ -394,7 +394,7 @@ class StageXml extends AbstractStage
                         }
                     }
 
-                    $macro_pattern = '@(.*?)(^Conversion complete: )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
+                    $macro_pattern = '@(.*?)(^Conversion complete:? )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
                     preg_match($macro_pattern, $content, $matches);
                     if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                         print_r($matches);
@@ -406,7 +406,7 @@ class StageXml extends AbstractStage
                         $res->retval = 'missing_macros';
                     }
 
-                    $success_pattern = '@(.*?)(^Conversion complete: No obvious problems)@m';
+                    $success_pattern = '@(.*?)(^Conversion complete:? No obvious problems)@m';
                     preg_match($success_pattern, $content, $matches);
                     if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                         print_r($matches);

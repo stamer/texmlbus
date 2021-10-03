@@ -292,7 +292,7 @@ class StageXhtml extends AbstractStage
                 }
                 */
 
-                $warning_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(warning)@m';
+                $warning_pattern = '@(.*?)(^Postprocessing complete:? )(.*?)(\d*)(\s*)(warning)@m';
                 preg_match($warning_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     print_r($matches);
@@ -303,7 +303,7 @@ class StageXhtml extends AbstractStage
                     $res->retval = 'warning';
                 }
 
-                $error_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(error)@m';
+                $error_pattern = '@(.*?)(^Postprocessing complete:? )(.*?)(\d*)(\s*)(error)@m';
                 preg_match($error_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     print_r($matches);
@@ -318,7 +318,7 @@ class StageXhtml extends AbstractStage
                     }
                 }
 
-                $macro_pattern = '@(.*?)(^Postprocessing complete: )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
+                $macro_pattern = '@(.*?)(^Postprocessing complete:? )(.*?)(\d*)(\s*)(undefined macro)(s?)(.*)@m';
                 preg_match($macro_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     print_r($matches);
@@ -330,7 +330,7 @@ class StageXhtml extends AbstractStage
                     $res->retval = 'missing_macros';
                 }
 
-                $success_pattern = '@(.*?)(^Postprocessing complete: No obvious problems)@m';
+                $success_pattern = '@(.*?)(^Postprocessing complete:? No obvious problems)@m';
                 preg_match($success_pattern, $content, $matches);
                 if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
                     print_r($matches);
