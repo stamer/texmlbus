@@ -73,6 +73,7 @@ if (!isset($config)) {
 }
 
 $config->app = new stdClass();
+$config->server = new stdClass();
 // running inside docker?
 if ($dockerized || $ostype == 'linux-musl') {
     $config->app->diff = '/usr/bin/diff';

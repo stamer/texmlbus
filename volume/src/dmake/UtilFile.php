@@ -404,6 +404,7 @@ class UtilFile
      */
     public static function updateRegularFileLink($src, $dest): bool
     {
+        $result = true;
         if (!file_exists($dest)) {
             $destDir = dirname($dest);
             if (!is_dir($destDir)) {
