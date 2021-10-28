@@ -1,8 +1,8 @@
--- MariaDB dump 10.17  Distrib 10.5.3-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.3-MariaDB-1:10.5.3+maria~bionic
+-- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -206,7 +206,7 @@ CREATE TABLE `history_sum` (
   PRIMARY KEY (`id`),
   KEY `s` (`set`),
   KEY `ds` (`date_snapshot`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -525,6 +525,8 @@ CREATE TABLE `statistic` (
   `hostgroup` varchar(256) DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `errmsg` text DEFAULT NULL,
+  `project_id` varchar(32) DEFAULT NULL,
+  `project_src` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `filename` (`filename`),
   KEY `dc` (`date_created`),
@@ -624,12 +626,12 @@ CREATE TABLE `workqueue` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-11-01 16:34:59
--- MariaDB dump 10.17  Distrib 10.5.3-MariaDB, for debian-linux-gnu (x86_64)
+-- Dump completed on 2021-10-28 20:49:45
+-- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.3-MariaDB-1:10.5.3+maria~bionic
+-- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -665,6 +667,11 @@ LOCK TABLES `help` WRITE;
 /*!40000 ALTER TABLE `help` DISABLE KEYS */;
 INSERT INTO `help` VALUES ('detailedHist','Detailed History','This page shows the detailed result history of conversions. This helps to detect trends when doing mass conversions. Click on <em>create snapshot</em> to save the current result percentages.');
 INSERT INTO `help` VALUES ('generalStat','General statistics','This page gives an overview of the current system. \r\n<dl>\r\n<dt>Total number\r\n<dd>total number of articles processed</dd>\r\n</dt>\r\n<dt>Last 24 hours\r\n<dd>number of articles converted in last 24 hours</dd>\r\n</dt>\r\n<dt>Last Hour\r\n<dd>number of articles processed in last hour</dd>\r\n</dt>\r\n<dt>State\r\n<dd>current state of system, are jobs currently running?</dd>\r\n</dt>\r\n<dt>Current job ...\r\n<dd>time of current or last job</dd>\r\n</dt>\r\n<dt>LaTeXML Version\r\n<dd>version of LaTeXML being used.</dd>\r\n</dt>\r\n<dt>Number of files in queue\r\n<dd>number of files that are waiting to be processed.</dd>\r\n</dt>\r\n<dt>Number of concurrent job\r\n<dd>the number of hosts that are configured. If you are running via <tt>docker-compose</tt>, the command to run 4 workers is \r\n<code>\r\ndocker-compose up --scale latexml_dmake=4\r\n</code></dd>\r\n</dt>\r\n<dt>Hosts\r\n<dd>the names of the hosts that are being used. </dd>\r\n<dt>Timeout\r\n<dd>number of seconds when latexml times out and gives up. This value can be adjusted by setting <tt>TIMEOUT_SECONDS</tt> in <tt>docker-compose.yml</tt>\r\n</dd>\r\n<dt>Worker Memory Factor</dt>\r\n<dd>The amount of memory a worker will use. This is a factor with regards to the host of the worker. This value can be adjusted by setting <tt>MEMLIMIT_PERCENT</tt> in <tt>docker-compose.yml</tt>. If you run several workers you might want to decrease the default value.\r\n</dd>\r\n<dt>Worker Memory Absolute Limit</dt>\r\n<dd>If you set this value, a worker will not consume more memory than given value. This value can be adjusted by setting <tt>MEMLIMIT_ABSOLUTE</tt> in <tt>docker-compose.yml</tt>.\r\n<dt>\r\n</dt>\r\n');
+INSERT INTO `help` VALUES ('import-overleaf','Import project from Overleaf','Here you can import your projects directly from Overleaf.\r\n<p>\r\nFor details, please read <a href=\"https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub\" target=\"_blank\">Using Git and GitHub with Overleaf</a>.\r\n</p>\r\n<p>\r\nLater you can also update (<em>git pull</em>) your projects on the <a href=\"retval_abc.php\">Documents alphabetically</a> page. Just click on the green Overleaf icon <img src=\"/css/img/overleaf16.svg\"> and your project will be updated. \r\n</p>\r\n<p>\r\nThe access is only readonly. Texmlbus will not change any data on your Overleaf project.\r\n');
+INSERT INTO `help` VALUES ('import-overleaf-name','Specify the name of the project','Please enter the name of your project.\r\n<p>\r\nYour project has probably a name on Overleaf. Just use that name or any other name. Within texmlbus, your project will be given the name that you enter here.\r\n\r\n');
+INSERT INTO `help` VALUES ('import-overleaf-projectid','Specify projectid','Please specify the project id of your project.\r\nYou can find the Git url from the project url (the url in the browser address bar when you are in a project). If your Overleaf project url looks like:\r\n<p>\r\n<tt>https://www.overleaf.com/project/1234567</tt>\r\n</p>\r\nyou will need to enter <tt>1234567</tt> here.\r\n<p>\n\r\nFor details, please check the <a href=\"https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub\" target=\"_new\">Git help page on Overleaf</a>.\r\n</p>');
+INSERT INTO `help` VALUES ('import-overleaf-select','Select set for import','Please select a set where your project should be imported to. You can also just create a new set by just typing the new name, followed by the enter / return key.\r\n<br />\r\nIf you do not specify a set, the set <em>main</em> is automatically chosen. \r\n<p>\r\nA set is basically just a subdirectory in the <em>article</em> folder. ');
+INSERT INTO `help` VALUES ('import-overleaf-username','Your username','Please specify your username on Overleaf.\r\n<p>\r\nYou will be then asked for a password. The password will only be used to access Overleaf and <b>never</b> be sent anywhere else.\r\n</p>\r\n<p> \r\nThe password will be cached in shared memory of the container until the docker container is stopped. It will <b>never</b> be saved to disk or stored persistently in any other way.\r\n</p>\r\n');
 INSERT INTO `help` VALUES ('index','texmlbus','<ul>\r\n<li>see <a href=\"/doc\">documentation</a> for texmlbus.</li>\r\n<li>an <a href=\"#\" class=\"infolink\" data=\"overallStat\">overview</a> of the values given on this page.\r\n</ul>');
 INSERT INTO `help` VALUES ('introduction','Introduction to texmlbus','texmlbus allows you to convert articles written in LaTex to other formats. \r\n\r\n...');
 INSERT INTO `help` VALUES ('lastStat','General statistics','This page displays the last jobs that have been run. The page is automatically reloaded after several seconds,  so new entries are shown.\r\n');
@@ -694,12 +701,12 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-11-01 16:34:59
--- MariaDB dump 10.17  Distrib 10.5.3-MariaDB, for debian-linux-gnu (x86_64)
+-- Dump completed on 2021-10-28 20:49:45
+-- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.3-MariaDB-1:10.5.3+maria~bionic
+-- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -730,7 +737,7 @@ CREATE TABLE `dbversion` (
 
 LOCK TABLES `dbversion` WRITE;
 /*!40000 ALTER TABLE `dbversion` DISABLE KEYS */;
-INSERT INTO `dbversion` VALUES (6);
+INSERT INTO `dbversion` VALUES (8);
 /*!40000 ALTER TABLE `dbversion` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -743,4 +750,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-11-01 16:34:59
+-- Dump completed on 2021-10-28 20:49:45
