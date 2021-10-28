@@ -2,7 +2,6 @@
 #
 # Heinrich Stamerjohanns, 2020
 #
-
 echo "This will delete ALL docker containers, volumes!"
 echo -n "Continue [Y/N] [n]: "
 read n

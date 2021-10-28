@@ -2,6 +2,20 @@
 #
 # Heinrich Stamerjohanns, 2020
 #
+SCRIPTDIR=$(dirname "$(readlink -f "$0")")
+. ${SCRIPTDIR}/is-dc-v2.sh
+is_dc_v2
+if [[ "$?" == "1" ]]; then
+    CONTAINER_TEXMLBUS="texmlbus_texmlbus"
+    CONTAINER_MARIADB="texmlbus_mariadb"
+    CONTAINER_DMAKE="texmlbus_latexml_dmake"
+    CONTAINER_LATEXML="texmlbus_latexml"
+else
+    CONTAINER_TEXMLBUS="texmlbus-texmlbus"
+    CONTAINER_MARIADB="texmlbus-mariadb"
+    CONTAINER_DMAKE="texmlbus-latexml_dmake"
+    CONTAINER_LATEXML="texmlbus-latexml"
+fi
 
 echo "This will delete texmlbus docker containers, volumes!"
 echo -n "Continue [Y/N] [n]: "
@@ -17,20 +31,20 @@ fi
 #
 
 echo "Killing running containers..."
-docker kill $(docker ps | grep texmlbus_texmlbus | cut -f 1 -d " ")
-docker kill $(docker ps | grep texmlbus_mariadb | cut -f 1 -d " ")
-docker kill $(docker ps | grep texmlbus_latexml_dmake | cut -f 1 -d " ")
+docker kill $(docker ps | grep ${CONTAINER_TEXMLBUS} | cut -f 1 -d " ")
+docker kill $(docker ps | grep ${CONTAINER_MARIADB} | cut -f 1 -d " ")
+docker kill $(docker ps | grep ${CONTAINER_DMAKE} | cut -f 1 -d " ")
 
 echo "Deleting all stopped containers..."
-docker rm $(docker ps -a | grep texmlbus_texmlbus | cut -f 1 -d " ")
-docker rm $(docker ps -a | grep texmlbus_mariadb | cut -f 1 -d " ")
-docker rm $(docker ps -a | grep texmlbus_latexml_dmake | cut -f 1 -d " ")
+docker rm $(docker ps -a | grep ${CONTAINER_TEXMLBUS} | cut -f 1 -d " ")
+docker rm $(docker ps -a | grep ${CONTAINER_MARIADB} | cut -f 1 -d " ")
+docker rm $(docker ps -a | grep ${CONTAINER_DMAKE} | cut -f 1 -d " ")
 
 echo "Deleting all images..."
-docker rmi $(docker images | grep texmlbus_texmlbus | cut -f 1 -d " ")
-docker rmi $(docker images | grep texmlbus_mariadb | cut -f 1 -d " ")
-docker rmi $(docker images | grep texmlbus_latexml_dmake | cut -f 1 -d " ")
-docker rmi $(docker images | grep texmlbus_latexml | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${CONTAINER_TEXMLBUS} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${CONTAINER_MARIADB} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${CONTAINER_DMAKE} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${CONTAINER_LATEXML} | cut -f 1 -d " ")
 
 echo "Removing unused data..."
 docker system prune
