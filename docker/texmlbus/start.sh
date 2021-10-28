@@ -89,43 +89,26 @@ if [[ ! -d /srv/texmlbus/articles ]]; then
 fi
 chmod ugo+rwx /srv/texmlbus/articles
 
-CURRENTDIR=/srv/texmlbus/articles/upload
-if [[ ! -d ${CURRENTDIR} ]]; then
-    # no directory, but file found?
-    if [[ -e ${CURRENTDIR} ]]; then
-        echo "Unable to create directory ${CURRENTDIR}, file exists."
-        echo "Please remove or rename the file ${CURRENTDIR}."
-        echo "Exiting..."
-        exit 1
+DIRS="/srv/texmlbus/articles/upload /srv/texmlbus/articles/upload/tmp /srv/texmlbus/articles/sty"
+for CURRENTDIR in $DIRS; do
+    if [[ ! -d ${CURRENTDIR} ]]; then
+        # no directory, but file found?
+        if [[ -e ${CURRENTDIR} ]]; then
+            echo "Unable to create directory ${CURRENTDIR}, file exists."
+            echo "Please remove or rename the file ${CURRENTDIR}."
+            echo "Exiting..."
+            exit 1
+        fi
+        echo "Creating ${CURRENTDIR}..."
+        mkdir ${CURRENTDIR}
+        if [[ "$?" != "0" ]]; then
+            echo "Failed to create ${CURRENTDIR}."
+            exit 1
+        fi
     fi
-    echo "Creating ${CURRENTDIR}..."
-    mkdir ${CURRENTDIR}
-    if [[ "$?" != "0" ]]; then
-        echo "Failed to create ${CURRENTDIR}."
-        exit 1
-    fi
-fi
-echo "chmod ${CURRENTDIR}..."
-chmod ugo+rwx ${CURRENTDIR}
-
-CURRENTDIR=/srv/texmlbus/articles/upload/tmp
-if [[ ! -d ${CURRENTDIR} ]]; then
-    # no directory, but file found?
-    if [[ -e ${CURRENTDIR} ]]; then
-        echo "Unable to create directory ${CURRENTDIR}, file exists."
-        echo "Please remove or rename the file ${CURRENTDIR}."
-        echo "Exiting..."
-        exit 1
-    fi
-    echo "Creating ${CURRENTDIR}..."
-    mkdir ${CURRENTDIR}
-    if [[ "$?" != "0" ]]; then
-        echo "Failed to create ${CURRENTDIR}."
-        exit 1
-    fi
-fi
-echo "chmod ${CURRENTDIR}..."
-chmod ugo+rwx ${CURRENTDIR}
+    echo "chmod ${CURRENTDIR}..."
+    chmod ugo+rwx ${CURRENTDIR}
+done
 
 chown -R dmake:dmake /srv/texmlbus/articles/upload
 chmod -R ugo+rwx /srv/texmlbus/articles/upload
