@@ -13,6 +13,7 @@ Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Ma
 2. cd texmlbus
 3. git submodule update --init --recursive
 4. docker-compose up
+   # `docker compose` (v2, without hyphen) does not currently work, use `build-images.bat` or `build-images.sh` then.
 5. # Please be patient when the system is installed the very first time, as a full 
    # TeXLive system will be installed. Later the system will startup much faster.
 6. # The system will continue after displaying OK: 3xxx MiB in 1xx packages. Please be patient.
