@@ -56,7 +56,8 @@ class UtilStage
     {
         $json = file_get_contents(ACTIVESTAGESFILE);
         if ($json === false) {
-            echo "Failed to load current active stages to " . ACTIVESTAGESFILE;
+            file_put_contents(ACTIVESTAGESFILE, '[]');
+            chmod(ACTIVESTAGESFILE, 0666);
             return [];
         }
         $activeStages = json_decode($json, true);
