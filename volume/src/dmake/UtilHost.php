@@ -32,7 +32,7 @@ class UtilHost
 
                 // some hosts may not yet be available, try several times and wait.
                 $count = 1;
-                $maxTries = 6;
+                $maxTries = 12;
                 while ($count < $maxTries) {
                     $apr = new ApiWorkerRequest();
                     $apr->setWorker($val['hostname'])

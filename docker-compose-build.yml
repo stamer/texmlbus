@@ -1,0 +1,68 @@
+# docker-compose.yml
+version: '3.4'
+services:
+    latexml_base:
+        build:
+            # needs access to LaTeXML as well
+            context: docker
+            dockerfile: latexml_base/Dockerfile
+            target: latexml_base
+            args:
+                # Sometimes a job (e.g. latexml) may run endlessly, limit
+                # the amount of time a job can run.
+                TIMEOUT_SECONDS: 1200
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
+        command: 'echo "Ok, that this container exits."'
+
+    latexml_git:
+        build:
+            # needs access to modules
+            context: .
+            dockerfile: docker/latexml_git/Dockerfile
+            target: latexml_git
+        depends_on:
+            - latexml_base
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
+        command: 'echo "OK, that this container exits."'
+        volumes:
+            - ./.git/modules/src/LaTeXML:/.git
+
+    latexml:
+        build:
+            context: docker/LaTeXML
+            dockerfile: ../LaTeXML-Dockerfile
+            #dockerfile: release/docker/Dockerfile
+            target: latexml
+            args:
+                - WITH_TESTS=no
+        depends_on:
+            - latexml_git
+
+        # actually just image is needed, not the container
+        # will soon use profile: never
+        command: 'echo "OK, that this container exits."'
+
+    latexml_dmake:
+        build:
+            context: docker/latexml_dmake
+            dockerfile: Dockerfile
+            target: latexml_dmake
+        depends_on:
+            - latexml
+
+    texmlbus:
+        build:
+            context: docker/texmlbus
+            dockerfile: Dockerfile
+networks:
+    texmlbus_net:
+volumes:
+    # shared by latexml-dmake and texmlbus
+    optrun:
+    # mysql database
+    data-mysql:
+
