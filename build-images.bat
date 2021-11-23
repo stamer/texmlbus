@@ -2,9 +2,9 @@
 :: using docker compose v2 and images do not build
 docker pull alpine:3.12
 docker pull alpine:3.13
-docker compose build latexml_base
-docker compose build latexml_git
-docker compose build latexml
-docker compose build latexml_dmake
+docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_base
+docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_git
+docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml
+docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_dmake
 docker compose up
 
