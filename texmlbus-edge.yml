@@ -1,62 +1,10 @@
 # docker-compose.yml
 version: '3.4'
 services:
-    latexml_base_edge:
-        build:
-            # needs access to LaTeXML as well
-            context: docker
-            dockerfile: latexml_base_edge/Dockerfile
-            target: latexml_base_edge
-            args:
-                # Sometimes a job (e.g. latexml) may run endlessly, limit
-                # the amount of time a job can run.
-                TIMEOUT_SECONDS: 1200
-
-        # actually just image is needed, not the container
-        # will soon use profile: never
-        command: 'echo "Ok, that this container exits."'
-
-    latexml_git_edge:
-        build:
-            # needs access to modules
-            context: .
-            dockerfile: docker/latexml_git_edge/Dockerfile
-            target: latexml_git_edge
-        depends_on: 
-            - latexml_base_edge
-
-        # actually just image is needed, not the container
-        # will soon use profile: never
-        command: 'echo "OK, that this container exits."'
-        
-        # as it is not a submodule, directory already exists
-        #volumes:
-             #- ./.git/modules/src/LaTeXML:/.git
-
-
-    latexml_edge:
-        build:
-            context: docker/LaTeXML_edge
-            dockerfile: ../LaTeXML-Dockerfile_edge
-            #dockerfile: release/docker/Dockerfile
-            target: latexml_edge
-            args:
-                - WITH_TEXLIVE=yes
-                - WITH_TESTS=no
-        depends_on: 
-            - latexml_git_edge
-
-        # actually just image is needed, not the container
-        # will soon use profile: never
-        command: 'echo "OK, that this container exits."'
-
     latexml_dmake_edge:
-        build:
-            context: docker/latexml_dmake_edge
-            dockerfile: Dockerfile
-            target: latexml_dmake_edge
+        image: stamer/latexml_dmake_edge
         depends_on:
-            - latexml_edge
+            - mariadb
 
         environment:
             DOCKERIZED: 1
