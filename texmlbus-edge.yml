@@ -5,7 +5,6 @@ services:
         image: stamer/latexml_dmake_edge
         depends_on:
             - mariadb
-            - latexml_edge
 
         environment:
             DOCKERIZED: 1
