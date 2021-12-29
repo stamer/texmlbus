@@ -44,7 +44,7 @@ class StageXml extends AbstractStage
             ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
             ->setDbTable('retval_' . $stage)
             ->setTableTitle($stage)
-            ->setTooplTip('Latexml XML intermediate format creation.')
+            ->setToolTip('Latexml XML intermediate format creation.')
             ->setParseXml(true)
             ->setTimeout(1200)
             ->setDestFile('%MAINFILEPREFIX%.tex.xml')

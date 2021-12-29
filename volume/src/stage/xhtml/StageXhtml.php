@@ -39,7 +39,7 @@ class StageXhtml extends AbstractStage
             ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
             ->setDbTable('retval_' . $stage)
             ->setTableTitle($stage)
-            ->setTooplTip('Xhtml creation.')
+            ->setToolTip('Xhtml creation.')
             ->setTimeout(1200)
             ->setDestFile('%MAINFILEPREFIX%.xhtml')
             ->setStdOutLog($target . '.stdout.log')  // this needs to match entry in Makefile

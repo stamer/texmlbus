@@ -64,7 +64,7 @@ foreach ($stages as $stage) {
         $idx++;
         // just to get the right order..
         $stat = array();
-        foreach ($cfg->ret_class as $class=>$stclass) {
+        foreach ($cfg->ret_class as $class => $stclass) {
             $stat[$class] = 0;
         }
 
@@ -131,9 +131,9 @@ foreach ($stages as $stage) {
                         </tr>
 <?php
 
-        foreach ($stat as $retval=>$num) {
+        foreach ($stat as $retval => $num) {
 
-            if (!$showRetval[$retval]) {
+            if (!empty($showRetval[$retval])) {
                 continue;
             }
             $color = $cfg->ret_color[$cfg->ret_class[$retval]];

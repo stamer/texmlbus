@@ -63,7 +63,7 @@ class ConfigStage
     /**
      * @var string
      */
-    protected $tooplTip;
+    protected $toolTip;
     //'toolTip' => 'PDF creation.',
 
     /**
@@ -300,18 +300,18 @@ class ConfigStage
     /**
      * @return string
      */
-    public function getTooplTip(): string
+    public function getToolTip(): string
     {
-        return $this->tooplTip;
+        return $this->toolTip;
     }
 
     /**
-     * @param string $tooplTip
+     * @param string $toolTip
      * @return ConfigStage
      */
-    public function setTooplTip(string $tooplTip): ConfigStage
+    public function setToolTip(string $toolTip): ConfigStage
     {
-        $this->tooplTip = $tooplTip;
+        $this->toolTip = $toolTip;
         return $this;
     }
 
