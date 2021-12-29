@@ -35,7 +35,7 @@ class StagePagelimit extends AbstractStage
             ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
             ->setDbTable('retval_' . $stage)
             ->setTableTitle($stage)
-            ->setTooplTip($stage)
+            ->setToolTip($stage)
             ->setParseXml(false)
             ->setTimeout(1200)
             ->setDestFile('%MAINFILEPREFIX%.pagelimit.html')

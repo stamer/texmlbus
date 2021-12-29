@@ -69,7 +69,7 @@ class StagePdf extends AbstractStage
             ->setDbTable('retval_' . $stage)
             // titles on statistic page
             ->setTableTitle($stage)
-            ->setTooplTip('PDF creation.')
+            ->setToolTip('PDF creation.')
             // whether xml needs to be parsed
             ->setParseXml(false)
             // the timeout in seconds
@@ -118,6 +118,13 @@ class StagePdf extends AbstractStage
             ->setShowRetval(
                 [
                     'error' => true,
+                    'fatal_error' => false,
+                    'missing_macros' => false,
+                ]
+            )
+            ->setShowTopErrors(
+                [
+                    'error' => false,
                     'fatal_error' => false,
                     'missing_macros' => false,
                 ]

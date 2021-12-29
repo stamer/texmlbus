@@ -40,7 +40,7 @@ class StageJats extends AbstractStage
             ->setTimeout(1200)
             ->setDbTable('retval_' . $stage)
             ->setTableTitle('plain jats')
-            ->setTooplTip('Plain Jats conversion.')
+            ->setToolTip('Plain Jats conversion.')
             ->setDestFile('%MAINFILEPREFIX%.jats.xml')
             ->setStdOutLog($target . '.stdout.log') // this needs to match entry in Makefile
             ->setStdErrLog($target . '.stderr.log') // needs to match entry in Makefile

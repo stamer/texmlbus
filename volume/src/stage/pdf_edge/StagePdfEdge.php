@@ -28,7 +28,7 @@ class StagePdfEdge extends StagePdf
             ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
             ->setDbTable('retval_' . $stage)
             ->setTableTitle($stage)
-            ->setTooplTip('PDF creation.')
+            ->setToolTip('PDF creation.')
             ->setParseXml(false)
             ->setTimeout(240)
             /* use %MAINFILEPREFIX%, if the logfile use same prefix as the main tex file */
