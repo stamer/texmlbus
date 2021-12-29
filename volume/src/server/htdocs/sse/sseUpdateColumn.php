@@ -72,26 +72,40 @@ while (1) {
         }
         error_log("Stage: $stage");
 
-        if (!in_array($stage, array_keys($cfg->stages))) {
+        if (!in_array($stage, array_keys($cfg->stages))
+            && $stage !== 'unknown'
+        ) {
             continue;
         }
         $collect[$stage][] = $entry['id'];
-        foreach ($cfg->stages[$stage]->dependentStages as $dependentStage) {
-            $collect[$dependentStage][] = $entry['id'];
-            error_log("Stage: $stage, DependentStage: $dependentStage, Id: " . $entry['id']);
+        if ($stage !== 'unknown') {
+            foreach ($cfg->stages[$stage]->dependentStages as $dependentStage) {
+                $collect[$dependentStage][] = $entry['id'];
+                error_log("Stage: $stage, DependentStage: $dependentStage, Id: " . $entry['id']);
+            }
         }
     }
 
     $entries = [];
     foreach ($collect as $stage => $ids) {
-        $entries = array_merge($entries, RetvalDao::getByIds($ids, $stage, 's.date_modified', 'asc', 0, 100));
+        if ($stage === 'unknown') {
+            // all stages are reset, fill entries for all existing stages
+            $stages = array_keys($cfg->stages);
+            foreach ($stages as $mystage) {
+                foreach ($ids as $id) {
+                    $entries[] = ['stage' => $mystage, 'id' => $id];
+                }
+            }
+        } else {
+            $entries = array_merge($entries, RetvalDao::getByIds($ids, $stage, 's.date_modified', 'asc', 0, 100));
+        }
     }
 
     foreach ($entries as $entry) {
-        $prefix = basename($entry['sourcefile'], '.tex');
+        $prefix = basename($entry['sourcefile'] ?? '', '.tex');
 
         $stage = $entry['stage'];
-        $date_modified = $entry['date_modified'];
+        $date_modified = $entry['date_modified'] ?? '';
         $id = $entry['id'];
         $target = $cfg->stages[$stage]->target;
 
@@ -103,21 +117,29 @@ while (1) {
         $cfgStdOutLog[$stage] = $cfg->stages[$stage]->stdOutLog;
         $cfgStdErrLog[$stage] = $cfg->stages[$stage]->stdErrLog;
 
-        //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
-        $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
-        $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog[$stage]);
-        $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog[$stage]);
+        if (isset($entry['filename'])) {
+            //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
+            $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
+            $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog[$stage]);
+            $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog[$stage]);
 
-        //$directory = 'files/' . $entry['filename'] . '/';
-        $directory = UtilStage::getSourceDir('files', $entry['filename'], $cfg->stages[$stage]->hostGroup) . '/';
+            //$directory = 'files/' . $entry['filename'] . '/';
+            $directory = UtilStage::getSourceDir('files', $entry['filename'], $cfg->stages[$stage]->hostGroup) . '/';
 
-        if ($destFile != '') {
-            $destFileLink = $directory.$destFile;
+            if ($destFile != '') {
+                $destFileLink = $directory . $destFile;
+            }
+            $stdOutFileLink = $directory . $stdOutLog;
+            $stdErrFileLink = $directory . $stdErrLog;
+        } else {
+            $destFileLink = '';
+            $stdOutFileLink = '';
+            $stdErrFileLink = '';
         }
-        $stdOutFileLink = $directory.$stdOutLog;
-        $stdErrFileLink = $directory.$stdErrLog;
 
-        if ($entry['wq_action'] === $target) {
+        if (isset($entry['wq_action'])
+            && $entry['wq_action'] === $target
+        ) {
             if ($entry['wq_priority']) {
                 $queued = 'queued';
             } else {
@@ -127,11 +149,8 @@ while (1) {
             $queued = '';
         }
 
-
-        $retval = $entry[$stage]['retval'] ?? 'unknown';
-
         $retvalColumn = View::renderRetvalCell(
-            $entry['retval'],
+            $entry['retval'] ?? 'unknown',
             $stdErrFileLink,
             $destFileLink,
             $entry['id'],
@@ -142,14 +161,14 @@ while (1) {
         );
 
         $prevRetvalColumn = View::renderPrevRetvalCell(
-            $entry['prev_retval'],
+            $entry['prev_retval'] ?? 'unknown',
             $entry['id'],
             $stage,
         );
 
         $dateColumn = View::renderDateCell(
             $entry['id'],
-            $entry['s_date_modified']
+            $entry['s_date_modified'] ?? ''
         );
 
         $data = [

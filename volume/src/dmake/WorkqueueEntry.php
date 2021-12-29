@@ -22,7 +22,7 @@ class WorkqueueEntry
     protected $dateCreated = null;
     protected $dateModified = null;
     protected $priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
-    protected $prevAction = self::WQ_ENTRY_DISABLED;
+    protected $prevAction = self::WQ_ACTION_NONE;
     protected $action = self::WQ_ACTION_NONE;
     protected $stage = '';
     protected $hostGroup = '';
@@ -77,12 +77,12 @@ class WorkqueueEntry
         $this->priority = $priority;
     }
 
-    public function getPrevAction(): ?int
+    public function getPrevAction(): ?string
     {
         return $this->prevAction;
     }
 
-    public function setPrevAction(?int $prevAction): void
+    public function setPrevAction(?string $prevAction): void
     {
         $this->prevAction = $prevAction;
     }
@@ -255,6 +255,7 @@ class WorkqueueEntry
     {
         $cfg = Config::getConfig();
 
+        $this->dateModified = $cfg->now->datestamp;
         $this->update();
 
         $dao = Dao::getInstance();
@@ -268,7 +269,7 @@ class WorkqueueEntry
                 id = :id';
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':date_modified', $this->getDateModified());
+        $stmt->bindValue(':date_modified', $this->dateModified);
         $stmt->bindValue(':id', $this->getStatisticId());
 
         return $stmt->execute();
@@ -368,6 +369,30 @@ class WorkqueueEntry
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':id', $id);
+
+        $stmt->execute();
+
+        $obj = null;
+        if ($row = $stmt->fetch()) {
+            $obj = self::fillEntry($row);
+        }
+        return $obj;
+    }
+
+    public static function getByStatisticId(int $statisticId): ?self
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                workqueue
+            WHERE
+                statistic_id = :statistic_id";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':statistic_id', $statisticId);
 
         $stmt->execute();
 
