@@ -2,6 +2,7 @@
 
 use Dmake\AbstractStage;
 use Dmake\Config;
+use Dmake\ConfigStage;
 use Dmake\Dao;
 use Dmake\StatEntry;
 use Dmake\UtilFile;
@@ -18,60 +19,67 @@ class StagePagelimit extends AbstractStage
         $this->config = static::register();
     }
 
-    public static function register(): array
+    public static function register(): ConfigStage
     {
         $cfg = Config::getConfig();
 
         $stage = 'pagelimit';
         $target = 'pagelimit';
 
-        $config = [
-            'stage' => $stage,
-            'classname' => __CLASS__,
-            'target' => $target,
-            'hostGroup' => 'worker',
-            'command' => 'set -o pipefail; '
-                . $cfg->app->make . ' -f Makefile',
-            'dbTable' => 'retval_' . $stage,
-            'tableTitle' => $stage,
-            'toolTip' => $stage,
-            'parseXml' => false,
-            'timeout' => 1200,
-            'destFile' => '%MAINFILEPREFIX%.pagelimit.html',
-            'stdoutLog' => 'pagelimit.stdout.log', // this needs to match entry in Makefile
-            'stderrLog' => 'pagelimit.stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $target . '.log',
-            'dependentStages' => [], // which log files need to be parsed?
+        $config = new ConfigStage();
+        $config
+            ->setStage($stage)
+            ->setClassname(__CLASS__)
+            ->setTarget($target)
+            ->setHostGroup('worker')
+            ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
+            ->setDbTable('retval_' . $stage)
+            ->setTableTitle($stage)
+            ->setTooplTip($stage)
+            ->setParseXml(false)
+            ->setTimeout(1200)
+            ->setDestFile('%MAINFILEPREFIX%.pagelimit.html')
+            ->setStdOutLog('pagelimit.stdout.log') // this needs to match entry in Makefile
+            ->setStdErrLog('pagelimit.stderr.log') // needs to match entry in Makefile
+            ->setMakeLog('make_' . $target . '.log')
+            ->setDependentStages([]) // which log files need to be parsed?
             /* retvals to be shown */
-            'showRetval' => [
-                'unknown' => true,
-                'not_qualified' => true,
-                'missing_errlog' => true,
-                'fatal_error' => true,
-                'timeout' => true,
-                'error' => true,
-                'missing_macros' => false,
-                'missing_figure' => true,
-                'missing_bib' => true,
-                'missing_file' => true,
-                'warning' => true,
-                'no_problems' => true
-            ],
-            'showTopErrors' => [
-                'error' => false,
-                'fatal_error' => false,
-                'missing_macros' => false,
-            ],
-            'showDetailErrors' => [
-                'error' => false,
-            ],
+            ->setShowRetval(
+                [
+                    'unknown' => true,
+                    'not_qualified' => true,
+                    'missing_errlog' => true,
+                    'fatal_error' => true,
+                    'timeout' => true,
+                    'error' => true,
+                    'missing_macros' => false,
+                    'missing_figure' => true,
+                    'missing_bib' => true,
+                    'missing_file' => true,
+                    'warning' => true,
+                    'no_problems' => true
+                ]
+            )
+            ->setShowTopErrors(
+                [
+                    'error' => false,
+                    'fatal_error' => false,
+                    'missing_macros' => false,
+                ]
+            )
+            ->setShowDetailErrors(
+                [
+                    'error' => false,
+                ]
+            )
             /* column configuration for retval_detail.php */
-            'retvalDetail' => [
-                'error' => [
-                    ['sql' => ['errmsg', 'warnmsg'], 'html' => 'Error message', 'align' => 'left']
-                ],
-            ],
-        ];
+            ->setRetvalDetail(
+                [
+                    'error' => [
+                        ['sql' => ['errmsg', 'warnmsg'], 'html' => 'Error message', 'align' => 'left']
+                    ],
+                ]
+            );
 
         return $config;
     }
@@ -85,7 +93,7 @@ class StagePagelimit extends AbstractStage
 
         $query = /** @lang ignore */ '
             REPLACE	INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id              = :id,
 				date_created	= :date_created,
@@ -166,7 +174,7 @@ class StagePagelimit extends AbstractStage
 
         $query = /** @lang ignore */ '
 			INSERT INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id              = :id,
 				date_modified	= :i_date_modified,
@@ -208,22 +216,22 @@ class StagePagelimit extends AbstractStage
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
-        $stdErrlog = $sourceDir . '/' . $res->config['stderrLog'];
-        $makelog = $sourceDir . '/' . $res->config['makeLog'];
+        $stdErrLog = $sourceDir . '/' . $res->config->getStdErrLog();
+        $makeLog = $sourceDir . '/' . $res->config->getMakeLog();
 
-        $destFile = str_replace('%MAINFILEPREFIX%', $texSourcefilePrefix, $res->config['destFile']);
+        $destFile = str_replace('%MAINFILEPREFIX%', $texSourcefilePrefix, $res->config->getDestFile());
 
-        echo "parsing Logfile $stdErrlog ..." . PHP_EOL;
+        echo "parsing Logfile $stdErrLog ..." . PHP_EOL;
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
-            $res->timeout = $res->config->timeout;
+            $res->timeout = $res->config->getTimeout();
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
-        } elseif (!is_file($stdErrlog)) {
+        } elseif (!is_file($stdErrLog)) {
             if ($status) {
                 $res->retval = 'fatal_error';
-                $res->errmsg = static::parseMakelog($makelog);
+                $res->errmsg = static::parseMakelog($makeLog);
             } else {
                 $res->retval = 'missing_errlog';
             }
@@ -239,14 +247,14 @@ class StagePagelimit extends AbstractStage
             }
         }
 
-        $content = file_get_contents($stdErrlog);
+        $content = file_get_contents($stdErrLog);
         if ($content === ''
             && $status
         ) {
             $res->retval = 'fatal_error';
-            $res->errmsg = static::parseMakelog($makelog);
+            $res->errmsg = static::parseMakelog($makeLog);
         } else {
-            $content = file_get_contents($stdErrlog);
+            $content = file_get_contents($stdErrLog);
             $res->errmsg = '';
             $res->warnmsg = '';
 

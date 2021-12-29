@@ -112,7 +112,7 @@ class Dmake
                 $classname = $cfg->stages[$dependentStage]->classname;
                 if (class_exists($classname)) {
                     if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
-                        echo "DependentStage: parsing " . $cfg->stages[$dependentStage]->stderrLog . PHP_EOL;
+                        echo "DependentStage: parsing " . $cfg->stages[$dependentStage]->stdErrLog . PHP_EOL;
                     }
                     $classname::parse($hostGroup, $entry, $status, $childAlarmed);
                 } else {
@@ -127,7 +127,7 @@ class Dmake
         $classname = $cfg->stages[$stage]->classname;
         if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
             echo "CLASSNAME: $classname" . PHP_EOL;
-            echo "About to parse " . $cfg->stages[$stage]->stderrLog . PHP_EOL;
+            echo "About to parse " . $cfg->stages[$stage]->stdErrLog . PHP_EOL;
         }
         if (class_exists($classname)) {
             $classname::parse($hostGroup, $entry, $status, $childAlarmed);

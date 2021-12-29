@@ -7,6 +7,7 @@
 
 use Dmake\AbstractStage;
 use Dmake\Config;
+use Dmake\ConfigStage;
 use Dmake\Dao;
 use Dmake\ErrDetEntry;
 use Dmake\StatEntry;
@@ -26,96 +27,104 @@ class StageXml extends AbstractStage
         $this->debug = true;
     }
 
-    public static function register(): array
+    public static function register(): ConfigStage
     {
         $cfg = Config::getConfig();
 
         $stage = 'xml';
         $target = 'xml';
 
-        $config = [
-            'stage' => $stage,
-            'classname' => __CLASS__,
-            'target' => $target,
-            'hostGroup' => 'worker',
-            'command' => 'set -o pipefail; '
-                . $cfg->app->make . ' -f Makefile',
-            'dbTable' => 'retval_' . $stage,
-            'tableTitle' => $stage,
-            'toolTip' => 'Latexml XML intermediate format creation.',
-            'parseXml' => true,
-            'timeout' => 1200,
-            'destFile' => '%MAINFILEPREFIX%.tex.xml',
-            'stdoutLog' => 'stdout.log', // this needs to match entry in Makefile
-            'stderrLog' => 'stderr.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $target . '.log',
-            'dependentStages' => [],
-            'showRetval' => [
-                'unknown' => true,
-                'not_qualified' => true,
-                'missing_errlog' => true,
-                'fatal_error' => true,
-                'timeout' => true,
-                'error' => true,
-                'missing_macros' => true,
-                'missing_figure' => true,
-                'missing_bib' => true,
-                'missing_file' => true,
-                'warning' => true,
-                'no_problems' => true
-            ],
-            'retvalDetail' => [
-                'missing_macros' => [
-                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
-                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
-                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
-                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
-                    ['sql' => 'missing_macros', 'html' => 'Missing macros', 'align' => 'left'],
-                ],
-                'warning' => [
-                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
-                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
-                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
-                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
-                ],
-                'error' => [
-                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
-                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
-                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
-                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
-                ],
-                'fatal_error' => [
-                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
-                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
-                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
-                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
-                ],
-                'no_problems' => [
-                    ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
-                    ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
-                    ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
-                    ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
-                    ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
-                ],
-            ],
-            'showTopErrors' => [
-                'error' => true,
-                'fatal_error' => true,
-                'missing_macros' => true,
-            ],
-            'showDetailErrors' => [
-                'error' => true,
-            ],
-        ];
+        $config = new ConfigStage();
+
+        $config
+            ->setStage($stage)
+            ->setClassname(__CLASS__)
+            ->setTarget($target)
+            ->setHostGroup('worker')
+            ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
+            ->setDbTable('retval_' . $stage)
+            ->setTableTitle($stage)
+            ->setTooplTip('Latexml XML intermediate format creation.')
+            ->setParseXml(true)
+            ->setTimeout(1200)
+            ->setDestFile('%MAINFILEPREFIX%.tex.xml')
+            ->setStdOutLog('stdout.log') // this needs to match entry in Makefile
+            ->setStdErrLog('stderr.log') // needs to match entry in Makefile
+            ->setMakeLog('make_' . $target . '.log')
+            ->setDependentStages([])
+            ->setShowRetval(
+                [
+                    'unknown' => true,
+                    'not_qualified' => true,
+                    'missing_errlog' => true,
+                    'fatal_error' => true,
+                    'timeout' => true,
+                    'error' => true,
+                    'missing_macros' => true,
+                    'missing_figure' => true,
+                    'missing_bib' => true,
+                    'missing_file' => true,
+                    'warning' => true,
+                    'no_problems' => true
+                ]
+            )
+            ->setRetvalDetail(
+                [
+                    'missing_macros' => [
+                        ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                        ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                        ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                        ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                        ['sql' => 'missing_macros', 'html' => 'Missing macros', 'align' => 'left'],
+                    ],
+                    'warning' => [
+                        ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                        ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                        ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                        ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                    ],
+                    'error' => [
+                        ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                        ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                        ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                        ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                    ],
+                    'fatal_error' => [
+                        ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                        ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                        ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                        ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                    ],
+                    'no_problems' => [
+                        ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
+                        ['sql' => 'num_error', 'html' => 'num<br />error', 'align' => 'right'],
+                        ['sql' => 'num_xmarg', 'html' => 'num<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
+                        ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
+                        ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                    ],
+                ]
+            )
+            ->setShowTopErrors(
+                [
+                    'error' => true,
+                    'fatal_error' => true,
+                    'missing_macros' => true,
+                ]
+            )
+            ->setShowDetailErrors(
+                [
+                    'error' => true,
+                ]
+            );
 
         return $config;
     }
@@ -129,7 +138,7 @@ class StageXml extends AbstractStage
 
 		$query = '
 			REPLACE	INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id =            = :id,
 				date_created	= :date_created,
@@ -232,7 +241,7 @@ class StageXml extends AbstractStage
 
 		$query = '
 			INSERT INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id              = :id,
 				date_modified	= :i_date_modified,
@@ -305,28 +314,28 @@ class StageXml extends AbstractStage
 
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
-        $stderrlog = $sourceDir . '/' . $res->config['stderrLog'];
-        $makelog = $sourceDir . '/' . $res->config['makeLog'];
+        $stdErrLog = $sourceDir . '/' . $res->config->getStdErrLog();
+        $makeLog = $sourceDir . '/' . $res->config->getMakeLog();
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
-            $res->timeout = $res->config['timeout'];
+            $res->timeout = $res->config->getTimeout();
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
-        } elseif (!is_file($stderrlog)) {
+        } elseif (!is_file($stdErrLog)) {
             if ($status) {
                 $res->retval = 'fatal_error';
-                $res->errmsg = static::parseMakelog($makelog);
+                $res->errmsg = static::parseMakelog($makeLog);
             } else {
                 $res->retval = 'missing_errlog';
             }
         } else {
-            $content = file_get_contents($stderrlog);
+            $content = file_get_contents($stdErrLog);
             if ($content === ''
                 && $status
             ) {
                 $res->retval = 'fatal_error';
-                $res->errmsg = static::parseMakelog($makelog);
+                $res->errmsg = static::parseMakelog($makeLog);
             } else {
 
                 // matches[3] ==> num_xmarg
@@ -430,11 +439,11 @@ class StageXml extends AbstractStage
         $directory = $entry->getFilename();
         $datestamp = date("Y-m-d H:i:s");
 
-        $stderrlog = ARTICLEDIR.'/'.$directory.'/'.$this->config['stderrLog'];
+        $stdErrLog = ARTICLEDIR . '/' . $directory . '/' . $this->config->getStdErrLog();
 
-        $this->debug($stderrlog);
+        $this->debug($stdErrLog);
 
-        $content = file_get_contents($stderrlog);
+        $content = file_get_contents($stdErrLog);
 
         $err_pattern = '/^(Error|Warning):(.*?):(.*)$/m';
         if (preg_match_all($err_pattern, $content, $matches)) {
@@ -446,7 +455,7 @@ class StageXml extends AbstractStage
 
             $num = count($matches[0]);
             for ($i = 0; $i <= $num; $i++) {
-                $ede = new ErrDetEntry($entry->getId(), $this->config['target']);
+                $ede = new ErrDetEntry($entry->getId(), $this->config->getTarget());
                 $ede->setPos($i);
                 $ede->setDateCreated($datestamp);
                 // ?? does not work here
@@ -472,7 +481,7 @@ class StageXml extends AbstractStage
                 $ede->save();
             }
         } else {
-            echo $stderrlog . ': Nothing found.' . PHP_EOL;
+            echo $stdErrLog . ': Nothing found.' . PHP_EOL;
         }
     }
 }

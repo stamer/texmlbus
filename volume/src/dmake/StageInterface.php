@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2017 - 2019 Heinrich Stamerjohanns
+ * (c) 2017 - 2021 Heinrich Stamerjohanns
  *
  * Stage Interface
  */
@@ -10,7 +10,7 @@ namespace Dmake;
 
 interface StageInterface
 {
-    public static function register(): array;
+    public static function register(): ConfigStage;
 
     public function save(): bool;
 
