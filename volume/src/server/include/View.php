@@ -13,7 +13,7 @@ class View
      */
     public static function renderRetvalCell(
         ?string $retval,
-        string $stderrFileLink,
+        string $stdErrFileLink,
         string $destFileLink,
         string $id,
         string $stage,
@@ -32,7 +32,7 @@ class View
             $color = $cfg->ret_color_sm[$cfg->ret_class[$retval]];
             $str .= '<td id="td_' . $id . '_' . $stage . '" class="'.$color.'">'.PHP_EOL;
             $str .= $retval.'<br />'.PHP_EOL;
-            $str .= '<a href="'.htmlspecialchars($stderrFileLink).'">ErrFile</a><br />'.PHP_EOL;
+            $str .= '<a href="'.htmlspecialchars($stdErrFileLink).'">ErrFile</a><br />'.PHP_EOL;
             $str .= '<a href="'.htmlspecialchars($destFileLink).'">DestFile</a><br />'.PHP_EOL;
             $str .= $date_modified.'<br />'.PHP_EOL;
             $str .= '<a href="javascript:rerunById('.$id.',\''.$stage.'\',\''.$target.'\')">queue</a>'.PHP_EOL;
@@ -196,7 +196,7 @@ class View
         string $stage,
         string $target,
         string $retval,
-        string $stderrFileLink,
+        string $stdErrFileLink,
         string $destFileLink,
         array $row,
         array $columns
@@ -220,7 +220,7 @@ class View
 
         $str .= self::renderRetvalCell(
             $retval,
-            $stderrFileLink,
+            $stdErrFileLink,
             $destFileLink,
             $id,
             $stage,

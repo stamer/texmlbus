@@ -93,8 +93,8 @@ foreach ($stages as $stage) {
     } else {
         $cfgDestFile[$stage] = '';
     }
-    $cfgStdoutLog[$stage] = $cfg->stages[$stage]->stdoutLog;
-    $cfgStderrLog[$stage] = $cfg->stages[$stage]->stderrLog;
+    $cfgStdOutLog[$stage] = $cfg->stages[$stage]->stdOutLog;
+    $cfgStdErrLog[$stage] = $cfg->stages[$stage]->stdErrLog;
 
     $ext_query = '';
 
@@ -197,14 +197,14 @@ foreach ($stat as $id => $entry) {
         $directory = UtilStage::getSourceDir('files', $entry['all']['filename'], $cfg->stages[$stage]->hostGroup) . '/';
         //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
         $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
-        $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$stage]);
-        $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog[$stage]);
+        $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog[$stage]);
+        $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog[$stage]);
 
         if ($destFile != '') {
             $destFileLink = $directory.$destFile;
         }
-        $stdoutFileLink = $directory.$stdoutLog;
-        $stderrFileLink = $directory.$stderrLog;
+        $stdOutFileLink = $directory.$stdOutLog;
+        $stdErrFileLink = $directory.$stdErrLog;
 
         $target = $cfg->stages[$stage]->target;
 
@@ -233,7 +233,7 @@ foreach ($stat as $id => $entry) {
 
         echo View::renderRetvalCell(
             $retval,
-            $stderrFileLink,
+            $stdErrFileLink,
             $destFileLink,
             $id,
             $stage,

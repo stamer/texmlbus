@@ -44,8 +44,8 @@ if (in_array($stage, $stages)) {
     } else {
         $cfgDestFile = '';
     }
-    $cfgStdoutLog = $cfg->stages[$stage]->stdoutLog;
-    $cfgStderrLog = $cfg->stages[$stage]->stderrLog;
+    $cfgStdOutLog = $cfg->stages[$stage]->stdOutLog;
+    $cfgStdErrLog = $cfg->stages[$stage]->stdErrLog;
     $hostGroupName = $cfg->stages[$stage]->hostGroup;
 } else {
     exit;
@@ -106,8 +106,8 @@ while (1) {
 
         //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
         $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile);
-        $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog);
-        $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog);
+        $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog);
+        $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog);
 
         // $directory = 'files/' . $row['filename'] . '/';
         $directory = UtilStage::getSourceDir('files', $row['filename'], $hostGroupName) . '/';
@@ -115,8 +115,8 @@ while (1) {
         if ($destFile != '') {
             $destFileLink = $directory.$destFile;
         }
-        $stdoutFileLink = $directory.$stdoutLog;
-        $stderrFileLink = $directory.$stderrLog;
+        $stdOutFileLink = $directory.$stdOutLog;
+        $stdErrFileLink = $directory.$stdErrLog;
 
         if ($row['wq_action'] === $target) {
             if ($row['wq_priority']) {
@@ -135,7 +135,7 @@ while (1) {
                 $stage,
                 $target,
                 $newRetval,
-                $stderrFileLink,
+                $stdErrFileLink,
                 $destFileLink,
                 $row,
                 $columns);

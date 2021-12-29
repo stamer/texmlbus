@@ -52,21 +52,22 @@ foreach ($stages as $stagename => $stage) {
     require_once $filename;
 
     $tc = $stage['class']::register();
-    if (empty($tc['stage'])) {
+    if (empty($tc->getStage())) {
         die("$stagename: No stage given!");
     }
-    if (empty($tc['timeout'])) {
+    if (empty($tc->getTimeout())) {
         die("$stagename: No timeout given!");
     }
-    if (empty($tc['showRetval'])) {
+    if (empty($tc->getShowRetval())) {
         die("$stagename: No showRetval given!");
     }
 
-    $config->stages[$tc['stage']] = new stdClass;
-    foreach ($tc as $key => $value) {
+    $config->stages[$tc->getStage()] = new stdClass;
+    $tcArray = $tc->toArray();
+    foreach ($tcArray as $key => $value) {
         if ($key === 'stage') {
             continue;
         }
-        $config->stages[$tc['stage']]->{$key} = $tc[$key];
+        $config->stages[$tc->getStage()]->{$key} = $tcArray[$key];
     }
 }

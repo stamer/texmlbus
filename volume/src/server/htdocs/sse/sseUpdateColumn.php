@@ -100,13 +100,13 @@ while (1) {
         } else {
             $cfgDestFile[$stage] = '';
         }
-        $cfgStdoutLog[$stage] = $cfg->stages[$stage]->stdoutLog;
-        $cfgStderrLog[$stage] = $cfg->stages[$stage]->stderrLog;
+        $cfgStdOutLog[$stage] = $cfg->stages[$stage]->stdOutLog;
+        $cfgStdErrLog[$stage] = $cfg->stages[$stage]->stdErrLog;
 
         //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
         $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile[$stage]);
-        $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog[$stage]);
-        $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog[$stage]);
+        $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog[$stage]);
+        $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog[$stage]);
 
         //$directory = 'files/' . $entry['filename'] . '/';
         $directory = UtilStage::getSourceDir('files', $entry['filename'], $cfg->stages[$stage]->hostGroup) . '/';
@@ -114,8 +114,8 @@ while (1) {
         if ($destFile != '') {
             $destFileLink = $directory.$destFile;
         }
-        $stdoutFileLink = $directory.$stdoutLog;
-        $stderrFileLink = $directory.$stderrLog;
+        $stdOutFileLink = $directory.$stdOutLog;
+        $stdErrFileLink = $directory.$stdErrLog;
 
         if ($entry['wq_action'] === $target) {
             if ($entry['wq_priority']) {
@@ -132,7 +132,7 @@ while (1) {
 
         $retvalColumn = View::renderRetvalCell(
             $entry['retval'],
-            $stderrFileLink,
+            $stdErrFileLink,
             $destFileLink,
             $entry['id'],
             $stage,

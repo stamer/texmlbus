@@ -12,7 +12,10 @@ namespace Dmake;
  */
 abstract class AbstractStage implements StageInterface
 {
-    protected $config = [];
+    /**
+     * @var ConfigStage
+     */
+    protected $config;
 
     /**
      * @var bool
@@ -87,7 +90,7 @@ abstract class AbstractStage implements StageInterface
 	        echo $message . PHP_EOL;
         }
     }
-    abstract public static function register(): array;
+    abstract public static function register(): ConfigStage;
 
     abstract public function save(): bool;
 

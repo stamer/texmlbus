@@ -7,6 +7,7 @@
 
 use Dmake\AbstractStage;
 use Dmake\Config;
+use Dmake\ConfigStage;
 use Dmake\Dao;
 use Dmake\ErrDetEntry;
 use Dmake\StatEntry;
@@ -44,81 +45,88 @@ class StagePdf extends AbstractStage
     /**
      * @return array|mixed
      */
-    public static function register(): array
+    public static function register(): ConfigStage
     {
         $cfg = Config::getConfig();
         $stage = 'pdf';
         $target = 'pdf';
 
-        $config = [
+        $config = new ConfigStage();
+        $config
             // the name of the stage
-            'stage' => $stage,
+            ->setStage($stage)
             // the name of the class
-            'classname' => __CLASS__,
+            ->setClassname(__CLASS__)
             // the target of makefile, most times same as stage, but
             // pdf and pdf_edge have the same target pdf
-            'target' => $target,
+            ->setTarget($target)
             // the hostGroup
             // pdf has worker as hostGroup, pdf_edge has worker_edge
             // therefore two different pdf environments can be used
-            'hostGroup' => 'worker',
+            ->setHostGroup('worker')
             // the name of the table where target specific results are stored
-            'command' => 'set -o pipefail; '
-                . $cfg->app->make . ' -f Makefile',
-            'dbTable' => 'retval_' . $stage,
+            ->setCommand('set -o pipefail; ' . $cfg->app->make . ' -f Makefile')
+            ->setDbTable('retval_' . $stage)
             // titles on statistic page
-            'tableTitle' => $stage,
-            'toolTip' => 'PDF creation.',
+            ->setTableTitle($stage)
+            ->setTooplTip('PDF creation.')
             // whether xml needs to be parsed
-            'parseXml' => false,
+            ->setParseXml(false)
             // the timeout in seconds
-            'timeout' => 240,
+            ->setTimeout(240)
             /* use %MAINFILEPREFIX%, if the logfile use same prefix as the main tex file */
-            'destFile' => '%MAINFILEPREFIX%.pdf',
-            'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
-            'stderrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
-            'makeLog' => 'make_' . $target . '.log',
-            'dependentStages' => [], // which log files need to be parsed?
-            'showRetval' => [
-                'unknown' => true,
-                'not_qualified' => true,
-                'missing_errlog' => true,
-                'fatal_error' => true,
-                'timeout' => true,
-                'error' => true,
-                'missing_macros' => true,
-                'missing_figure' => true,
-                'missing_bib' => true,
-                'missing_file' => true,
-                'warning' => true,
-                'no_problems' => true
-            ],
-            'retvalDetail' => [
-                'missing_figures' => [
-                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
-                ],
-                'missing_bib' => [
-                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
-                ],
-                'missing_file' => [
-                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
-                ],
-                'missing_macros' => [
-                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
-                ],
-                'error' => [
-                     ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
-                ],
-            ],
-            'showTopErrors' => [
-                'error' => true,
-                'fatal_error' => false,
-                'missing_macros' => false,
-            ],
-            'showDetailErrors' => [
-                'error' => false,
-            ],
-        ];
+            ->setDestFile('%MAINFILEPREFIX%.pdf')
+            ->setStdOutLog('%MAINFILEPREFIX%.log') // this needs to match entry in Makefile
+            ->setStdErrLog('%MAINFILEPREFIX%.log') // needs to match entry in Makefile
+            ->setMakeLog('make_' . $target . '.log')
+            ->setDependentStages([]) // which log files need to be parsed?
+            ->setShowRetval(
+                [
+                    'unknown' => true,
+                    'not_qualified' => true,
+                    'missing_errlog' => true,
+                    'fatal_error' => true,
+                    'timeout' => true,
+                    'error' => true,
+                    'missing_macros' => true,
+                    'missing_figure' => true,
+                    'missing_bib' => true,
+                    'missing_file' => true,
+                    'warning' => true,
+                    'no_problems' => true
+                ]
+            )
+            ->setRetvalDetail(
+                [
+                    'missing_figures' => [
+                         ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                    ],
+                    'missing_bib' => [
+                         ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                    ],
+                    'missing_file' => [
+                         ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                    ],
+                    'missing_macros' => [
+                         ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                    ],
+                    'error' => [
+                         ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left']
+                    ],
+                ]
+            )
+            ->setShowRetval(
+                [
+                    'error' => true,
+                    'fatal_error' => false,
+                    'missing_macros' => false,
+                ]
+            )
+            ->setShowDetailErrors(
+                [
+                    'error' => false,
+                ]
+            );
 
         return $config;
     }
@@ -132,7 +140,7 @@ class StagePdf extends AbstractStage
 
 		$query = /** @lang ignore */ '
 			REPLACE	INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id              = :id,
 				date_created	= :date_created,
@@ -214,10 +222,10 @@ class StagePdf extends AbstractStage
 
         $dao = Dao::getInstance();
 
-        echo "Updating " . $this->config['dbTable'] . PHP_EOL;
+        echo "Updating " . $this->config->getDbTable() . PHP_EOL;
 		$query = /** @lang ignore */ '
 			INSERT INTO
-				'.$this->config['dbTable'].'
+				' . $this->config->getDbTable() . '
 			SET
 				id              = :id,
 				date_modified	= :i_date_modified,
@@ -265,7 +273,7 @@ class StagePdf extends AbstractStage
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefilePrefix = $sourceDir . '/' . $entry->getSourcefilePrefix();
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
-        $makelog = $sourceDir . '/' . $res->config['makeLog'];
+        $makeLog = $sourceDir . '/' . $res->config->getMakeLog();
 
         $logfile = $texSourcefilePrefix.'.log';
         echo "parsing Logfile $logfile ..." . PHP_EOL;
@@ -274,14 +282,14 @@ class StagePdf extends AbstractStage
 
         if ($childAlarmed) {
             $res->retval = 'timeout';
-            $res->timeout = $res->config['timeout'];
+            $res->timeout = $res->config->getTimeout();
         } elseif (!UtilFile::isFileTexfile($texSourcefile)) {
             $res->retval = 'not_qualified';
         } elseif (!is_file($logfile)) {
             // error status returned?
             if ($status) {
                 $res->retval = 'fatal_error';
-                $res->errmsg = static::parseMakelog($makelog);
+                $res->errmsg = static::parseMakelog($makeLog);
             } else {
                 $res->retval = 'missing_errlog';
             }
@@ -296,7 +304,7 @@ class StagePdf extends AbstractStage
             && $status
         ) {
             $res->retval = 'fatal_error';
-            $res->errmsg = static::parseMakelog($makelog);
+            $res->errmsg = static::parseMakelog($makeLog);
         } else {
             $warnPattern = '@(.*?)(Warning:)(\S*)\s+(.*)@m';
             $matches = [];
@@ -398,7 +406,7 @@ class StagePdf extends AbstractStage
             $this->debug($num . ' matches');
 
             for ($i = 0; $i < $num; $i++) {
-                $ede = new ErrDetEntry($entry->getId(), $this->config['target']);
+                $ede = new ErrDetEntry($entry->getId(), $this->config->getTarget());
                 $ede->setPos($i);
                 $ede->setDateCreated($datestamp);
                 // ?? does not work here

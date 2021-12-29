@@ -65,8 +65,8 @@ if (in_array($stage, $stages)) {
     } else {
         $cfgDestFile = '';
     }
-    $cfgStdoutLog = $cfg->stages[$stage]->stdoutLog;
-    $cfgStderrLog = $cfg->stages[$stage]->stderrLog;
+    $cfgStdOutLog = $cfg->stages[$stage]->stdOutLog;
+    $cfgStdErrLog = $cfg->stages[$stage]->stdErrLog;
 } else {
     echo "Unknown stage: ".htmlspecialchars($stage);
     exit;
@@ -156,14 +156,14 @@ foreach ($rows as $row) {
     $directory = UtilStage::getSourceDir('files', $row['filename'], $cfg->stages[$stage]->hostGroup) . '/';
     //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
     $destFile = str_replace('%MAINFILEPREFIX%', $prefix, $cfgDestFile);
-    $stdoutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdoutLog);
-    $stderrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStderrLog);
+    $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog);
+    $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog);
 
     if ($destFile != '') {
         $destFileLink = $directory.$destFile;
     }
-    $stdoutFileLink = $directory.$stdoutLog;
-    $stderrFileLink = $directory.$stderrLog;
+    $stdOutFileLink = $directory.$stdOutLog;
+    $stdErrFileLink = $directory.$stdErrLog;
 
     $count++;
     $no = $count + $min;
@@ -175,7 +175,7 @@ foreach ($rows as $row) {
         $stage,
         $target,
         $retval,
-        $stderrFileLink,
+        $stdErrFileLink,
         $destFileLink,
         $row,
         $columns
