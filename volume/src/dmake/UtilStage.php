@@ -106,7 +106,7 @@ class UtilStage
         $cfg = Config::getConfig();
 
         $sourceDir = $articleDir . '/' . $directory;
-        $destDir = $articleDir . '/' . $directory . '/' . $cfg->server->workerPrefix . $hostGroupName;
+        $destDir = $articleDir . '/' . rtrim($directory, '/') . '/' . $cfg->server->workerPrefix . $hostGroupName;
 
         /*
          * It is not necessary to recreate worker directories any more.
@@ -127,7 +127,7 @@ class UtilStage
         $cfg = Config::getConfig();
 
         if ($cfg->linkSourceFiles) {
-            $sourceDir = $articleDir . '/' . $directory . '/' . $cfg->server->workerPrefix . $hostGroup;
+            $sourceDir = $articleDir . '/' . rtrim($directory, '/') . '/' . $cfg->server->workerPrefix . $hostGroup;
         } else {
             $sourceDir = $articleDir . '/' . $directory;
         }
