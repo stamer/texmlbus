@@ -133,7 +133,7 @@ foreach ($stages as $stage) {
 
         foreach ($stat as $retval => $num) {
 
-            if (!empty($showRetval[$retval])) {
+            if (!isset($showRetval[$retval])) {
                 continue;
             }
             $color = $cfg->ret_color[$cfg->ret_class[$retval]];

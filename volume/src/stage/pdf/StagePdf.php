@@ -115,13 +115,6 @@ class StagePdf extends AbstractStage
                     ],
                 ]
             )
-            ->setShowRetval(
-                [
-                    'error' => true,
-                    'fatal_error' => false,
-                    'missing_macros' => false,
-                ]
-            )
             ->setShowTopErrors(
                 [
                     'error' => false,
