@@ -46,9 +46,16 @@ class UtilMisc
         }
         echo '<br /><br />';
         for ($i = 0; $i * $max_pp < $count; $i++) {
-            $thisparam = preg_replace('/^&amp;/', '?', $param.'&amp;min='.$i * $max_pp);
-            $thisurl = $_SERVER['PHP_SELF'].$thisparam;
-            echo '<a href="'.$thisurl.'">['.(($i * $max_pp) + 1) . ']</a> ';
+            $newMin = $i * $max_pp;
+            $thisparam = preg_replace('/^&amp;/', '?', $param . '&amp;min=' . $newMin);
+            $thisurl = $_SERVER['PHP_SELF'] . $thisparam;
+            if ($min == $newMin) {
+                echo '<b>';
+            }
+            echo '<a href="'.$thisurl.'">[' . (($newMin) + 1) . ']</a> ';
+            if ($min == $newMin) {
+                echo '</b>';
+            }
         }
         echo '</div>' . PHP_EOL;
     }
