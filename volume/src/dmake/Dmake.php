@@ -115,6 +115,10 @@ class Dmake
                         echo "DependentStage: parsing " . $cfg->stages[$dependentStage]->stdErrLog . PHP_EOL;
                     }
                     $classname::parse($hostGroup, $entry, $status, $childAlarmed);
+                    if (method_exists($classname, 'parseDetail')) {
+                        $retvalInstance = new $classname();
+                        $retvalInstance->parseDetail($hostGroup, $entry);
+                    }
                 } else {
                     die ("Parsing dependent stages: $action, Trying to load $classname, but it does not exist");
                 }
@@ -131,6 +135,10 @@ class Dmake
         }
         if (class_exists($classname)) {
             $classname::parse($hostGroup, $entry, $status, $childAlarmed);
+            if (method_exists($classname, 'parseDetail')) {
+                $retvalInstance = new $classname();
+                $retvalInstance->parseDetail($hostGroup, $entry);
+            }
         } else {
             die ("Action: $action, Trying to load $classname, but it does not exist");
         }
