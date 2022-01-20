@@ -437,9 +437,10 @@ class StageXml extends AbstractStage
         StatEntry $entry): void
     {
         $directory = $entry->getFilename();
+        $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $datestamp = date("Y-m-d H:i:s");
 
-        $stdErrLog = ARTICLEDIR . '/' . $directory . '/' . $this->config->getStdErrLog();
+        $stdErrLog = $sourceDir . '/' . $this->config->getStdErrLog();
 
         $this->debug($stdErrLog);
 
