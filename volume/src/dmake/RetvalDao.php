@@ -309,6 +309,10 @@ class RetvalDao
     {
         $dao = Dao::getInstance();
 
+        $setCond = '';
+        if (!empty($set)) {
+            $setCond = ' AND s.`set` = :set ';
+        }
         $query = "
             SELECT
                 s.filename,
@@ -322,7 +326,7 @@ class RetvalDao
                 s.id = j.id
             WHERE
                 j.missing_macros LIKE :macro
-                AND s.`set` = :set
+                $setCond
             ORDER BY
                 j.date_created DESC
             LIMIT
@@ -330,7 +334,9 @@ class RetvalDao
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':macro', '%' . $macro . '%');
-        $stmt->bindValue(':set', $set);
+        if (!empty($set)) {
+            $stmt->bindValue(':set', $set);
+        }
 
         $stmt->execute();
         return $stmt->fetchAll();
