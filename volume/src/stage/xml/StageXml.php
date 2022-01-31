@@ -86,6 +86,7 @@ class StageXml extends AbstractStage
                         ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
                         ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
                         ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                        ['sql' => 'warnmsg', 'html' => 'Error message', 'align' => 'left', 'detail' => true],
                     ],
                     'error' => [
                         ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],
@@ -94,6 +95,7 @@ class StageXml extends AbstractStage
                         ['sql' => 'ok_xmarg', 'html' => 'ok<br />xmarg', 'align' => 'right'],
                         ['sql' => 'num_xmath', 'html' => 'num<br />xmath', 'align' => 'right'],
                         ['sql' => 'ok_xmath', 'html' => 'ok<br />xmath', 'align' => 'right'],
+                        ['sql' => 'errmsg', 'html' => 'Error message', 'align' => 'left', 'detail' => true],
                     ],
                     'fatal_error' => [
                         ['sql' => 'num_warning', 'html' => 'num<br />warning', 'align' => 'right'],

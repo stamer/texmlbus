@@ -9,6 +9,7 @@ use Dmake\Dao;
 use Dmake\RetvalDao;
 use Server\Config;
 use Server\Page;
+use Server\UtilMisc;
 
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
@@ -36,7 +37,7 @@ if (in_array($stage, $stages)) {
 }
 
 $errmsg = $page->getRequest()->getQueryParam('errmsg', '');
-if (empty(errmsg)) {
+if (empty($errmsg)) {
 	echo "No fatal error given!";
 	exit;
 }
@@ -55,7 +56,7 @@ echo '<tr><th>No.</th><th>Date</th><th>Files</th><th>Errmsg</th></tr>';
 $count = $min;
 foreach ($rows as $row) {
 	$count++;
-	$directory = 'files'.$row['filename'].'/';
+	$directory = 'files/' . $row['filename'];
 	echo "<tr>\n";
 	echo '<td align="right">'.$count.'</td><td>'.$row['date_created'].'</td>';
 	if (!$cfg->isCrawler) {

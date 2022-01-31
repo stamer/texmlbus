@@ -195,7 +195,7 @@ foreach ($stages as $stage) {
         if ($showDetailErrors['error']) {
 ?>
                     <p>
-                        <a href="top_errdetail.php?set=<?=htmlspecialchars($set) ?>&amp;stage=<?= htmlspecialchars($stage) ?>&amp;retval=error ?>">
+                        <a href="top_errdetail.php?set=<?=htmlspecialchars($set) ?>&amp;stage=<?= htmlspecialchars($stage) ?>&amp;retval=error">
                             Top Detail Error Messages for (<?=htmlspecialchars($stage) ?>)</a>
                     </p>
 <?php

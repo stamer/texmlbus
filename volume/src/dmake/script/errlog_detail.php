@@ -4,8 +4,13 @@
  * (c) 2007 - 2017 Heinrich Stamerjohanns
  *
  */
-require_once "IncFiles.php";
-require_once "ErrDetEntry.php";
+require_once dirname(__DIR__, 1) . "/IncFiles.php";
+require_once dirname(__DIR__, 1) . "/ErrDetEntry.php";
+
+use Dmake\Config;
+use Dmake\Dao;
+use Dmake\StatEntry;
+use Dmake\ErrDetEntry;
 
 $cfg = Config::getConfig();
 $dao = Dao::getInstance();
@@ -25,7 +30,7 @@ if (isset($argv[2])) {
 /**
  * @TODO check valid target
  */
-$restrict['dir'] = 'Misgeld';
+//$restrict['dir'] = 'Misgeld';
 $restrict['retval'] = 'error';
 $restrict['retval_target'] = $stage;
 
@@ -45,7 +50,7 @@ foreach ($dirs as $directory) {
 
 	$datestamp = date("Y-m-d H:i:s", time());
 
-	ErrDetEntry::deleteByIdAndTarget($document_id, $action);
+	ErrDetEntry::deleteByIdAndTarget($document_id, $stage);
 
     $classname = $cfg->stages[$stage]->classname;
     $hostGroup = $cfg->stages[$stage]->hostGroup;

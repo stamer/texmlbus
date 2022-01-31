@@ -178,9 +178,31 @@ class View
                     $rowContent .= nl2br(htmlspecialchars($row[$fieldname]));
                 }
             } else {
-                $rowContent .= nl2br(htmlspecialchars($row[$field['sql']]));
+                if (!empty($field['detail'])) {
+                    $id = $row['id'];
+                    $rowContent .= '
+<div class="accordion" id="accordion' . $id . '">
+  <div class="card">
+    <div class="card-header" id="heading' . $id . '">
+      <div class="mb-0">
+        <a data-toggle="collapse" href="#collapse' . $id . '" aria-expanded="false" aria-controls="collapse' . $id .'">
+                ' . nl2br(htmlspecialchars(mb_substr($row[$field['sql']], 0, 60))) . '
+        </a>
+      </div>
+    </div>
+     <div id="collapse' . $id . '" class="collapse" aria-labelledby="heading' . $id . '" data-parent="#accordion' . $id . '">
+      <div class="card-body">
+        ' . nl2br(htmlspecialchars($row[$field['sql']])) . '
+      </div>
+    </div>
+  </div>
+</div>';
+                } else {
+                    $rowContent .= nl2br(htmlspecialchars($row[$field['sql']]));
+                }
             }
             $str .= '<td align="' . $field['align'] . '">' . $rowContent;
+
             $str .= '</td>';
         }
         return $str;
