@@ -35,6 +35,10 @@ services:
         image: stamer/latexml_dmake
         environment:
             DOCKERIZED: 1
+            MYSQL_USER: webuser
+            MYSQL_PASSWORD: websecret
+            MYSQL_HOST: dbserver
+            MYSQL_DATABASE: buildsysdb
         networks:
             texmlbus_net:
                 aliases:

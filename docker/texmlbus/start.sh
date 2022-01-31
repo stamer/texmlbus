@@ -123,6 +123,15 @@ if [[ ! -e /srv/texmlbus/build ]]; then
     ln -s /srv/texmlbus/src /srv/texmlbus/build
 fi
 
+if [[ ! -e /srv/texmlbus/src/server/htdocs/ltx_sty ]]; then
+    ln -s /opt/latexml/lib/LaTeXML/Package /srv/texmlbus/src/server/htdocs/ltx_sty
+fi
+if [[ ! -e /srv/texmlbus/src/server/htdocs/sty ]]; then
+    ln -s /srv/texmlbus/src/sty /srv/texmlbus/src/server/htdocs/sty
+fi
+
+
+
 cd /srv/texmlbus/src/
 sudo -u dmake /usr/local/bin/composer install
 

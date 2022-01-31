@@ -61,7 +61,10 @@ RUN apk add \
     php-cli \
     php-fpm \
     php-json \
+    php-mysqli \
     php-pcntl \
+    php-pdo \
+    php-pdo_mysql \
     php-posix \
     php-sysvshm
 

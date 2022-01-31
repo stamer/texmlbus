@@ -1,8 +1,10 @@
 <?php
+/**
+ * MIT License
+ * (c) 2008 - 2022 Heinrich Stamerjohanns
+ *
+ */
 /*
-Heinrich Stamerjohanns, April 29th, 2008
-                        May 7th, 2018
-
 The script will extract the files that have missing macros (xml target)
 parses them to find out what style files are being included
 and looks then for the specified macro.
@@ -13,18 +15,27 @@ Existing entries will be deleted (filename, macro) and then recreated, so this
 script can be called again and again.
 
 */
-require_once "../IncFiles.php";
+require_once dirname(__DIR__, 2) . "/dmake/IncFiles.php";
+
+use Dmake\Config;
+use Dmake\Dao;
+use Dmake\UtilFile;
+use Dmake\UtilStylefile;
+
 $cfg = Config::getConfig();
 
 $dao = DAO::getInstance();
 
-/**
- * Main program
- */
 if (isset($argv[1])) {
 	$set = $argv[1];
 } else {
-	$set = 'samples-working';
+	$set = '';
+}
+
+if ($set !== '') {
+    $setCond = ' AND s.`set` = :set ';
+} else {
+    $setCond = '';
 }
 
 $query = "
@@ -38,15 +49,17 @@ $query = "
     ON
         s.id = rx.id
     WHERE
-        s.`set` = :set
-        AND rx.missing_macros != ''
+        rx.missing_macros != ''
+        $setCond
 	ORDER BY
 		filename";
 
 $mm = array();
 
 $stmt = $dao->prepare($query);
-$stmt->bindValue('set', $set);
+if ($set !== '') {
+    $stmt->bindValue('set', $set);
+}
 
 $stmt->execute();
 
@@ -61,7 +74,7 @@ while ($row = $stmt->fetch()) {
 
 	$macros = preg_split('/,\s*/', $matches[2]);
 
-	$filename = PAPERDIR.'/'.$filename;
+	$filename = ARTICLEDIR.'/'.$filename;
 
 	$texsourcefile = UtilFile::getSourcefileInDirViaMake($filename);
 
@@ -85,17 +98,12 @@ while ($row = $stmt->fetch()) {
 		continue;
 	}
 
-	foreach ($macros as $macro) {
+    foreach ($macros as $macro) {
         echo "MMacro: $macro\n";
         if (!isset($mm[$filename][$macro])) {
             echo "Updating $filename: $macro".PHP_EOL;
             $sty_filename = UtilStylefile::mmFindMacroInStylefiles($set, $filename, $macro, $stylefilesArr);
             $mm[$filename][$macro] = $sty_filename;
         }
-	}
+    }
 }
-
-
-
-
-
