@@ -497,15 +497,33 @@ class RetvalDao
     {
         $dao = Dao::getInstance();
 
+        $detailQuery = false;
         $sqlstr = '';
         foreach ($columns as $field) {
             if (is_array($field['sql'])) {
                 foreach ($field['sql'] as $fieldname) {
                     $sqlstr .= 'j.' . $fieldname . ",\n";
                 }
-            } else {
+            } elseif(isset($field['sql'])) {
                 $sqlstr .= 'j.' . $field['sql'] . ",\n";
+                if (!empty($field['detail'])) {
+                    $detailQuery = true;
+                }
             }
+        }
+
+        if ($detailQuery) {
+            $joinDetailFields = ', group_concat(ederr.errmsg ORDER BY ederr.pos ASC SEPARATOR "\n") as errdetail ';
+            $joinDetailFields .= ', group_concat(edwarn.errmsg ORDER BY edwarn.pos ASC SEPARATOR "\n") as warndetail '
+            ;
+            $joinDetail = ' LEFT join errlog_detail as ederr on s.id = ederr.document_id AND ederr.errclass = "Error" ';
+            $joinDetail .= ' LEFT join errlog_detail as edwarn on s.id = edwarn.document_id AND edwarn.errclass = "Warning" ';
+            $joinDetailGroupBy = " GROUP BY ederr.document_id";
+            $joinDetailGroupBy .= ", edwarn.document_id ";
+        } else {
+            $joinDetailFields = '';
+            $joinDetail = '';
+            $joinDetailGroupBy = '';
         }
 
         if ($retval != 'unknown') {
@@ -545,9 +563,11 @@ class RetvalDao
                 s.filename,
                 wq.action as wq_action,
                 wq.priority as wq_priority
+                $joinDetailFields
             FROM
                 statistic as s
             $join
+            $joinDetail
             LEFT JOIN
                 workqueue as wq
             ON s.id = wq.statistic_id
@@ -556,6 +576,7 @@ class RetvalDao
                 1 " .
                 $joinWhere .
                 $ext_query . "
+            $joinDetailGroupBy
             ORDER BY
                 $orderBy $sortBy
             LIMIT
@@ -575,8 +596,15 @@ class RetvalDao
 
         $rows = [];
         while ($row = $stmt->fetch()) {
+            if (isset($row['errdetail'])) {
+                $row['errmsg'] .= $row['errdetail'];
+            }
+            if (isset($row['warndetail'])) {
+                $row['warnmsg'] .= $row['warndetail'];
+            }
             $rows[$row['id']] = $row;
         }
+
 
         return $rows;
     }

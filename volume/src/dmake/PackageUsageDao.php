@@ -50,14 +50,38 @@ class PackageUsageDao
         $stmt->execute();
 
         $row = $stmt->fetch();
-
-        return $row['numrows'];
+        return $row['numrows'] ?? 0;
     }
 
     /**
-     * Get StyFilenames
+     * @param $filename
+     * @return array|false
      */
-    public function getStyFilenames(
+    public function getStyfilesByFilename($filename)
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                package_usage as pu
+            WHERE
+                filename = :filename
+            ORDER BY
+                styfilename";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':filename', $filename);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get Correlation
+     */
+    public function getStyCorrelation(
         string $set,
         string $order,
         int $min,

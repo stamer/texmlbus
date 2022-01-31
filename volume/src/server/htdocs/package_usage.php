@@ -5,8 +5,11 @@
  *
  */
 require_once "../include/IncFiles.php";
+use Dmake\Dao;
 use Dmake\PackageUsageDao;
+use Server\Config;
 use Server\Page;
+use Server\UtilMisc;
 
 $page = new Page('Package usage');
 $page->showHeader('package_usage');
@@ -45,7 +48,7 @@ if ($sort == 'filename') {
 
 $numrows = PackageUsageDao::getCount($set);
 
-$rows = PackageUsageDao::getStyFilenames($set, $order, $min, $max_pp);
+$rows = PackageUsageDao::getStyCorrelation($set, $order, $min, $max_pp);
 
 
     echo '<h3>Correlation of package files to xml successful conversion</h3>';

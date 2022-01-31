@@ -93,7 +93,7 @@ class UtilBindingFile
         return $bindingFiles;
     }
 
-    public function getClsFiles($useCache = true)
+    public static function getClsFiles($useCache = true)
     {
         $bindingDir = UtilBindingFile::getBindingFilesDir();
         $clsPattern = "/\.cls\.ltxml$/";
@@ -124,7 +124,7 @@ class UtilBindingFile
         return $clsFiles;
     }
 
-    public function getStyFiles($useCache = true)
+    public static function getStyFiles($useCache = true)
     {
         $bindingDir = UtilBindingFile::getBindingFilesDir();
         $styPattern = "/\.sty\.ltxml$/";

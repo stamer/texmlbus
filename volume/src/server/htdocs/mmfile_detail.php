@@ -6,6 +6,9 @@
  */
 require_once "../include/IncFiles.php";
 use Dmake\MmfileDao;
+use Dmake\Dao;
+use Server\Config;
+use Server\Page;
 use Server\UtilMisc;
 
 $cfg = Config::getConfig();

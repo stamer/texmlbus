@@ -49,7 +49,7 @@ class MmfileDao
         if (!empty($macro)) {
             $stmt->bindValue(':macro', $macro);
         }
-        if (!empty($sty)) {
+        if (!empty($styfilename)) {
             $stmt->bindValue(':styfilename', $styfilename);
         }
         if (!empty($set)) {
@@ -82,7 +82,7 @@ class MmfileDao
                 AND macro           = :macro";
         }
 
-        if (!empty($sty)) {
+        if (!empty($styfilename)) {
             $query .= "
                 AND styfilename = :styfilename";
         }
@@ -101,7 +101,7 @@ class MmfileDao
         if (!empty($macro)) {
             $stmt->bindValue(':macro', $macro);
         }
-        if (!empty($sty)) {
+        if (!empty($styfilename)) {
             $stmt->bindValue(':styfilename', $styfilename);
         }
         if (!empty($set)) {
@@ -144,7 +144,7 @@ class MmfileDao
         $stmt->execute();
 
         $row = $stmt->fetch();
-        return $row['numrows'];
+        return $row['numrows'] ?? 0;
     }
 
     /**
@@ -216,13 +216,13 @@ class MmfileDao
         $stmt->execute();
 
         $row = $stmt->fetch();
-        return $row['numrows'];
+        return $row['numrows'] ?? 0;
     }
 
     /**
      * Get count mmfiles entries grouped by macro entries for given set.
      */
-    public static function getM(string $set, int $min, int $max_pp): int
+    public static function getM(string $set, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 
@@ -291,7 +291,7 @@ class MmfileDao
         $stmt->execute();
 
         $row = $stmt->fetch();
-        return  $row['numrows'];
+        return  $row['numrows'] ?? 0;
     }
 
     /**

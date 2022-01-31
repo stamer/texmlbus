@@ -12,6 +12,8 @@ require_once 'StatEntry.php';
 
 class UtilStylefile
 {
+    public static $fullPathStylefile = [];
+
     public static function getStylefiles(string $checkfile): array
     {
         $stylefiles = array();
@@ -157,63 +159,6 @@ class UtilStylefile
         }
     }
 
-    public function findMacroInStylefiles(
-        string $set,
-        string $filename,
-        string $macro,
-        array $stylefilesArr
-    ): void {
-        $dao = DAO::getInstance();
-
-        $styfiles = '';
-        foreach ($stylefilesArr as $stylefile) {
-            if ($stylefile == 'A4.sty' || $stylefile == '12pt.sty' || $stylefile == '11pt.sty' || $stylefile == 'twoside.sty') {
-                continue;
-            }
-            $styfiles .= $stylefile . ' ';
-        }
-
-        $execStr = 'cd ' . STYARXMLIVDIR . '; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*' . $macro . '[^a-zA-Z0-9_]\' ' . $styfiles;
-        //echo $execStr."\n";
-
-        $retstr = shell_exec($execStr);
-
-        $retstr = trim($retstr);
-
-        $arr = explode("\n", $retstr);
-
-        $arr = array_unique($arr);
-        $filename = str_replace(PAPERD, '', $filename);
-
-        foreach ($arr as $styfilename) {
-            $styfilename = trim($styfilename);
-            if (!strlen($styfilename)) {
-                continue;
-            }
-            // echo $filename."\n";
-
-            $query = "
-                INSERT INTO
-                    styusage
-                SET
-                    id = 0,
-                    `set`       = :set,
-                    filename    = :filename,
-                    macro       = :macro,
-                    styfilename = :styfilename,
-                    num         = 0
-                ";
-
-            $stmt = $dao->prepare($query);
-            $stmt->bindValue(':set', $set);
-            $stmt->bindValue(':filename', $filename);
-            $stmt->bindValue(':macro', $macro);
-            $stmt->bindValue(':styfilename', $styfilename);
-
-            $stmt->execute();
-        }
-    }
-
     public function mmFindMacroInStylefiles(
         string $set,
         string $filename,
@@ -230,21 +175,32 @@ class UtilStylefile
                 || $stylefile == 'twoside.sty') {
                 continue;
             }
-            $styfiles .= $stylefile . ' ';
+            if (!isset(self::$fullPathStylefile[$stylefile])) {
+                $execStr = 'kpsewhich ' . $stylefile;
+                $retstr = shell_exec($execStr);
+                $retstr = trim($retstr);
+                self::$fullPathStylefile[$stylefile] = $retstr;
+            }
+            if (self::$fullPathStylefile[$stylefile] !== '') {
+                $styfiles .= self::$fullPathStylefile[$stylefile] . ' ';
+            }
         }
 
-        $execStr = 'cd ' . STYARXMLIVDIR . '; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*' . $macro . '[^a-zA-Z0-9_]\' ' . $styfiles;
-        //echo $execStr."\n";
+        $arr = [];
+        if ($styfiles) {
+            $execStr = '/bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*' . $macro . '[^a-zA-Z0-9_]\' ' . $styfiles;
+            echo $execStr . "\n";
 
-        $retstr = shell_exec($execStr);
+            $retstr = shell_exec($execStr);
 
-        $retstr = trim($retstr);
+            $retstr = trim($retstr);
 
-        $arr = explode("\n", $retstr);
+            $arr = explode("\n", $retstr);
 
-        $arr = array_unique($arr);
-        $filename = str_replace(APERDI, '', $filename);
+            $arr = array_unique($arr);
+        }
 
+        $filename = str_replace(ARTICLEDIR, '', $filename);
         // cleanup old entries
         $query = "
             DELETE FROM
@@ -261,6 +217,7 @@ class UtilStylefile
 
         foreach ($arr as $styfilename) {
             $styfilename = trim($styfilename);
+            $styfilename = str_replace('/usr/share/texmf-dist/tex/latex/', '', $styfilename);
             if (!strlen($styfilename)) {
                 continue;
             }
@@ -278,6 +235,7 @@ class UtilStylefile
                     num         = 0
                 ";
 
+            echo $query . "\n";
             $stmt = $dao->prepare($query);
             $stmt->bindValue(':set', $set);
             $stmt->bindValue(':filename', $filename);

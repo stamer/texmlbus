@@ -11,8 +11,6 @@ use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
 
-$IS_CRAWLER = false;
-
 $page = new Page('Macro Sty usage');
 $page->showHeader('index');
 
@@ -106,16 +104,17 @@ foreach ($rows as $row) {
 	$count++;
 	echo "<tr>\n";
 	if ($macro_mode) {
-		$ltxfile = $row[$field[2]].'.ltxml';
+		$ltxfile = $row[$field[2]];
 	} else {
-		$ltxfile = ${$field[1]}.'.ltxml';
+		$ltxfile = ${$field[1]};
 	}
 
 	$ltxlink = UtilMisc::getLtxmlLink($ltxfile);
 
 	if ($macro_mode) {
 		echo '<td align="right">'.${$field[1]}.'</td>';
-		if (!$IS_CRAWLER) {
+        // local style files can be
+		if (is_file(STYDIR . '/' . $row[$field[2]])) {
 			echo '<td><a href="sty/'.$row[$field[2]].'">'.$row[$field[2]].'</a></td>';
 		} else {
 			echo '<td>'.$row[$field[2]].'</td>';
@@ -123,7 +122,7 @@ foreach ($rows as $row) {
 		echo '<td>'.$ltxlink.'</td>';
 	} else {
 		echo '<td align="right">'.$row[$field[2]].'</td>';
-		if (!$IS_CRAWLER) {
+		if (is_file(STYDIR . '/' . $row[$field[2]])) {
 			echo '<td><a href="sty/'.${$field[1]}.'">'.${$field[1]}.'</a></td>';
 		} else {
 			echo '<td>'.${$field[1]}.'</td>';

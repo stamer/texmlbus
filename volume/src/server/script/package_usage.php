@@ -1,31 +1,26 @@
 <?php
-/*
-Heinrich Stamerjohanns, July 5th, 2018
+/**
+ * MIT License
+ * (c) 2018 - 2022 Heinrich Stamerjohanns
+ *
+ * This script will extract the packages an articles uses and saves them
+ * to the table package_usage.
+ */
 
-This script will extract the packages an articles uses and saves them
-to the table package_usage.
+require_once dirname(__DIR__, 2) . "/dmake/IncFiles.php";
 
-*/
-
-require_once "../IncFiles.php";
+use Dmake\Config;
+use Dmake\Dao;
+use Dmake\UtilStylefile;
 
 $cfg = Config::getConfig();
 
 $dao = DAO::getInstance();
 
-/**
- * default set ist samples-working, 
- * special set 'all', is all files, 
- * with no set restriction
- */
 if (isset($argv[1])) {
 	$set = $argv[1];
 } else {
-	$set = 'samples-working';
-}
-
-if ($set === 'all') {
-    $set = '';
+	$set = '';
 }
 
 if (!empty($set)) {
@@ -61,10 +56,10 @@ $filename = $row['filename'];
     
     echo "Filename: $filename".PHP_EOL;
 
-	$texsourcefile = PAPERDIR.'/'.$filename.'/'.$sourcefile;
+	$texsourcefile = ARTICLEDIR.'/'.$filename.'/'.$sourcefile;
 
 	print "$texsourcefile\n";
-	$stylefilesArr = UtilStyleFile::getStylefiles($texsourcefile);
+	$stylefilesArr = UtilStylefile::getStylefiles($texsourcefile);
 	
     $stylefilesArr = array_unique($stylefilesArr);
 	
