@@ -7,9 +7,13 @@
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\MmfileDao;
+use Dmake\UtilStylefile;
+use Dmake\UtilBindingFile;
+
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
+
 
 $page = new Page('Macro usage');
 $page->showHeader('stylefiles');
@@ -64,7 +68,7 @@ case 'A':
 		echo '<td><a href="macro_sty_detail.php?set='.htmlspecialchars($set).'&amp;styfilename='.htmlspecialchars($row['styfilename']).'">'.htmlspecialchars($row['styfilename']).'</a></td>'."\n";
 		echo '<td><a href="sty_sim.php?set='.htmlspecialchars($set).'&amp;filename='.htmlspecialchars($row['styfilename']).'">'.htmlspecialchars($row['styfilename']).'</a></td>'."\n";
 
-		$ltxfile = UtilMisc::getLtxmlLink($row['styfilename'].'.ltxml');
+		$ltxfile = UtilMisc::getLtxmlLink($row['styfilename']);
 
 		echo '<td>'.$ltxfile.'</td>';
 		echo "</tr>\n";
@@ -89,7 +93,7 @@ case 'S':
 		echo '<td><a href="/mmfile_detail.php?set='.htmlspecialchars($set).'&styfilename='.htmlspecialchars($row['styfilename']).'">'.$row['numdoc'].'</a></td><td>'.$row['num'].'</td>';
 		echo '<td><a href="macro_sty_detail.php?styfilename='.htmlspecialchars($row['styfilename']).'">'.htmlspecialchars($row['styfilename']).'</a></td>'."\n";
 
-		$ltxfile = UtilMisc::getLtxmlLink($row['styfilename'].'.ltxml');
+		$ltxfile = UtilMisc::getLtxmlLink($row['styfilename']);
 
 		echo '<td>'.$ltxfile.'</td>';
 

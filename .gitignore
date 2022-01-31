@@ -3,6 +3,8 @@ volume/articles/
 !volume/articles/upload
 !volume/articles/upload/tmp
 volume/src/doc/manual.pdf
+volume/src/server/htdocs/ltx_sty
+volume/src/server/htdocs/sty
 volume/src/run/activestages.json
 volume/src/server/htdocs/info.php
 volume/src/vendor

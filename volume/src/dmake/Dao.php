@@ -49,6 +49,7 @@ class Dao
                 self::$instance = new PDO($dsn, $db->username, $db->password, $opt);
             } catch (Exception $e) {
                 if ($failOnExit) {
+                    echo $e->getMessage() . PHP_EOL;
                     die("Database running? If docker-compose is starting up, please come back in a few seconds.\n");
                 }
 

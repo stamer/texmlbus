@@ -7,7 +7,9 @@
 namespace Server;
 
 use Dmake\ApiWorkerRequest;
+use Dmake\UtilFile;
 use Dmake\UtilStage;
+use Dmake\UtilBindingFile;
 
 class UtilMisc
 {
@@ -115,21 +117,30 @@ class UtilMisc
      * @param $ltxfile
      * @return string
      */
-    public static function getLtxmlLink($ltxfile) {
-        $ltxfile = basename($ltxfile);
-        //echo '<pre>'.HTDOCS.'/sty/'.$ltxfile;
-        //exit;
-        if (is_readable(HTDOCS.'/sty/'.$ltxfile)) {
-            //$ltxlink = '<a href="sty/'.$ltxfile.'">sty/'.$ltxfile.'</a> (rel. '.$info['release'].' by '.$info['user'].')';
-            $ltxlink = '<span class="ok">o </span><a href="sty/'.$ltxfile.'">sty/'.$ltxfile.'</a>';
-        } elseif (is_file(STYARXMLIVDIR.'/'.$ltxfile)) {
-            $info['user'] = '';
-            //$ltxlink = '<span class="ok">o </span><a href="ltx_sty/'.$ltxfile.'">ltx_sty/'.$ltxfile.'</a>';
-            $ltxlink = '<span class="ok">oo </span><a href="ltx_sty/'.$ltxfile.'">ltx_sty/'.$ltxfile.'</a>';
-        } else {
-            $ltxlink = '<span class="warn">x </span>';
+    public static function getLtxmlLink($stylefile)
+    {
+        static $ltxmlFiles = [];
+        if (empty($ltxmlFiles['cls'])) {
+            $ltxmlFiles['cls'] = UtilBindingFile::getClsFiles(true);
+        }
+        if (empty($ltxmlFiles['sty'])) {
+            $ltxmlFiles['sty'] = UtilBindingFile::getStyFiles(true);
         }
 
+        $suffix = UtilFile::getSuffix($stylefile, false);
+        $stylefile = basename($stylefile);
+        $ltxfile = $stylefile . '.ltxml';
+
+        if (isset($ltxmlFiles[$suffix][$stylefile])) {
+            if ($ltxmlFiles[$suffix][$stylefile] === 'latexml') {
+                $ltxlink = '<span class="ok">oo </span><a href="ltx_sty/' . $ltxfile . '">ltx_sty/' . $ltxfile . '</a>';
+            } else {
+                $ltxlink = '<span class="ok">o </span><a href="sty/' . $ltxfile . '">sty/' . $ltxfile . '</a>';
+            }
+        } else {
+            $info['user'] = '';
+            $ltxlink = '<span class="warn">x </span>';
+        }
         return $ltxlink;
     }
 

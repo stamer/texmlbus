@@ -26,16 +26,16 @@ $min = max(0, (int) $min);
 
 $max_pp = $cfg->db->perPage;
 
-$numrows = ErrDetEntry::getCountErrClassByErrType('Error');
-$rows = ErrDetEntry::getErrClassByErrType('Error', $min, $max_pp)
+$numrows = ErrDetEntry::getCountErrTYpeByErrClass('Error');
+$rows = ErrDetEntry::getErrTypeByErrClass('Error', $min, $max_pp)
 ?>
 
-<h3>Top Error Classes</h3>
+<h3>Top Error Types</h3>
 <table border="1">
 <tr>
 	<th>No.</th>
     <th>Count</th>
-	<th>Class</th>
+	<th>Type</th>
 </tr>
 <?php
 $count = $min;
@@ -52,8 +52,8 @@ foreach ($rows as $row) {
 		echo "<tr>\n";
 		echo '<td align="right">'.$count."</td>\n";
 		echo '<td align="right">'.$row['num']."</td>\n";
-		$link = 'errclass_detail.php?errclass='.urlencode($row['errclass']);
-		echo '<td><a href="'.$link.'">'.$row['errclass'].'</a>'."</td>\n";
+		$link = 'errtype_detail.php?errtype='.urlencode($row['errtype']);
+		echo '<td><a href="'.$link.'">'.$row['errtype'].'</a>'."</td>\n";
 		echo "</tr>\n";
 	}
 }

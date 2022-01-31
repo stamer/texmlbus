@@ -21,8 +21,8 @@ $min = max(0, (int) $min);
 
 $max_pp = $cfg->db->perPage;
 
-$numrows = ErrDetEntry::getCountByErrType('Error');
-$rows = ErrDetEntry::getByErrType('Error', $min, $max_pp);
+$numrows = ErrDetEntry::getCountByErrClass('Error');
+$rows = ErrDetEntry::getByErrClass('Error', $min, $max_pp);
 
 ?>
 

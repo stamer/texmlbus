@@ -572,25 +572,6 @@ CREATE TABLE `stycross` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `styusage`
---
-
-DROP TABLE IF EXISTS `styusage`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `styusage` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `set` varchar(128) DEFAULT NULL,
-  `filename` varchar(768) DEFAULT NULL,
-  `macro` varchar(768) DEFAULT NULL,
-  `styfilename` varchar(768) DEFAULT NULL,
-  `num` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `styfilename` (`styfilename`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `workqueue`
 --
 

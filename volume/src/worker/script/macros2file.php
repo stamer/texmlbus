@@ -13,7 +13,12 @@
  *
  * @TODO expand this to sty and other possible directories.
  */
-require_once "../IncFiles.php";
+require_once dirname(__DIR__, 2) . "/dmake/IncFiles.php";
+
+use Dmake\Config;
+use Dmake\Dao;
+use Dmake\UtilFile;
+
 $cfg = Config::getConfig();
 
 $dao = DAO::getInstance();
@@ -51,25 +56,25 @@ $stmt->execute();
 $mm = array();
 while ($row = $stmt->fetch()) {
 
-	$str = $row['missing_macros'];
+    $str = $row['missing_macros'];
 
-	preg_match('/^(\[)(.*?)(\]).*$/', $str, $matches);
+    preg_match('/^(\[)(.*?)(\]).*$/', $str, $matches);
 
-	if (empty($matches[2])) {
-		print_r($matches);
-		exit;
-	}
-	$macros = preg_split('/,\s*/', $matches[2]);
+    if (empty($matches[2])) {
+        print_r($matches);
+        exit;
+    }
+    $macros = preg_split('/,\s*/', $matches[2]);
 
-	foreach ($macros as $macro) {
-		$macro = substr($macro, 0, 60);
-		echo "Macro: $macro".PHP_EOL;
-		if (!isset($mm[$macro])) {
-			$mm[$macro] = 1;
-		} else {
-			$mm[$macro]++;
-		}
-	}
+    foreach ($macros as $macro) {
+        $macro = substr($macro, 0, 60);
+        echo "Macro: $macro".PHP_EOL;
+        if (!isset($mm[$macro])) {
+            $mm[$macro] = 1;
+        } else {
+            $mm[$macro]++;
+        }
+    }
 }
 
 $numrows = count($mm);
@@ -78,23 +83,21 @@ arsort($mm, SORT_NUMERIC);
 
 $count = 0;
 
-$dirs = array(
-            STYARXMLIVDIR
-        );
+$dirs = ['/usr/share/texmf-dist/tex/latex'];
 
 foreach ($mm as $macro=>$num) {
 
-	if ($count == 1000) {
-		echo "Stopping after 1000 entries...\n";
-		exit;
-	}
-	$count++;
+    if ($count == 1000) {
+        echo "Stopping after 1000 entries...\n";
+        exit;
+    }
+    $count++;
 
-	foreach ($dirs as $dir) {
+    foreach ($dirs as $dir) {
         // this handles \newcommand and \renewcommand
         //$exec_str = 'cd /arXMLiv/repos/arXMLiv/trunk/sty; /bin/fgrep -l \'newcommand{\\'.$macro.'}\' *';
-        $exec_str = 'cd '.$dir.'; /bin/egrep -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*'.$macro.'[^a-zA-Z0-9_]\' *';
-        //echo $exec_str."\n";
+        $exec_str = 'cd '.$dir.'; /bin/egrep -r -l \'\\\\((future)?let|newcommand|(g|e|x)?def)[^\\\\]*[^a-zA-Z0-9_]*'.$macro.'[^a-zA-Z0-9_]\' *';
+        echo $exec_str."\n";
 
         $retstr = shell_exec($exec_str);
 
@@ -116,7 +119,7 @@ foreach ($mm as $macro=>$num) {
         foreach ($arr as $filename) {
             $filename = trim($filename);
 
-            //	echo $filename."\n";
+            echo "Inserting for " . $filename . "\n";
 
             $query = '
                 INSERT INTO

@@ -102,7 +102,7 @@ $config->tt_cat = [
 $config->show = new StdClass();
 
 // show incomplete features
-$config->show->experimental = false;
+$config->show->experimental = true;
 
 // show even more incomplete features
 $config->show->evenMoreExperimental = false;
