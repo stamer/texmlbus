@@ -60,7 +60,7 @@ class SourceToDir
 	{
         $cfg = Config::getConfig();
 
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
 		$query = '
 			INSERT INTO
