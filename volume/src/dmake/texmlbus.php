@@ -163,7 +163,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
                     echo "Cleaning up...\n";
 
                     // ARTICLEDIR./.$directory need quotes!
-                    $systemCmd = 'cd "' . $sourceDir . '" && /usr/bin/make ' . $action;
+                    $systemCmd = 'cd "' . $sourceDir . '" && ' . $cfg->app->make . ' ' . $action;
                     if (DBG_LEVEL & DBG_DELETE) {
                         echo "Make $action $directory...\n";
                     }

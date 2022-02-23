@@ -106,6 +106,17 @@ class UtilStage
         $cfg = Config::getConfig();
 
         $sourceDir = $articleDir . '/' . $directory;
+
+        // Before files are copied to worker dir, make sure that no (old) result
+        // files will be linked, otherwise make never actually does something.
+        // This needs to be done in the original directory.
+        $systemCmd = 'cd "' . $sourceDir . '" && ' . $cfg->app->make . ' allclean';
+        echo "make allclean $directory...\n";
+        system($systemCmd, $result);
+        if ($result) {
+            echo "Failed to make allclean in $sourceDir";
+        }
+
         $destDir = $articleDir . '/' . rtrim($directory, '/') . '/' . $cfg->server->workerPrefix . $hostGroupName;
 
         /*
