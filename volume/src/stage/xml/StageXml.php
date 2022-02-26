@@ -454,7 +454,9 @@ class StageXml extends AbstractStage
             // $matches[2] = errtype
             // $matches[3] = errmsg
 
-            print_r($matches);
+            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                print_r($matches);
+            }
 
             $num = count($matches[0]);
             for ($i = 0; $i <= $num; $i++) {

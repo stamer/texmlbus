@@ -15,12 +15,13 @@ define("DBG_DELETE", 128);
 define("DBG_PARSE_ERRLOG", 256);
 define("DBG_PARSE_POST", 512);
 define("DBG_HOSTS", 1024);
+define("DBG_MAKE", 2048);
 
 $dbgLevel = getenv('DBG_LEVEL');
 if ($dbgLevel !== false && $dbgLevel != '') {
     define("DBG_LEVEL", (int) $dbgLevel);
 } else {
-    define("DBG_LEVEL", DBG_EXEC | DBG_PARSE_ERRLOG | DBG_CHILD_RETVAL);
+    define("DBG_LEVEL", DBG_EXEC | DBG_CHILD_RETVAL | DBG_MAKE);
 }
 
 // not supported yet

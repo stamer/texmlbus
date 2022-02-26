@@ -66,6 +66,7 @@ $stat = StatEntry::wqGetEntries('', 20);
 <table border="1">
 <tr>
 	<th style="min-width:70px">No.</th>
+    <th>Document Id</th>
     <th>Date&nbsp;queued</th>
     <th>Directory</th>
 	<th>Stage</th>
@@ -76,13 +77,14 @@ $count = 0;
 if (!$numrows) {
 ?>
 <tr>
-    <td colspan="5">No entries in queue.</td>
+    <td colspan="6">No entries in queue.</td>
 </tr>
 <?php
 }
 
 
 foreach ($stat as $wq_id => $entry) {
+    /** @var StatEntry $entry */
     $directory = 'files/'.$entry->getFilename().'/';
     if (!preg_match('/\.tex$/', $entry->getSourcefile())) {
         $sourcefile = $entry->getSourcefile().'.tex';
@@ -118,6 +120,7 @@ foreach ($stat as $wq_id => $entry) {
         echo '<span></span></button>';
     }
     echo '</td>' . PHP_EOL;
+    echo '<td align="right" rowspan="1">'.$entry->getId()."</td>\n";
 	echo '<td rowspan="1">'.$date_modified."</td>\n";
 	echo '<td rowspan="1"><a href="'.$directory.'">'.$filename."</a></td>\n";
     echo '<td rowspan="1">'.$entry->getWqStage()."</td>\n";

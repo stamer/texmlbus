@@ -1127,16 +1127,16 @@ class StatEntry
 
         $dao = Dao::getInstance();
 
+        $idsStr = implode(',', $ids);
         $query = "
             SELECT
                 *
             FROM
                 statistic
             WHERE
-                id in (:ids)";
+                id in (" . $idsStr .")";
 
         $stmt = $dao->prepare($query);
-        $stmt->bindValue(':ids', implode(',', $ids));
         $stmt->execute();
 
         $objs = [];

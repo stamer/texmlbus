@@ -142,7 +142,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 $entryDone = false;
                 $stage = $entry->wq_stage;
                 $action = $entry->wq_action;
-                echo "Action: $action" . PHP_EOL;
+                echo basename(__FILE__) . ": Action: $action" . PHP_EOL;
 
                 if (!isset($cfg->stages[$stage])) {
                     echo "Unregistered Action: $stage" . PHP_EOL;
@@ -151,8 +151,9 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 }
 
                 $directory = $entry->filename;
-                echo "Dir: " . $directory . "\n";
-
+                if (DBG_LEVEL & DBG_MAKE) {
+                    echo "Setting up: " . $directory . PHP_EOL;
+                }
                 if ($cfg->linkSourceFiles) {
                     UtilStage::setupFiles(ARTICLEDIR, $directory, $hostGroupName);
                 }
@@ -160,12 +161,14 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroupName);
 
                 if (in_array($action, $possibleCleanActions)) {
-                    echo "Cleaning up...\n";
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        echo "Cleaning up in $sourceDir ..." . PHP_EOL;
+                    }
 
                     // ARTICLEDIR./.$directory need quotes!
                     $systemCmd = 'cd "' . $sourceDir . '" && ' . $cfg->app->make . ' ' . $action;
-                    if (DBG_LEVEL & DBG_DELETE) {
-                        echo "Make $action $directory...\n";
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        echo "Make $action $sourceDir ..." . PHP_EOL;
                     }
                     system($systemCmd);
 

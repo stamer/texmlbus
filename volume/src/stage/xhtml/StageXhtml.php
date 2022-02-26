@@ -282,8 +282,9 @@ class StageXhtml extends AbstractStage
 
                 $warning_pattern = '@(.*?)(^Conversion complete: )((\d*)(\s*)((warning|error)?)(s?)(; ?)?)((\d*)(\s*)(error?)?)@m';
                 preg_match($warning_pattern, $content, $matches);
-                print_r($matches);
-
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
                 if (isset($matches[6])) {
                     $res->retval = 'warning';
                     if ($matches[6] == 'error') {

@@ -400,7 +400,9 @@ class StagePdf extends AbstractStage
             // $matches[2] = errtype (Warning, Error)
             // $matches[3] = errmsg
 
-            print_r($matches);
+            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                print_r($matches);
+            }
 
             $num = count($matches[0]);
             $this->debug($num . ' matches');
