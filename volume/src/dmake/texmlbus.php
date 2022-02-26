@@ -30,63 +30,6 @@ use Dmake\UtilHost;
 use Dmake\UtilStage;
 use Dmake\WorkqueueEntry;
 
-// configHosts needs to be included
-$cfg = Config::getConfig(null, true);
-
-// setup process control
-// php >= 7.1 uses this
-pcntl_async_signals(true);
-
-/** @var Dmake $dmake */
-$dmake = new Dmake();
-// install signal handler
-pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
-pcntl_signal(SIGINT, array($dmake, 'sigInt'));
-
-// check whether hosts are available and possibly
-// disable stages when no corresponding hosts are found.
-UtilHost::checkHosts($cfg->hosts);
-
-// webserver needs to know about current active stages
-UtilStage::saveActiveStages();
-
-$proc_count = count($cfg->hosts);
-$hostGroups = UtilStage::getHostGroups();
-foreach ($hostGroups as $hostGroupName) {
-    $dmake->activeHosts[$hostGroupName] = [];
-}
-
-$tries = 0;
-$secondsToSleep = 5;
-while (!$dao = Dao::getInstance(false)) {
-    $tries++;
-    if ($tries > 20) {
-        die("Failed to get database connection!");
-    }
-    echo "Database not yet ready? Sleeping $secondsToSleep sec..." . PHP_EOL;
-    sleep($secondsToSleep);
-}
-
-// check for Updates
-$du = new DbUpdate();
-$du->execute();
-
-$ds = new DmakeStatus;
-$ds->directory = '';
-$ds->num_files = WorkqueueEntry::getNumQueuedEntries();
-$ds->num_hosts = count($cfg->hosts);
-
-$str = '';
-foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
-    foreach ($hostGroup as $hostkey => $val) {
-        $str .= $hostkey . ', ';
-    }
-}
-$str = preg_replace('/, $/', '', $str);
-$ds->hostnames = $str;
-$ds->timeout = $cfg->timeout->default;
-$ds->save(TRUE);
-
 function mainLoop($hostGroupName, $dmake, $ds)
 {
     $cfg = Config::getConfig();
@@ -283,6 +226,66 @@ function mainLoop($hostGroupName, $dmake, $ds)
         }
     }
 }
+
+// configHosts needs to be included
+$cfg = Config::getConfig(null, true);
+
+// setup process control
+// php >= 7.1 uses this
+pcntl_async_signals(true);
+
+/** @var Dmake $dmake */
+$dmake = new Dmake();
+// install signal handler
+pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
+pcntl_signal(SIGINT, array($dmake, 'sigInt'));
+
+// check whether hosts are available and possibly
+// disable stages when no corresponding hosts are found.
+UtilHost::checkHosts($cfg->hosts);
+
+// webserver needs to know about current active stages
+UtilStage::saveActiveStages();
+
+$proc_count = count($cfg->hosts);
+$hostGroups = UtilStage::getHostGroups();
+foreach ($hostGroups as $hostGroupName) {
+    $dmake->activeHosts[$hostGroupName] = [];
+}
+
+$tries = 0;
+$secondsToSleep = 5;
+while (!$dao = Dao::getInstance(false)) {
+    $tries++;
+    if ($tries > 20) {
+        die("Failed to get database connection!");
+    }
+    echo "Database not yet ready? Sleeping $secondsToSleep sec..." . PHP_EOL;
+    sleep($secondsToSleep);
+}
+
+// check for Updates
+$du = new DbUpdate();
+$du->execute();
+
+$ds = new DmakeStatus;
+$ds->directory = '';
+$ds->num_files = WorkqueueEntry::getNumQueuedEntries();
+$ds->num_hosts = count($cfg->hosts);
+
+$str = '';
+foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
+    foreach ($hostGroup as $hostkey => $val) {
+        $str .= $hostkey . ', ';
+    }
+}
+$str = preg_replace('/, $/', '', $str);
+$ds->hostnames = $str;
+$ds->timeout = $cfg->timeout->default;
+$ds->save(TRUE);
+
+$requeuedDocuments = WorkqueueEntry::requeueLeftoverRunningEntries();
+echo "Requeued $requeuedDocuments documents." . PHP_EOL;
 
 foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
 

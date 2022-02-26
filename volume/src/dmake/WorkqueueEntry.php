@@ -431,4 +431,31 @@ class WorkqueueEntry
         $row = $stmt->fetch();
         return $row['num'];
     }
+
+    /**
+     * On startup, there may be left over entries, which have not completely finished.
+     * Just requeue these entries.
+     * @return int
+     */
+    public static function requeueLeftoverRunningEntries(): int
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            UPDATE
+                workqueue
+            SET 
+                priority = 1 
+            WHERE
+                priority = 0 AND action != 'none';
+        ";
+
+        $stmt = $dao->prepare($query);
+
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
+
 }
