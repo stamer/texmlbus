@@ -24,7 +24,7 @@ use Dmake\UtilStylefile;
 
 $cfg = Config::getConfig();
 
-$dao = DAO::getInstance();
+$dao = Dao::getInstance();
 
 if (isset($argv[1])) {
 	$set = $argv[1];

@@ -3,13 +3,13 @@
  * Released under MIT License
  * (c) 2007 - 2017 Heinrich Stamerjohanns
  *
- * DAO
+ * Dao
  *
  */
 use Server\Config;
 use \PDO;
 
-class DAO
+class Dao
 {
     /** @var PDO $instance */
     protected static $instance = null;

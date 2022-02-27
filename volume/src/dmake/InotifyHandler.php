@@ -159,7 +159,7 @@ class InotifyHandler
                 foreach ($hostGroups as $hostGroupName) {
                     $readFds[] = $this->fd[$hostGroupName][$triggerName];
                 }
-                $timeout = 600;
+                $timeout = 5;
                 $w = [];
                 $e = [];
                 if ($this->debug) {
@@ -218,7 +218,7 @@ class InotifyHandler
                 $readFds = [$this->fd[$hostGroupName][$triggerName]];
                 $w = [];
                 $e = [];
-                $timeout = 600;
+                $timeout = 5;
                 if ($this->debug) {
                     error_log("stream_select...");
                 }

@@ -19,6 +19,7 @@ class WorkqueueEntry
 
     protected $id = 0;
     protected $statisticId = 0;
+    protected $pid = null;
     protected $dateCreated = null;
     protected $dateModified = null;
     protected $priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
@@ -45,6 +46,16 @@ class WorkqueueEntry
     public function setStatisticId(?int $statisticId): void
     {
         $this->statisticId = $statisticId;
+    }
+
+    public function getPid(): ?int
+    {
+        return $this->pid;
+    }
+
+    public function setPid(?int $pid)
+    {
+        $this->pid = $pid;
     }
 
     public function getDateCreated(): ?string
@@ -130,6 +141,7 @@ class WorkqueueEntry
             SET
                 id = 0,
                 statistic_id = :i_statistic_id,
+                pid = :i_pid,
                 date_created = :date_created,
                 date_modified = :i_date_modified,
                 priority = :i_priority,
@@ -139,6 +151,7 @@ class WorkqueueEntry
                 hostgroup = :i_hostgroup
             ON DUPLICATE KEY UPDATE
                 statistic_id = :u_statistic_id,
+                pid = :u_pid,                    
                 date_modified = :u_date_modified,
                 priority = :u_priority,
                 prev_action = action,
@@ -151,6 +164,8 @@ class WorkqueueEntry
 
         $stmt->bindValue(':i_statistic_id', $this->statisticId);
         $stmt->bindValue(':u_statistic_id', $this->statisticId);
+        $stmt->bindValue(':i_pid', $this->pid);
+        $stmt->bindValue(':u_pid', $this->pid);
         $stmt->bindValue(':date_created', $cfg->now->datestamp);
         $stmt->bindValue(':i_date_modified', $cfg->now->datestamp);
         $stmt->bindValue(':u_date_modified', $cfg->now->datestamp);
@@ -176,6 +191,7 @@ class WorkqueueEntry
         $we = new static();
         $we->setId($row['id'] ?? 0);
         $we->setStatisticId($row['statistic_id'] ?? 0);
+        $we->setPid($row['pid'] ?? null);
         $we->setDateCreated($row['date_created'] ?? null);
         $we->setDateModified($row['date_modified'] ?? null);
         $we->setPriority($row['priority'] ?? 0);
@@ -199,6 +215,7 @@ class WorkqueueEntry
             UPDATE
                 workqueue
             SET
+                pid = :pid,
                 priority = :priority,
                 prev_action = action,
                 action = :action,
@@ -210,6 +227,7 @@ class WorkqueueEntry
             ';
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':pid', $this->getPid());
         $stmt->bindValue(':priority', $this->getPriority());
         $stmt->bindValue(':action', $this->getAction());
         $stmt->bindValue(':hostgroup', $this->getHostGroup());
@@ -232,6 +250,7 @@ class WorkqueueEntry
             UPDATE
                 workqueue
             SET
+                pid = :pid,
                 priority = :priority,
                 prev_action = action,
                 action = :action,
@@ -242,6 +261,7 @@ class WorkqueueEntry
             ';
 
         $stmt = $dao->prepare($query);
+        $stmt->bindValue(':pid', $this->getPid());
         $stmt->bindValue(':priority', $this->getPriority());
         $stmt->bindValue(':action', $this->getAction());
         $stmt->bindValue(':date_modified', $this->getDateModified());
@@ -256,7 +276,11 @@ class WorkqueueEntry
         $cfg = Config::getConfig();
 
         $this->dateModified = $cfg->now->datestamp;
-        $this->update();
+        if ($this->getId() == 0) {
+            $this->save();
+        } else {
+            $this->update();
+        }
 
         $dao = Dao::getInstance();
 
@@ -305,6 +329,7 @@ class WorkqueueEntry
             UPDATE
                 workqueue
             SET
+                pid = null, 
                 priority = :priority,
                 action = :action
             WHERE
@@ -372,14 +397,40 @@ class WorkqueueEntry
 
         $stmt->execute();
 
-        $obj = null;
         if ($row = $stmt->fetch()) {
-            $obj = self::fillEntry($row);
+            return self::fillEntry($row);
         }
-        return $obj;
+        return null;
     }
 
-    public static function getByStatisticId(int $statisticId): ?self
+    public static function getByPid(int $pid): ?self
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                workqueue
+            WHERE
+                pid = :pid";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':pid', $pid);
+
+        $stmt->execute();
+
+        if ($row = $stmt->fetch()) {
+            return self::fillEntry($row);
+        }
+        return null;
+    }
+
+    /**
+     * @param int $statisticId
+     * @return WorkqueueEntry[]
+     */
+    public static function getByStatisticId(int $statisticId): array
     {
         $dao = Dao::getInstance();
 
@@ -396,11 +447,40 @@ class WorkqueueEntry
 
         $stmt->execute();
 
-        $obj = null;
-        if ($row = $stmt->fetch()) {
-            $obj = self::fillEntry($row);
+        $rows = [];
+        while ($row = $stmt->fetch()) {
+            $rows[] = self::fillEntry($row);
         }
-        return $obj;
+        return $rows;
+    }
+
+    /**
+     * @param int $statisticId
+     * @return WorkqueueEntry
+     */
+    public static function getByStatisticIdAndStage(int $statisticId, string $stage): ?self
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            SELECT
+                *
+            FROM
+                workqueue
+            WHERE
+                statistic_id = :statistic_id
+                AND stage = :stage";
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue(':statistic_id', $statisticId);
+        $stmt->bindValue(':stage', $stage);
+
+        $stmt->execute();
+
+        if ($row = $stmt->fetch()) {
+            return self::fillEntry($row);
+        }
+        return null;
     }
 
     public static function getNumQueuedEntries($includeCurrentEntries = false): int
@@ -431,4 +511,31 @@ class WorkqueueEntry
         $row = $stmt->fetch();
         return $row['num'];
     }
+
+    /**
+     * On startup, there may be left over entries, which have not completely finished.
+     * Just requeue these entries.
+     * @return int
+     */
+    public static function requeueLeftoverRunningEntries(): int
+    {
+        $dao = Dao::getInstance();
+
+        $query = "
+            UPDATE
+                workqueue
+            SET 
+                priority = 1 
+            WHERE
+                priority = 0 AND action != 'none';
+        ";
+
+        $stmt = $dao->prepare($query);
+
+        $stmt->execute();
+
+        return $stmt->rowCount();
+    }
+
+
 }

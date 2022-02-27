@@ -106,6 +106,22 @@ class UtilStage
         $cfg = Config::getConfig();
 
         $sourceDir = $articleDir . '/' . $directory;
+
+        // Before files are copied to worker dir, make sure that no (old) result
+        // files will be linked, otherwise make never actually does something.
+        // This needs to be done in the original directory.
+        $systemCmd = 'cd "' . $sourceDir . '" && ' . $cfg->app->make . ' allclean';
+        if (DBG_LEVEL & DBG_MAKE) {
+            echo "make allclean $directory...\n";
+        }
+        exec($systemCmd, $output, $result);
+        if (DBG_LEVEL & DBG_MAKE) {
+            print_r($output);
+        }
+        if ($result) {
+            echo "Failed to make allclean in $sourceDir";
+        }
+
         $destDir = $articleDir . '/' . rtrim($directory, '/') . '/' . $cfg->server->workerPrefix . $hostGroupName;
 
         /*
@@ -114,7 +130,9 @@ class UtilStage
          * Local updates are also handled in linkR(), only missing piece is currently
          * local deletes.
          */
-        echo "DestDirectory is: $destDir" . PHP_EOL;
+        if (DBG_LEVEL & DBG_SETUP_FILES) {
+            echo "DestDirectory is: $destDir" . PHP_EOL;
+        }
         UtilFile::linkR($sourceDir, $destDir, '/' . $cfg->server->workerPrefix . '/', '/\\.bbl$|Makefile$/');
         UtilFile::adjustMakefilePrefix($destDir, 1);
     }

@@ -21,7 +21,7 @@ use Dmake\UtilFile;
 
 $cfg = Config::getConfig();
 
-$dao = DAO::getInstance();
+$dao = Dao::getInstance();
 
 /**
  * Main program

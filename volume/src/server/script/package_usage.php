@@ -3,7 +3,7 @@
  * MIT License
  * (c) 2018 - 2022 Heinrich Stamerjohanns
  *
- * This script will extract the packages an articles uses and saves them
+ * This script will extract the packages an article uses and saves them
  * to the table package_usage.
  */
 
@@ -15,7 +15,7 @@ use Dmake\UtilStylefile;
 
 $cfg = Config::getConfig();
 
-$dao = DAO::getInstance();
+$dao = Dao::getInstance();
 
 if (isset($argv[1])) {
 	$set = $argv[1];
@@ -51,7 +51,7 @@ $mm = array();
 
 while ($row = $stmt->fetch()) {
 
-$filename = $row['filename'];
+    $filename = $row['filename'];
     $sourcefile = $row['sourcefile'];
     
     echo "Filename: $filename".PHP_EOL;

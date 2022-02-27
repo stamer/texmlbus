@@ -15,7 +15,11 @@
  *
  */
 
-ini_set("memory_limit", "512M");
+//                              KB     MB     GB
+define("TEXMLBUS_MAX_MEMORY_LIMIT", 2 * 1024 * 1024 * 1024);
+define("TEXMLBUS_MAX_PARSE_FILESIZE", (int) floor(TEXMLBUS_MAX_MEMORY_LIMIT * 0.7));
+ini_set("memory_limit", TEXMLBUS_MAX_MEMORY_LIMIT);
+
 require_once "IncFiles.php";
 
 use Dmake\Config;
@@ -30,64 +34,7 @@ use Dmake\UtilHost;
 use Dmake\UtilStage;
 use Dmake\WorkqueueEntry;
 
-// configHosts needs to be included
-$cfg = Config::getConfig(null, true);
-
-// setup process control
-// php >= 7.1 uses this
-pcntl_async_signals(true);
-
-/** @var Dmake $dmake */
-$dmake = new Dmake();
-// install signal handler
-pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
-pcntl_signal(SIGINT, array($dmake, 'sigInt'));
-
-// check whether hosts are available and possibly
-// disable stages when no corresponding hosts are found.
-UtilHost::checkHosts($cfg->hosts);
-
-// webserver needs to know about current active stages
-UtilStage::saveActiveStages();
-
-$proc_count = count($cfg->hosts);
-$hostGroups = UtilStage::getHostGroups();
-foreach ($hostGroups as $hostGroupName) {
-    $dmake->activeHosts[$hostGroupName] = [];
-}
-
-$tries = 0;
-$secondsToSleep = 5;
-while (!$dao = Dao::getInstance(false)) {
-    $tries++;
-    if ($tries > 20) {
-        die("Failed to get database connection!");
-    }
-    echo "Database not yet ready? Sleeping $secondsToSleep sec..." . PHP_EOL;
-    sleep($secondsToSleep);
-}
-
-// check for Updates
-$du = new DbUpdate();
-$du->execute();
-
-$ds = new DmakeStatus;
-$ds->directory = '';
-$ds->num_files = WorkqueueEntry::getNumQueuedEntries();
-$ds->num_hosts = count($cfg->hosts);
-
-$str = '';
-foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
-    foreach ($hostGroup as $hostkey => $val) {
-        $str .= $hostkey . ', ';
-    }
-}
-$str = preg_replace('/, $/', '', $str);
-$ds->hostnames = $str;
-$ds->timeout = $cfg->timeout->default;
-$ds->save(TRUE);
-
-function mainLoop($hostGroupName, $dmake, $ds)
+function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
 {
     $cfg = Config::getConfig();
 
@@ -142,7 +89,7 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 $entryDone = false;
                 $stage = $entry->wq_stage;
                 $action = $entry->wq_action;
-                echo "Action: $action" . PHP_EOL;
+                echo basename(__FILE__) . ": Action: $action" . PHP_EOL;
 
                 if (!isset($cfg->stages[$stage])) {
                     echo "Unregistered Action: $stage" . PHP_EOL;
@@ -151,8 +98,9 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 }
 
                 $directory = $entry->filename;
-                echo "Dir: " . $directory . "\n";
-
+                if (DBG_LEVEL & DBG_MAKE) {
+                    echo "Setting up: " . $directory . PHP_EOL;
+                }
                 if ($cfg->linkSourceFiles) {
                     UtilStage::setupFiles(ARTICLEDIR, $directory, $hostGroupName);
                 }
@@ -160,14 +108,23 @@ function mainLoop($hostGroupName, $dmake, $ds)
                 $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroupName);
 
                 if (in_array($action, $possibleCleanActions)) {
-                    echo "Cleaning up...\n";
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        echo "Cleaning up in $sourceDir ..." . PHP_EOL;
+                    }
 
                     // ARTICLEDIR./.$directory need quotes!
-                    $systemCmd = 'cd "' . $sourceDir . '" && /usr/bin/make ' . $action;
-                    if (DBG_LEVEL & DBG_DELETE) {
-                        echo "Make $action $directory...\n";
+                    $systemCmd = 'cd "' . $sourceDir . '" && ' . $cfg->app->make . ' ' . $action;
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        echo "Make $action $sourceDir ..." . PHP_EOL;
                     }
-                    system($systemCmd);
+                    $output = [];
+                    exec($systemCmd, $output, $result_code);
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        print_r($output);
+                    }
+                    if ($result_code) {
+                        echo "Make failed: make $action $sourceDir" . PHP_EOL;
+                    }
 
                     $wqEntry = new WorkqueueEntry();
                     $wqEntry->setStage($stage);
@@ -213,6 +170,8 @@ function mainLoop($hostGroupName, $dmake, $ds)
                                     // https://stackoverflow.com/questions/3668615/pcntl-fork-and-the-mysql-connection-is-gone
                                     // https://www.electrictoolbox.com/mysql-connection-php-fork/
 
+                                    pcntl_signal(SIGHUP, array($dmake, 'sigHupChild'), true);
+                                    pcntl_signal(SIGINT, array($dmake, 'sigIntChild'), true);
                                     $result = $dmake->childMain(
                                         $hostGroupName,
                                         $cfg->hosts[$hostGroupName][$hostkey],
@@ -231,12 +190,8 @@ function mainLoop($hostGroupName, $dmake, $ds)
                                     break;
                                 default:
                                     // parent
-                                    // install signal handler in parent
-                                    // does not seem to work as it is supposed to
-                                    pcntl_signal(SIGHUP, array($dmake, 'sigHup'));
-                                    pcntl_signal(SIGINT, array($dmake, 'sigInt'));
                                     if (DBG_LEVEL & DBG_CHILD) {
-                                        echo "Created child $pid" . PHP_EOL;
+                                        echo "(main loop) Created child $pid" . PHP_EOL;
                                     }
                                     $dmake->activeHosts[$hostGroupName][$hostkey] = $pid;
                             }
@@ -281,6 +236,66 @@ function mainLoop($hostGroupName, $dmake, $ds)
     }
 }
 
+// configHosts needs to be included
+$cfg = Config::getConfig(null, true);
+
+// setup process control
+// php >= 7.1 uses this
+pcntl_async_signals(true);
+
+/** @var Dmake $dmake */
+$dmake = new Dmake();
+// install signal handler
+pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
+pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
+
+// check whether hosts are available and possibly
+// disable stages when no corresponding hosts are found.
+UtilHost::checkHosts($cfg->hosts);
+
+// webserver needs to know about current active stages
+UtilStage::saveActiveStages();
+
+$proc_count = count($cfg->hosts);
+$hostGroups = UtilStage::getHostGroups();
+foreach ($hostGroups as $hostGroupName) {
+    $dmake->activeHosts[$hostGroupName] = [];
+}
+
+$tries = 0;
+$secondsToSleep = 5;
+while (!$dao = Dao::getInstance(false)) {
+    $tries++;
+    if ($tries > 20) {
+        die("Failed to get database connection!");
+    }
+    echo "Database not yet ready? Sleeping $secondsToSleep sec..." . PHP_EOL;
+    sleep($secondsToSleep);
+}
+
+// check for Updates
+$du = new DbUpdate();
+$du->execute();
+
+$ds = new DmakeStatus;
+$ds->directory = '';
+$ds->num_files = WorkqueueEntry::getNumQueuedEntries();
+$ds->num_hosts = count($cfg->hosts);
+
+$str = '';
+foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
+    foreach ($hostGroup as $hostkey => $val) {
+        $str .= $hostkey . ', ';
+    }
+}
+$str = preg_replace('/, $/', '', $str);
+$ds->hostnames = $str;
+$ds->timeout = $cfg->timeout->default;
+$ds->save(TRUE);
+
+$requeuedDocuments = WorkqueueEntry::requeueLeftoverRunningEntries();
+echo "Requeued $requeuedDocuments document" .  ($requeuedDocuments != 1 ? 's' : '') . "." . PHP_EOL;
+
 foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
 
     echo "HostGroup: $hostGroupName" . PHP_EOL;
@@ -303,8 +318,8 @@ foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
             // parent
             // install signal handler in parent
             // does not seem to work as it is supposed to
-            pcntl_signal(SIGHUP, array($dmake, 'sigHup'));
-            pcntl_signal(SIGINT, array($dmake, 'sigInt'));
+            pcntl_signal(SIGHUP, array($dmake, 'sigHupParent'));
+            pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
             if (DBG_LEVEL & DBG_CHILD) {
                 echo "Created child $pid" . PHP_EOL;
             }

@@ -230,6 +230,13 @@ class StageXhtml extends AbstractStage
                 $res->retval = 'missing_errlog';
             }
         } else {
+            $fileSize = filesize($stdErrLog);
+            if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+                echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
+                $res->retval = 'fatal_error';
+                return $res->updateRetval();
+            }
+
             $content = file_get_contents($stdErrLog);
             if ($status
                 && ($content === ''
@@ -282,8 +289,9 @@ class StageXhtml extends AbstractStage
 
                 $warning_pattern = '@(.*?)(^Conversion complete: )((\d*)(\s*)((warning|error)?)(s?)(; ?)?)((\d*)(\s*)(error?)?)@m';
                 preg_match($warning_pattern, $content, $matches);
-                print_r($matches);
-
+                if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                    print_r($matches);
+                }
                 if (isset($matches[6])) {
                     $res->retval = 'warning';
                     if ($matches[6] == 'error') {

@@ -26,7 +26,7 @@ $supported = [];
 foreach ($param['filenames'] as $file) {
     $systemstr = 'TEXINPUTS="' . $param['TEXINPUTS'] . '"';
     $systemstr .= ' /usr/bin/kpsewhich ' . $file . '>/dev/null 2>&1';
-    system($systemstr, $returnVar);
+    system($systemstr, $returnVar);`
     // 1: error => false
     // 0: found => true
     $supported[$file] = ($returnVar ? false : true);

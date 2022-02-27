@@ -107,7 +107,7 @@ class UtilStylefile
         string $filename,
         array $stylefilesArr
     ): void {
-        $dao = DAO::getInstance();
+        $dao = Dao::getInstance();
 
         $styfiles = '';
 
@@ -164,8 +164,9 @@ class UtilStylefile
         string $filename,
         string $macro,
         array $stylefilesArr
-    ): void {
-        $dao = DAO::getInstance();
+    ): void
+    {
+        $dao = Dao::getInstance();
 
         $styfiles = '';
         foreach ($stylefilesArr as $stylefile) {

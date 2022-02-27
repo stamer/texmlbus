@@ -26,7 +26,7 @@ function dequeueDocument(element, id, stage)
                 if (data.result['success']) {
                     message += "Document dequeued.";
                     msgClass = 'success';
-                    fadeMsec = 800;
+                    fadeMsec = 1500;
                 } else {
                     message += "No document has been dequeued.";
                     msgClass = 'warning';

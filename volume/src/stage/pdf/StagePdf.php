@@ -299,6 +299,13 @@ class StagePdf extends AbstractStage
         } else {
             $res->retval = 'fatal_error';
         }
+        $fileSize = filesize($logfile);
+        if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+            echo "File too big: $logfile: " . $fileSize . " bytes." . PHP_EOL;
+            $res->retval = 'fatal_error';
+            return $res->updateRetval();
+        }
+
         $content = file_get_contents($logfile);
         if ($content === ''
             && $status
@@ -392,6 +399,11 @@ class StagePdf extends AbstractStage
 
         $this->debug('Logfile: ' . $logfile);
 
+        $fileSize = filesize($logfile);
+        if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+            echo "File too big: $logfile: " . $fileSize . " bytes." . PHP_EOL;
+            return;
+        }
         $content = file_get_contents($logfile);
 
         $err_pattern = '@^!(.*?)(Warning|Error):\s+(.*)@m';
@@ -400,7 +412,9 @@ class StagePdf extends AbstractStage
             // $matches[2] = errtype (Warning, Error)
             // $matches[3] = errmsg
 
-            print_r($matches);
+            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                print_r($matches);
+            }
 
             $num = count($matches[0]);
             $this->debug($num . ' matches');

@@ -76,12 +76,12 @@ class RetvalDao
             WHERE
                 1";
 
-        $ext_query = '';
+        $extQuery = '';
         if ($set != '') {
-            $ext_query = '
+            $extQuery = '
                 AND s.`set` = :set';
         }
-        $query .= $ext_query;
+        $query .= $extQuery;
 
         $stmt = $dao->prepare($query);
         if ($set != '') {
@@ -167,9 +167,9 @@ class RetvalDao
     {
         $dao = Dao::getInstance();
 
-        $ext_query = '';
+        $extQuery = '';
         if ($set != '') {
-            $ext_query = '
+            $extQuery = '
                 AND s.`set` = :set';
         }
 
@@ -198,7 +198,7 @@ class RetvalDao
                 s.id = j.id
             WHERE
                 1
-                $ext_query
+                $extQuery
             ORDER BY
                 $orderBy $sortBy
             LIMIT
@@ -228,9 +228,11 @@ class RetvalDao
     {
         $dao = Dao::getInstance();
 
-        if (is_array($ids)) {
-            $ids = implode(',', $ids);
+        if (!count($ids)) {
+            return [];
         }
+
+        $idsStr = implode(',', $ids);
 
         $joinTable = 'retval_' . str_replace('clean', '', $stage);
 
@@ -260,7 +262,7 @@ class RetvalDao
            ON
                 s.id = j.id
            WHERE
-                j.id in (" . $ids . ")
+                j.id in (" . $idsStr . ")
            ORDER BY
                 $orderBy $sortBy
            LIMIT
@@ -416,7 +418,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                j.id is NULL
+                (j.retval is NULL OR j.retval = :retval)
             ';
         }
 
@@ -434,27 +436,27 @@ class RetvalDao
             WHERE
                 $joinWhere";
 
-        $ext_query = '';
+        $extQuery = '';
         if ($set != '') {
-            $ext_query = '
+            $extQuery = '
                 AND s.`set` = :set';
         }
 
         if ($detail != '') {
             switch ((string)$detail) {
                 case 'num_complete':
-                    $ext_query = '
+                    $extQuery = '
                             AND j.num_error = 0
                             AND j.num_warning = 0';
                     break;
                 case 'num_warning':
-                    $ext_query = '
+                    $extQuery = '
                             AND j.num_error = 0
                             AND j.num_warning > 0';
                     break;
 
                 case 'num_error':
-                    $ext_query = '
+                    $extQuery = '
                             AND j.num_error > 0
                             AND j.num_warning = 0';
                     break;
@@ -464,13 +466,12 @@ class RetvalDao
             }
         }
 
-        $query .= $ext_query;
+        $query .= $extQuery;
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
-        if ($retval != 'unknown') {
-            $stmt->bindValue(':retval', $retval);
-        }
+        $stmt->bindValue(':retval', $retval);
+
         if ($set != '') {
             $stmt->bindValue(':set', $set);
         }
@@ -544,13 +545,13 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                AND j.id is NULL
+                AND (j.retval is NULL OR j.retval = :retval)
             ';
         }
 
-        $ext_query = '';
+        $extQuery = '';
         if ($set != '') {
-            $ext_query = '
+            $extQuery = '
                 AND s.`set` = :set';
         }
 
@@ -575,7 +576,7 @@ class RetvalDao
             WHERE
                 1 " .
                 $joinWhere .
-                $ext_query . "
+                $extQuery . "
             $joinDetailGroupBy
             ORDER BY
                 $orderBy $sortBy
@@ -585,9 +586,8 @@ class RetvalDao
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
 
-        if ($retval != 'unknown') {
-            $stmt->bindValue(':retval', $retval);
-        }
+        $stmt->bindValue(':retval', $retval);
+
         if ($set != '') {
             $stmt->bindValue(':set', $set);
         }
@@ -596,6 +596,12 @@ class RetvalDao
 
         $rows = [];
         while ($row = $stmt->fetch()) {
+            if (!isset($row['errmsg'])) {
+                $row['errmsg'] = '';
+            }
+            if (!isset($row['warnmsg'])) {
+                $row['warnmsg'] = '';
+            }
             if (isset($row['errdetail'])) {
                 $row['errmsg'] .= $row['errdetail'];
             }
@@ -610,7 +616,7 @@ class RetvalDao
     }
 
     /**
-     * Get details by id.
+     * Get details by ids.
      */
     public static function getDetailsByIds(
         array $ids,
@@ -619,8 +625,8 @@ class RetvalDao
         array $columns
     ): array
     {
-        if (!is_array($ids)) {
-            $ids = array($ids);
+        if (!count($ids)) {
+            return [];
         }
         $dao = Dao::getInstance();
 
@@ -645,7 +651,7 @@ class RetvalDao
         ";
         $joinWhere = '';
 
-        $ext_query = ' AND s.id in (' . implode(',', $ids) . ') ';
+        $extQuery = ' AND s.id in (' . implode(',', $ids) . ') ';
 
         $query = "
             SELECT
@@ -667,7 +673,7 @@ class RetvalDao
             WHERE
                 1 " .
             $joinWhere .
-            $ext_query;
+            $extQuery;
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
@@ -772,4 +778,47 @@ class RetvalDao
 
         return $stmt->fetchAll();
     }
+
+    public static function setRetval($stage, $id, $retval): bool
+    {
+        $cfg = Config::getConfig();
+        if (!isset($cfg->stages[$stage])) {
+            return false;
+        }
+        $retvalTable = $cfg->stages[$stage]->dbTable;
+        $dateModified = date("Y-m-d H:i:s");
+
+        $dao = Dao::getInstance();
+
+        echo "Updating " . $retvalTable . PHP_EOL;
+        $query = /** @lang ignore */ '
+			INSERT INTO
+				' . $retvalTable . '
+			SET
+				id              = :id,
+				date_modified	= :i_date_modified,
+				retval          = :i_retval,
+                warnmsg         = :i_warnmsg,
+				errmsg          = :i_errmsg
+            ON DUPLICATE KEY UPDATE
+				date_modified	= :u_date_modified,
+				prev_retval     = retval,
+				retval          = :u_retval,
+                warnmsg         = :u_warnmsg,
+				errmsg          = :u_errmsg';
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue('id', $id);
+        $stmt->bindValue('i_date_modified', $dateModified);
+        $stmt->bindValue('u_date_modified', $dateModified);
+        $stmt->bindValue('i_retval', $retval);
+        $stmt->bindValue('u_retval', $retval);
+        $stmt->bindValue('i_warnmsg', '');
+        $stmt->bindValue('u_warnmsg', '');
+        $stmt->bindValue('i_errmsg', '');
+        $stmt->bindValue('u_errmsg', '');
+
+        return $stmt->execute();
+    }
+
 }

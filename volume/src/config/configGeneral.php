@@ -4,23 +4,26 @@
  * (c) 2007 - 2017 Heinrich Stamerjohanns
  *
  */
-define("DBG_SLEEP", 1);
-define("DBG_DIRECTORIES", 2);
-define("DBG_EXEC", 4);
-define("DBG_ALARM", 8);
-define("DBG_SIGNAL", 16);
-define("DBG_CHILD", 32);
-define("DBG_CHILD_RETVAL", 64);
-define("DBG_DELETE", 128);
-define("DBG_PARSE_ERRLOG", 256);
-define("DBG_PARSE_POST", 512);
-define("DBG_HOSTS", 1024);
+define("DBG_SLEEP", 1 << 0);
+define("DBG_DIRECTORIES", 1 << 1);
+define("DBG_EXEC", 1 << 2);
+define("DBG_ALARM", 1 << 3);
+define("DBG_SIGNAL", 1 << 4);
+define("DBG_CHILD", 1 << 5);
+define("DBG_CHILD_RETVAL", 1 << 6);
+define("DBG_DELETE", 1 << 7);
+define("DBG_PARSE_ERRLOG", 1 << 8);
+define("DBG_PARSE_POST", 1 << 9);
+define("DBG_HOSTS", 1 << 10);
+define("DBG_MAKE", 1 << 11);
+define("DBG_SETUP_FILES", 1 << 12);
+define("DBG_CLS_LOADER", 1 << 13);
 
 $dbgLevel = getenv('DBG_LEVEL');
 if ($dbgLevel !== false && $dbgLevel != '') {
     define("DBG_LEVEL", (int) $dbgLevel);
 } else {
-    define("DBG_LEVEL", DBG_EXEC | DBG_PARSE_ERRLOG | DBG_CHILD_RETVAL);
+    define("DBG_LEVEL", DBG_EXEC | DBG_CHILD | DBG_CHILD_RETVAL);
 }
 
 // not supported yet

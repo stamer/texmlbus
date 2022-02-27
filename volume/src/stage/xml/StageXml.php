@@ -332,6 +332,13 @@ class StageXml extends AbstractStage
                 $res->retval = 'missing_errlog';
             }
         } else {
+            $fileSize = filesize($stdErrLog);
+            if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+                echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
+                $res->retval = 'fatal_error';
+                return $res->updateRetval();
+            }
+
             $content = file_get_contents($stdErrLog);
             if ($content === ''
                 && $status
@@ -446,6 +453,11 @@ class StageXml extends AbstractStage
 
         $this->debug($stdErrLog);
 
+        $fileSize = filesize($stdErrLog);
+        if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+            echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
+            return;
+        }
         $content = file_get_contents($stdErrLog);
 
         $err_pattern = '/^(Error|Warning):(.*?):(.*)$/m';
@@ -454,7 +466,9 @@ class StageXml extends AbstractStage
             // $matches[2] = errtype
             // $matches[3] = errmsg
 
-            print_r($matches);
+            if (DBG_LEVEL & DBG_PARSE_ERRLOG) {
+                print_r($matches);
+            }
 
             $num = count($matches[0]);
             for ($i = 0; $i <= $num; $i++) {

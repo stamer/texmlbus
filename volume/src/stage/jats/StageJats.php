@@ -230,6 +230,13 @@ class StageJats extends AbstractStage
                 $res->retval = 'missing_errlog';
             }
         } else {
+            $fileSize = filesize($stdErrLog);
+            if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
+                echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
+                $res->retval = 'fatal_error';
+                return $res->updateRetval();
+            }
+
             $content = file_get_contents($stdErrLog);
             if ($status
                 && ($content === ''

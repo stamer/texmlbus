@@ -4,7 +4,7 @@
 # compatibility for old Makefile.template
 TEXENGINEOPT ?= -pdf
 $(TARGET.pdf): %.pdf: %.tex
-	$(LATEXMK) $(TEXENGINEOPT) -f -interaction=nonstopmode $(firstword $<)
+	$(LATEXMK) $(TEXENGINEOPT) -f -interaction=nonstopmode '$(firstword $<)'
 
 pdfclean: backup
 	$(LATEXMK) $(TEXENGINEOPT) -C '$(TARGET.base)'

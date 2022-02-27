@@ -106,6 +106,9 @@ foreach ($rows as $row) {
 $stat = array();
 
 foreach ($types as $stage => $ids) {
+    if (!is_array($ids)) {
+        $ids = [];
+    }
     $rows = RetvalDao::getByIds($ids, $stage, $sqlOrderBy2, $sqlSortBy, $min, $max_pp);
 
     foreach ($rows as $row) {
