@@ -334,7 +334,7 @@ class StageXml extends AbstractStage
         } else {
             $fileSize = filesize($stdErrLog);
             if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
-                echo "File too big: $stdErrLog : " . $fileSize . " bytes." . PHP_EOL;
+                echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
                 $res->retval = 'fatal_error';
                 return $res->updateRetval();
             }
@@ -455,7 +455,7 @@ class StageXml extends AbstractStage
 
         $fileSize = filesize($stdErrLog);
         if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
-            echo "File too big: $stdErrLog : " . $fileSize . " bytes." . PHP_EOL;
+            echo "File too big: $stdErrLog: " . $fileSize . " bytes." . PHP_EOL;
             return;
         }
         $content = file_get_contents($stdErrLog);
