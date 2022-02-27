@@ -362,7 +362,9 @@ class UtilFile
     {
         if (is_dir($src)) {
             if ($ignorePattern !== '' && preg_match($ignorePattern, $src)) {
-                echo "Ignoring $src..." . PHP_EOL;
+                if (DBG_LEVEL & DBG_SETUP_FILES) {
+                        echo "Ignoring $src..." . PHP_EOL;
+                    }
                 return true;
             }
             if (!is_dir($dest)) {
@@ -384,11 +386,15 @@ class UtilFile
                 }
         } elseif (file_exists($src)) {
             if ($ignorePattern !== '' && preg_match($ignorePattern, $src)) {
-                echo "Ignoring $src..." . PHP_EOL;
+                if (DBG_LEVEL & DBG_SETUP_FILES) {
+                    echo "Ignoring $src..." . PHP_EOL;
+                }
                 return true;
             }
             if ($copyPattern !== '' && preg_match($copyPattern, $src)) {
-                echo "Copying $src -> $dest" . PHP_EOL;
+                if (DBG_LEVEL & DBG_SETUP_FILES) {
+                    echo "Copying $src -> $dest" . PHP_EOL;
+                }
                 $result = self::copy($src, $dest);
             } else {
                 $result = self::updateRegularFileLink($src, $dest);
@@ -703,10 +709,16 @@ class UtilFile
             echo "Dir: " . $directory . "\n";
             // ARTICLEDIR./.$directory need quotes!
             $systemCmd = 'cd "' . ARTICLEDIR . '/' . $directory . '" && /usr/bin/make ' . $action;
-            if (DBG_LEVEL & DBG_DELETE) {
+            if (DBG_LEVEL & DBG_MAKE) {
                 echo "Make $action $directory...\n";
             }
-            system($systemCmd);
+            exec($systemCmd, $output, $result_code);
+            if (DBG_LEVEL & DBG_MAKE) {
+                print_r($output);
+            }
+            if ($result_code) {
+                echo "Command failed: $systemCmd" . PHP_EOL;
+            }
         }
     }
 
