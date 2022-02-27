@@ -418,7 +418,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                (j.id is NULL OR j.retval = :retval)
+                (j.retval is NULL OR j.retval = :retval)
             ';
         }
 
@@ -545,7 +545,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                AND (j.id is NULL OR j.retval = :retval)
+                AND (j.retval is NULL OR j.retval = :retval)
             ';
         }
 
