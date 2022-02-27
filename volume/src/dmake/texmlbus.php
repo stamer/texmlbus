@@ -16,8 +16,9 @@
  */
 
 //                              KB     MB     GB
-define("MAX_MEMORY_LIMIT", 2 * 1024 * 1024 * 1024);
-ini_set("memory_limit", MAX_MEMORY_LIMIT);
+define("TEXMLBUS_MAX_MEMORY_LIMIT", 2 * 1024 * 1024 * 1024);
+define("TEXMLBUS_MAX_PARSE_FILESIZE", TEXMLBUS_MAX_MEMORY_LIMIT / 2);
+ini_set("memory_limit", TEXMLBUS_MAX_MEMORY_LIMIT);
 
 require_once "IncFiles.php";
 

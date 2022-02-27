@@ -300,7 +300,7 @@ class StagePdf extends AbstractStage
             $res->retval = 'fatal_error';
         }
         $fileSize = filesize($logfile);
-        if ($fileSize > MAX_MEMORY_LIMIT) {
+        if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
             echo "File too big: $logfile : " . $fileSize . " bytes." . PHP_EOL;
             $res->retval = 'fatal_error';
             return $res->updateRetval();
@@ -400,7 +400,7 @@ class StagePdf extends AbstractStage
         $this->debug('Logfile: ' . $logfile);
 
         $fileSize = filesize($logfile);
-        if ($fileSize > MAX_MEMORY_LIMIT) {
+        if ($fileSize > TEXMLBUS_MAX_PARSE_FILESIZE) {
             echo "File too big: $logfile : " . $fileSize . " bytes." . PHP_EOL;
             return;
         }
