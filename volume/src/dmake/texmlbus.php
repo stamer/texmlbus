@@ -15,7 +15,10 @@
  *
  */
 
-ini_set("memory_limit", "512M");
+//                              KB     MB     GB
+define("MAX_MEMORY_LIMIT", 2 * 1024 * 1024 * 1024);
+ini_set("memory_limit", MAX_MEMORY_LIMIT);
+
 require_once "IncFiles.php";
 
 use Dmake\Config;
@@ -30,7 +33,7 @@ use Dmake\UtilHost;
 use Dmake\UtilStage;
 use Dmake\WorkqueueEntry;
 
-function mainLoop($hostGroupName, $dmake, $ds)
+function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
 {
     $cfg = Config::getConfig();
 
@@ -113,7 +116,14 @@ function mainLoop($hostGroupName, $dmake, $ds)
                     if (DBG_LEVEL & DBG_MAKE) {
                         echo "Make $action $sourceDir ..." . PHP_EOL;
                     }
-                    system($systemCmd);
+                    $output = [];
+                    exec($systemCmd, $output, $result_code);
+                    if (DBG_LEVEL & DBG_MAKE) {
+                        print_r($output);
+                    }
+                    if ($result_code) {
+                        echo "Make failed: make $action $sourceDir" . PHP_EOL;
+                    }
 
                     $wqEntry = new WorkqueueEntry();
                     $wqEntry->setStage($stage);
@@ -159,6 +169,8 @@ function mainLoop($hostGroupName, $dmake, $ds)
                                     // https://stackoverflow.com/questions/3668615/pcntl-fork-and-the-mysql-connection-is-gone
                                     // https://www.electrictoolbox.com/mysql-connection-php-fork/
 
+                                    pcntl_signal(SIGHUP, array($dmake, 'sigHupChild'), true);
+                                    pcntl_signal(SIGINT, array($dmake, 'sigIntChild'), true);
                                     $result = $dmake->childMain(
                                         $hostGroupName,
                                         $cfg->hosts[$hostGroupName][$hostkey],
@@ -177,12 +189,8 @@ function mainLoop($hostGroupName, $dmake, $ds)
                                     break;
                                 default:
                                     // parent
-                                    // install signal handler in parent
-                                    // does not seem to work as it is supposed to
-                                    pcntl_signal(SIGHUP, array($dmake, 'sigHup'));
-                                    pcntl_signal(SIGINT, array($dmake, 'sigInt'));
                                     if (DBG_LEVEL & DBG_CHILD) {
-                                        echo "Created child $pid" . PHP_EOL;
+                                        echo "(main loop) Created child $pid" . PHP_EOL;
                                     }
                                     $dmake->activeHosts[$hostGroupName][$hostkey] = $pid;
                             }
@@ -238,7 +246,7 @@ pcntl_async_signals(true);
 $dmake = new Dmake();
 // install signal handler
 pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
-pcntl_signal(SIGINT, array($dmake, 'sigInt'));
+pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
 
 // check whether hosts are available and possibly
 // disable stages when no corresponding hosts are found.
@@ -285,7 +293,7 @@ $ds->timeout = $cfg->timeout->default;
 $ds->save(TRUE);
 
 $requeuedDocuments = WorkqueueEntry::requeueLeftoverRunningEntries();
-echo "Requeued $requeuedDocuments documents." . PHP_EOL;
+echo "Requeued $requeuedDocuments document" .  ($requeuedDocuments != 1 ? 's' : '') . "." . PHP_EOL;
 
 foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
 
@@ -309,8 +317,8 @@ foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
             // parent
             // install signal handler in parent
             // does not seem to work as it is supposed to
-            pcntl_signal(SIGHUP, array($dmake, 'sigHup'));
-            pcntl_signal(SIGINT, array($dmake, 'sigInt'));
+            pcntl_signal(SIGHUP, array($dmake, 'sigHupParent'));
+            pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
             if (DBG_LEVEL & DBG_CHILD) {
                 echo "Created child $pid" . PHP_EOL;
             }

@@ -24,13 +24,23 @@ $id = $request->getQueryParam('id', '');
 $stage = $request->getQueryParam('stage', '');
 
 if (!empty($id)) {
-    $success = WorkqueueEntry::disableEntry($id, $stage);
-    $out['success'] = $success;
-    if ($success) {
-        $out['message'] = 'Success.';
+    $wqEntry = WorkqueueEntry::getByStatisticIdAndStage($id, $stage);
+    if ($wqEntry && $wqEntry->getPid()) {
+        $success = posix_kill($wqEntry->getPid(), SIGHUP);
+        if ($success) {
+            $out['message'] = 'Success. Please wait to complete...';
+        } else {
+            $out['message'] = 'Failed to stop conversion.';
+        }
     } else {
-        $out['message'] = 'Failed to dequeue document.';
+        $success = WorkqueueEntry::disableEntry($id, $stage);
+        if ($success) {
+            $out['message'] = 'Success.';
+        } else {
+            $out['message'] = 'Failed to dequeue document.';
+        }
     }
+    $out['success'] = $success;
 } else {
     $out['success'] = false;
     $out['message'] = 'No id specified. Unable to dequeue document.';

@@ -78,8 +78,8 @@ class UtilManage
             foreach ($workerDirectories as $workerDirectory) {
                 UtilFile::deleteDirR($directory . '/' . $workerDirectory);
             }
-            $workQueueEntry = WorkqueueEntry::getByStatisticId($id);
-            if ($workQueueEntry) {
+            $workQueueEntries = WorkqueueEntry::getByStatisticId($id);
+            foreach ($workQueueEntries as $workQueueEntry) {
                 $workQueueEntry->updateAndStat();
             }
             return $totalRows;

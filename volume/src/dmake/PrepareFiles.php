@@ -379,7 +379,13 @@ class PrepareFiles
                 $systemstr = str_replace('__FILE__', escapeshellarg($file), $systemstr);
                 $systemstr = str_replace('__DEST__', escapeshellarg($destfile), $systemstr);
 
-                $retval = system($systemstr);
+                $retval = exec($systemstr, $output, $result_code);
+                if (DBG_LEVEL & DBG_SETUP_FILES) {
+                    print_r($output);
+                }
+                if ($result_code) {
+                    echo "Command failed: $systemstr";
+                }
             } else {
                 $this->debugLog("Destfile $destfile already exists...");
             }

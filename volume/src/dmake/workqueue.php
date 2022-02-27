@@ -223,7 +223,9 @@ elseif (in_array($action, $possibleCleanActions))
     } else {
         $normalaction = str_replace('clean', '', $action);
     }
-    echo "Cleaning up...\n";
+    if (DBG_LEVEL & DBG_MAKE) {
+        echo "Cleaning up...\n";
+    }
     $dirs = StatEntry::getFilenamesByRestriction($normalaction, $restrict);
 
     foreach ($dirs as $directory) {
@@ -234,13 +236,23 @@ elseif (in_array($action, $possibleCleanActions))
         } else {
             // old
 
-            echo "Dir: $directory\n";
+            if (DBG_LEVEL & DBG_MAKE) {
+                echo "Dir: $directory\n";
+            }
             // ARTICLEDIR./.$directory need quotes!
             $systemCmd = 'cd "'.ARTICLEDIR.'/'.$directory.'" && /usr/bin/make '.$action;
-            if (DBG_LEVEL & DBG_DELETE) {
+            if (DBG_LEVEL & DBG_MAKE) {
                 echo "Make $action $directory...\n";
             }
-            system($systemCmd);
+            $output = [];
+            exec($systemCmd, $output, $result_code);
+            if (DBG_LEVEL & DBG_MAKE) {
+                print_r($output);
+            }
+            if ($result_code) {
+                echo "$systemCmd failed." . PHP_EOL;
+            }
+
             //UtilFile::cleanupDir($directory, $action);
         }
     }

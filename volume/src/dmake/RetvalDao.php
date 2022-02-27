@@ -418,7 +418,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                j.id is NULL
+                (j.id is NULL OR j.retval = :retval)
             ';
         }
 
@@ -470,9 +470,8 @@ class RetvalDao
 
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
-        if ($retval != 'unknown') {
-            $stmt->bindValue(':retval', $retval);
-        }
+        $stmt->bindValue(':retval', $retval);
+
         if ($set != '') {
             $stmt->bindValue(':set', $set);
         }
@@ -546,7 +545,7 @@ class RetvalDao
                 s.id = j.id
             ";
             $joinWhere = '
-                AND j.id is NULL
+                AND (j.id is NULL OR j.retval = :retval)
             ';
         }
 
@@ -587,9 +586,8 @@ class RetvalDao
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
 
-        if ($retval != 'unknown') {
-            $stmt->bindValue(':retval', $retval);
-        }
+        $stmt->bindValue(':retval', $retval);
+
         if ($set != '') {
             $stmt->bindValue(':set', $set);
         }
@@ -780,4 +778,47 @@ class RetvalDao
 
         return $stmt->fetchAll();
     }
+
+    public static function setRetval($stage, $id, $retval): bool
+    {
+        $cfg = Config::getConfig();
+        if (!isset($cfg->stages[$stage])) {
+            return false;
+        }
+        $retvalTable = $cfg->stages[$stage]->dbTable;
+        $dateModified = date("Y-m-d H:i:s");
+
+        $dao = Dao::getInstance();
+
+        echo "Updating " . $retvalTable . PHP_EOL;
+        $query = /** @lang ignore */ '
+			INSERT INTO
+				' . $retvalTable . '
+			SET
+				id              = :id,
+				date_modified	= :i_date_modified,
+				retval          = :i_retval,
+                warnmsg         = :i_warnmsg,
+				errmsg          = :i_errmsg
+            ON DUPLICATE KEY UPDATE
+				date_modified	= :u_date_modified,
+				prev_retval     = retval,
+				retval          = :u_retval,
+                warnmsg         = :u_warnmsg,
+				errmsg          = :u_errmsg';
+
+        $stmt = $dao->prepare($query);
+        $stmt->bindValue('id', $id);
+        $stmt->bindValue('i_date_modified', $dateModified);
+        $stmt->bindValue('u_date_modified', $dateModified);
+        $stmt->bindValue('i_retval', $retval);
+        $stmt->bindValue('u_retval', $retval);
+        $stmt->bindValue('i_warnmsg', '');
+        $stmt->bindValue('u_warnmsg', '');
+        $stmt->bindValue('i_errmsg', '');
+        $stmt->bindValue('u_errmsg', '');
+
+        return $stmt->execute();
+    }
+
 }

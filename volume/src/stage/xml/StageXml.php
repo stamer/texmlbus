@@ -332,6 +332,13 @@ class StageXml extends AbstractStage
                 $res->retval = 'missing_errlog';
             }
         } else {
+            $fileSize = filesize($stdErrLog);
+            if ($fileSize > MAX_MEMORY_LIMIT) {
+                echo "File too big: $stdErrLog : " . $fileSize . " bytes." . PHP_EOL;
+                $res->retval = 'fatal_error';
+                return $res->updateRetval();
+            }
+
             $content = file_get_contents($stdErrLog);
             if ($content === ''
                 && $status
@@ -446,6 +453,11 @@ class StageXml extends AbstractStage
 
         $this->debug($stdErrLog);
 
+        $fileSize = filesize($stdErrLog);
+        if ($fileSize > MAX_MEMORY_LIMIT) {
+            echo "File too big: $stdErrLog : " . $fileSize . " bytes." . PHP_EOL;
+            return;
+        }
         $content = file_get_contents($stdErrLog);
 
         $err_pattern = '/^(Error|Warning):(.*?):(.*)$/m';

@@ -13,8 +13,6 @@
  */
 namespace Dmake;
 
-ini_set("memory_limit", "512M");
-
 require_once "IncFiles.php";
 
 class Dmake
@@ -40,12 +38,12 @@ class Dmake
         }
     }
 
-    // install handler for master being killed
-    public function sigHup($signo)
+    // install handler for parent being killed
+    public function sigHupParent($signo)
     {
         // reinstall, older OS might need it
-        pcntl_signal(SIGHUP, [$this, 'sigHup']);
-        echo "Caught SIGHUP" . PHP_EOL;
+        pcntl_signal(SIGHUP, [$this, 'sigHupParent']);
+        echo "Caught SIGHUP (parent)" . PHP_EOL;
 
         foreach ($this->activeHosts as $hostGroupName => $hostGroup) {
             foreach ($hostGroup as $hostkey => $pid) {
@@ -56,18 +54,44 @@ class Dmake
         exit;
     }
 
-    // Install handler for master being killed.
-    public function sigInt($signo)
+    // Install handler for parent being killed.
+    public function sigIntParent($signo)
     {
         // reinstall, older OS might need it
-        pcntl_signal(SIGINT, [$this, 'sigInt']);
+        pcntl_signal(SIGINT, [$this, 'sigIntParent']);
 
-        echo "Caught SIGINT" . PHP_EOL;
+        echo "Caught SIGINT (parent)" . PHP_EOL;
         foreach ($this->activeHosts as $hostGroupName => $hostGroup) {
             foreach ($hostGroup as $hostkey => $pid) {
                 echo "Killing job on $hostkey...\n";
                 posix_kill($pid, SIGTERM);
             }
+        }
+        exit;
+    }
+
+    // install handler for child being killed
+    public function sigHupChild($signo)
+    {
+        $pid = posix_getpid();
+        echo "Caught SIGHUP (child $pid)" . PHP_EOL;
+        $wqEntry = WorkqueueEntry::getByPid($pid);
+        if ($wqEntry) {
+            $wqEntry::disableEntry($wqEntry->getStatisticId(), $wqEntry->getStage());
+            RetvalDao::setRetval($wqEntry->getStage(), $wqEntry->getStatisticId(), 'unknown');
+        }
+        exit;
+    }
+
+    // Install handler for child being killed.
+    public function sigIntChild($signo)
+    {
+        $pid = posix_getpid();
+        echo "Caught SIGINT (child $pid)" . PHP_EOL;
+        $wqEntry = WorkqueueEntry::getByPid($pid);
+        if ($wqEntry) {
+            $wqEntry::disableEntry($wqEntry->getStatisticId(), $wqEntry->getStage());
+            RetvalDao::setRetval($wqEntry->getStage(), $wqEntry->getStatisticId(), 'unknown');
         }
         exit;
     }
@@ -98,6 +122,12 @@ class Dmake
         $cfg = Config::getConfig();
 
         $cpid = posix_getpid();
+        $pid = posix_getppid();
+        $wqEntry = WorkqueueEntry::getByStatisticIdAndStage($entry->getId(), $stage);
+        if ($wqEntry) {
+            $wqEntry->setPid($cpid);
+            $wqEntry->update();
+        }
 
         $apiResult = $this->runWorker($hostGroup, $host, $entry, $stage, $action);
         $childAlarmed = ($apiResult->getShellReturnVar() == CURLE_OPERATION_TIMEDOUT);
@@ -143,9 +173,13 @@ class Dmake
             die ("Action: $action, Trying to load $classname, but it does not exist");
         }
 
-        $wqEntry = new WorkqueueEntry();
-        $wqEntry->setStage($stage);
-        $wqEntry->setStatisticId($entry->getId());
+        $wqEntry = WorkqueueEntry::getByStatisticIdAndStage($entry->getId(), $stage);
+        if (!$wqEntry) {
+            $wqEntry = new WorkqueueEntry();
+            $wqEntry->setStage($stage);
+            $wqEntry->setStatisticId($entry->getId());
+        }
+        $wqEntry->setPid(0);
         $wqEntry->setPriority(0);
         $wqEntry->setAction(StatEntry::WQ_ACTION_NONE);
         $wqEntry->setHostGroup($hostGroup);

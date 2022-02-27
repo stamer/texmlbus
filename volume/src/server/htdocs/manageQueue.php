@@ -113,7 +113,12 @@ foreach ($stat as $wq_id => $entry) {
 	$running = ($entry->getWqPriority() == 0 && $entry->getWqAction() != 'none');
 
 	echo '<td align="right" rowspan="1">'.$no;
-    if (!$running) {
+    if ($running) {
+        echo '<button type="button" class="btn btn-error error queue_error" onclick="dequeueDocument(this, ' . $entry->getId(
+            ) . ', \'' . $entry->getWqStage() . '\')">';
+        echo '<i class="fas fa-stop" title="stop conversion"></i>';
+        echo '<span></span></button>';
+    } else {
         echo '<button type="button" class="btn btn-warning warning queue_warning" onclick="dequeueDocument(this, ' . $entry->getId(
             ) . ', \'' . $entry->getWqStage() . '\')">';
         echo '<i class="fas fa-ban" title="dequeue document"></i>';

@@ -247,6 +247,13 @@ class StagePagelimit extends AbstractStage
             }
         }
 
+        $fileSize = filesize($stdErrLog);
+        if ($fileSize > MAX_MEMORY_LIMIT) {
+            echo "File too big: $stdErrLog : " . $fileSize . " bytes." . PHP_EOL;
+            $res->retval = 'fatal_error';
+            return $res->updateRetval();
+        }
+
         $content = file_get_contents($stdErrLog);
         if ($content === ''
             && $status
@@ -254,7 +261,6 @@ class StagePagelimit extends AbstractStage
             $res->retval = 'fatal_error';
             $res->errmsg = static::parseMakelog($makeLog);
         } else {
-            $content = file_get_contents($stdErrLog);
             $res->errmsg = '';
             $res->warnmsg = '';
 
