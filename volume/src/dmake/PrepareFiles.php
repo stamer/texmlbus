@@ -358,7 +358,7 @@ class PrepareFiles
     }
 
     /**
-     * Converts a given file according to this->conversionMap.
+     * Converts a given file according to $this->conversionMap.
      * E.g. eps -> pdf
      */
     public function convertFile(string $fullfile): bool
@@ -398,6 +398,7 @@ class PrepareFiles
                     if ($result_code) {
                         error_log("Command failed: $systemstr");
                     }
+                    chdir($saveDir);
                     $success = ($result_code === 0);
                 } else {
                     $apr = new ApiWorkerRequest();
@@ -420,8 +421,6 @@ class PrepareFiles
                 $this->debugLog("Destfile $destfile already exists...");
                 $success = true;
             }
-
-            chdir($saveDir);
         }
         return $success;
     }
