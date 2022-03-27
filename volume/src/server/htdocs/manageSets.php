@@ -58,12 +58,12 @@ echo '<h4>Manage Sets ' . $page->info('manageSets') . '</h4>';
 ?>
     <div style="margin-bottom: 10px;">
 
-        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="dropSet(this, '<?=htmlspecialchars($set->getName())?>')">
+        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" title="Remove from DB, but keep in file system" onclick="dropSet(this, '<?=htmlspecialchars($set->getName())?>')">
             <i class="fas fa-times-circle"></i>
             <span></span>
         </button>
         &nbsp;
-        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSet(this, '<?=htmlspecialchars($set->getName())?>')">
+        <button style="font-size: 0.8rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" title="Remove from DB and file system" onclick="deleteSet(this, '<?=htmlspecialchars($set->getName())?>')">
             <i class="fas fa-trash"></i>
               <span></span>
         </button>

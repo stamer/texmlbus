@@ -84,7 +84,7 @@ UtilFile::listDirR(ARTICLESTYDIR, $result_dirs, $current_depth, true, false);
         }
 ?>
     <div style="margin-bottom: 10px;">
-        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" onclick="deleteSty(this, '<?=($isDir ? "true" : "false") ?>', '<?=htmlspecialchars($file)?>')">
+        <button style="font-size: 0.5rem; padding: 0.3rem 0.45rem; margin-right: 10px" type="button" class="btn btn-danger delete" title="delete from filesystem" onclick="deleteSty(this, '<?=($isDir ? "true" : "false") ?>', '<?=htmlspecialchars($file)?>')">
          <i class="fas fa-trash"></i>
               <span></span>
          </button>

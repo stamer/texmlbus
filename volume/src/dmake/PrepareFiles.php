@@ -175,7 +175,12 @@ class PrepareFiles
             [
                 // .eps to .pdf conversion
                 '.eps' => [
-                    'app' => $this->cfg->app->epstopdf.' --outfile=__DEST__ __FILE__',
+                    'app' => $this->cfg->app->epstopdf,
+                    // localhost or worker
+                    // Webserver does not have texlive installed, therefore
+                    // conversion must take place on worker.
+                    'host' => 'worker',
+                    'parameter' => '--outfile=__DEST__ __FILE__',
                     'destfile' => '__PREFIX__-eps-converted-to.pdf',
                 ],
             ];
@@ -252,16 +257,19 @@ class PrepareFiles
      */
     public function isFileTexfile(string $checkfile): bool
     {
-        $file = $this->cfg->app->file;
-
-        if ($checkfile == '') {
+        if ($checkfile === '') {
             return false;
         }
 
-        $retstr = `$file -Li '$checkfile'`;
+        $systemstr = $this->cfg->app->file . ' -Li ' . escapeshellarg($checkfile);
+        $retstr = exec($systemstr, $output, $return_var);
 
-        if (strpos($retstr, 'text/') !== FALSE
-            || strpos($retstr, 'application/octet-stream') !== FALSE) {
+        if ($return_var) {
+            $this->debugLog("Exec of '$systemstr' failed!");
+        }
+
+        if (strpos($retstr, 'text/') !== false
+            || strpos($retstr, 'application/octet-stream') !== false) {
             return true;
         } else {
             return false;
@@ -350,11 +358,12 @@ class PrepareFiles
     }
 
     /**
-     * Converts a given file according to this->conversionMap.
+     * Converts a given file according to $this->conversionMap.
      * E.g. eps -> pdf
      */
     public function convertFile(string $fullfile): bool
     {
+        $success = false;
         $dir = dirname($fullfile);
         $file = basename($fullfile);
 
@@ -368,31 +377,52 @@ class PrepareFiles
             $destfile = str_replace('__PREFIX__', $prefix, $this->conversionMap[$suffix]['destfile']);
             $destfile = str_replace('__SUFFIX__', $suffix, $destfile);
 
-            // change to dir, so we can run repstopdf, which makes sure that we do not
-            // escape the directory.
-            $saveDir = getcwd();
-            chdir($dir);
 
             // only convert if destFile does not yet exist
             if (!file_exists($destfile)) {
-                $systemstr = $this->conversionMap[$suffix]['app'];
-                $systemstr = str_replace('__FILE__', escapeshellarg($file), $systemstr);
-                $systemstr = str_replace('__DEST__', escapeshellarg($destfile), $systemstr);
+                $parameter = $this->conversionMap[$suffix]['parameter'];
+                $parameter = str_replace('__FILE__', escapeshellarg($file), $parameter);
+                $parameter = str_replace('__DEST__', escapeshellarg($destfile), $parameter);
 
-                $retval = exec($systemstr, $output, $result_code);
-                if (DBG_LEVEL & DBG_SETUP_FILES) {
-                    print_r($output);
-                }
-                if ($result_code) {
-                    echo "Command failed: $systemstr";
+                if ($this->conversionMap[$suffix]['host'] == 'localhost') {
+                    // change to dir, so we can run repstopdf, which makes sure that we do not
+                    // escape the directory.
+                    $saveDir = getcwd();
+                    chdir($dir);
+                    $systemstr = $this->conversionMap[$suffix]['app'] . ' ' . $parameter;
+
+                    $retval = exec($systemstr, $output, $result_code);
+                    if (DBG_LEVEL & DBG_SETUP_CONVERSION) {
+                        error_log(print_r($output, 1));
+                    }
+                    if ($result_code) {
+                        error_log("Command failed: $systemstr");
+                    }
+                    chdir($saveDir);
+                    $success = ($result_code === 0);
+                } else {
+                    $apr = new ApiWorkerRequest();
+                    $apr->setWorker($this->conversionMap[$suffix]['host'])
+                        // needs to be configured in ApiWorkerHandler.php
+                        ->setCommand(basename($this->conversionMap[$suffix]['app']))
+                        ->setParameter($parameter)
+                        ->setDirectory($dir);
+
+                    $apiResult = $apr->sendRequest();
+                    $success = $apiResult->getSuccess();
+                    if (DBG_LEVEL & DBG_SETUP_CONVERSION) {
+                        error_log(print_r($apiResult->getOutput(), 1));
+                    }
+                    if (!$success) {
+                        error_log("Api request failed: " . $apr->getCommand() . ' ' . $apr->getParameter());
+                    }
                 }
             } else {
                 $this->debugLog("Destfile $destfile already exists...");
+                $success = true;
             }
-
-            chdir($saveDir);
         }
-        return true;
+        return $success;
     }
 
     /**
