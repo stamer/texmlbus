@@ -677,7 +677,7 @@ class PrepareFiles
                         if ($destDir === '') {
                             $stripped = $this->stripArticleDir($dir);
                         } else {
-                            $newDir = str_replace(dirname($currentDir), $destDir, $currentDir);
+                            $newDir = str_replace(dirname($currentDir), $destDir, $dir);
                             $stripped = $this->stripArticleDir($newDir);
                         }
                         // directory might contain trailing slash
