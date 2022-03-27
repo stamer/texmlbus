@@ -17,13 +17,14 @@ define("DBG_PARSE_POST", 1 << 9);
 define("DBG_HOSTS", 1 << 10);
 define("DBG_MAKE", 1 << 11);
 define("DBG_SETUP_FILES", 1 << 12);
-define("DBG_CLS_LOADER", 1 << 13);
+define("DBG_SETUP_CONVERSION", 1 << 13);
+define("DBG_CLS_LOADER", 1 << 14);
 
 $dbgLevel = getenv('DBG_LEVEL');
 if ($dbgLevel !== false && $dbgLevel != '') {
     define("DBG_LEVEL", (int) $dbgLevel);
 } else {
-    define("DBG_LEVEL", DBG_EXEC | DBG_CHILD | DBG_CHILD_RETVAL);
+    define("DBG_LEVEL", DBG_EXEC | DBG_CHILD | DBG_SETUP_FILES | DBG_CHILD_RETVAL);
 }
 
 // not supported yet

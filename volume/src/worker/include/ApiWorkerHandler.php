@@ -153,13 +153,21 @@ class ApiWorkerHandler
         }
 
         $this->debug("Action: $this->action");
-        
+
+        // To make sure that only a restricted set of commands are executed on
+        // worker, each single action needs to explicitly checked (and mapped).
+        // $this->action normally corresponds to $this->awr->command, (see ApiWorkerRequest),
+        // but this cannot be trusted.
+        // Never execute $this->>awr-command.
         switch ((string)$this->action) {
             case '':
                 $apiResult = new ApiResult(false, 'No action given.');
                 break;
             case 'checkDir':
                 $apiResult = $this->checkDir();
+                break;
+            case 'repstopdf':
+                $apiResult = $this->execCommandWithParam('repstopdf');
                 break;
             case 'latexmlversion':
                 $apiResult = $this->latexmlversion();
@@ -171,7 +179,7 @@ class ApiWorkerHandler
                 $apiResult = $this->meminfo();
                 break;
             case 'pdftex':
-                $apiResult = $this->execCommandWithParam();
+                $apiResult = $this->execCommandWithParam('pdftex');
                 break;
             case 'testStyClsSupport':
                 $apiResult = $this->testStyClsSupport();
@@ -406,7 +414,7 @@ class ApiWorkerHandler
         return $apr;
     }
 
-    public function execCommandWithParam() : ApiResult
+    public function execCommandWithParam(string $command) : ApiResult
     {
         $directory = $this->awr->getDirectory();
         if (empty($directory)) {
@@ -416,10 +424,17 @@ class ApiWorkerHandler
         if (empty($parameter)) {
             $this->exitBadRequest('Empty parameter');
         }
+        // Parameter may not have additional commands.
+        if (strpos($parameter, ';') !== FALSE) {
+            $this->exitBadRequest('Invalid parameter');
+        }
 
         $execStr = 'PATH=/bin:/usr/bin; export PATH;';
-        $execStr .= 'cd ' . $directory . ';';
-        $execStr .= $this->awr->getCommand() . ' ' . $parameter;
+        $execStr .= 'cd ' . escapeshellarg($directory) . ';';
+        // $this->awr->command has already been determined by the api call.
+        // $this->awr->command cannot be used directly, as it may be different
+        // within the request.
+        $execStr .= $command . ' ' . $parameter;
 
         exec($execStr, $output, $shellReturnVar);
 
@@ -429,6 +444,7 @@ class ApiWorkerHandler
         $apr->setSuccess($shellReturnVar == 0);
         return $apr;
     }
+
     public function checkDir() : ApiResult
     {
         $directory = $this->awr->getDirectory();
@@ -437,7 +453,7 @@ class ApiWorkerHandler
         }
 
         $execStr = 'PATH=/bin:/usr/bin; export PATH;';
-        $execStr .= 'cd ' . $directory;
+        $execStr .= 'cd ' . escapeshellarg($directory);
 
         exec($execStr, $output, $shellReturnVar);
 
