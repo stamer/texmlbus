@@ -104,7 +104,7 @@ if ($dockerized || $ostype == 'linux-musl') {
     $config->server->homeDir = '/home/dmake';
     $config->server->workerPrefix = '__texmlbus_';
 
-    $config->defaultTexEngines = 'pdflatex';
+    $config->defaultTexEngine = 'pdflatex';
 
     // List of valid TexEngines, and translated as option to latexmk.
     $config->validPdfTexEngines = [
