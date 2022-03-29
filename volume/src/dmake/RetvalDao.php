@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2021 Heinrich Stamerjohanns
+ * (c) 2007 - 2022 Heinrich Stamerjohanns
  *
  * A class to handle queries to RetvalTables.
  *
@@ -184,6 +184,7 @@ class RetvalDao
                 s.filename,
                 s.project_id,
                 s.project_src,
+                s.comment_status,   
                 wq.priority as wq_priority,
                 wq.action as wq_action
             FROM

@@ -1,7 +1,7 @@
 <?php
 /**
  * MIT License
- * (c) 2007 - 2020 Heinrich Stamerjohanns
+ * (c) 2007 - 2022 Heinrich Stamerjohanns
  *
  * A class to handle entries in the statistic database.
  *
@@ -18,6 +18,15 @@ class StatEntry
     public const WQ_ACTION_FORCE = 'force';
     public const WQ_ENTRY_DISABLED = 0;
 
+    public const ENUM_COMMENT_STATUS = [
+        'none' => 'white',
+        'todo' => 'blue',
+        'working' => 'lightgreen',
+        'revisit' => 'orange',
+        'cannot fix' => 'red',
+        'ok' => 'green'
+    ];
+
     public $id = 0;
     public $date_created = '';
     public $date_modified = '';
@@ -29,6 +38,9 @@ class StatEntry
     public $errmsg = '';
     protected $project_id = ''; // id of project in cloud
     protected $project_src = ''; // cloud provider
+    protected $comment = '';
+    protected $comment_status = '';
+    protected $comment_date;
 
     public $wq_id = 0;
     public $wq_priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
@@ -249,6 +261,37 @@ class StatEntry
         return preg_replace('/\.tex$/', '', $this->sourcefile);
     }
 
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(string $comment): void
+    {
+        $this->comment = $comment;
+    }
+
+    public function getCommentStatus(): ?string
+    {
+        return $this->comment_status;
+    }
+
+    public function setCommentStatus(?string $comment_status): void
+    {
+        $this->comment_status = $comment_status;
+    }
+
+    public function getCommentDate()
+    {
+        return $this->comment_date;
+    }
+
+    public function setCommentDate($comment_date)
+    {
+        $this->comment_date = $comment_date;
+        return $this;
+    }
+
     /**
      * Saves entry to DB.
      */
@@ -285,7 +328,10 @@ class StatEntry
                 timeout         = :i_timeout,
                 errmsg          = :i_errmsg,
                 project_id      = :i_project_id,
-                project_src     = :i_project_src
+                project_src     = :i_project_src,
+                comment         = :i_comment,
+                comment_status  = :i_comment_status,
+                comment_date    = :i_comment_date
             ON DUPLICATE KEY UPDATE
                 date_modified   = :u_date_modified,
                 wq_priority     = :u_wq_priority,
@@ -299,7 +345,10 @@ class StatEntry
                 timeout         = :u_timeout,
                 errmsg          = :u_errmsg,
                 project_id      = :u_project_id,
-                project_src     = :u_project_src
+                project_src     = :u_project_src,
+                comment         = :u_comment,
+                comment_status  = :u_comment_status,
+                comment_date    = :u_comment_date
             ';
         $stmt = $dao->prepare($query);
 
@@ -328,6 +377,12 @@ class StatEntry
         $stmt->bindValue(':u_project_id', $this->project_id);
         $stmt->bindValue(':i_project_src', $this->project_src);
         $stmt->bindValue(':u_project_src', $this->project_src);
+        $stmt->bindValue(':i_comment', $this->comment);
+        $stmt->bindValue(':u_comment', $this->comment);
+        $stmt->bindValue(':i_comment_status', $this->comment_status);
+        $stmt->bindValue(':u_comment_status', $this->comment_status);
+        $stmt->bindValue(':i_comment_date', $this->comment_date);
+        $stmt->bindValue(':u_comment_date', $this->comment_date);
 
         $success = $stmt->execute();
 
@@ -393,6 +448,15 @@ class StatEntry
         }
         if (isset($row['project_src'])) {
             $se->setProjectSrc($row['project_src']);
+        }
+        if (isset($row['comment'])) {
+            $se->setComment($row['comment']);
+        }
+        if (isset($row['comment_status'])) {
+            $se->setCommentStatus($row['comment_status']);
+        }
+        if (isset($row['comment_date'])) {
+            $se->setCommentDate($row['comment_date']);
         }
 
         return $se;

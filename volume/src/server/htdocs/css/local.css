@@ -64,7 +64,12 @@ table, th, td {
   box-shadow: 0 0 0 0.2rem rgba(151, 246, 140, 0.5);
 }
 
-
+.btn-xs, button-group-xs > .btn {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.6rem;
+    line-height: 1.0;
+    border-radius: 0.1rem;
+}
 
 /* cancel button on retval_abc */
 .queue_warning {

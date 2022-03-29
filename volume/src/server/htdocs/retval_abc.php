@@ -1,7 +1,7 @@
 <?php
 /**
  * Released under MIT License
- * (c) 2007 - 2020 Heinrich Stamerjohanns
+ * (c) 2007 - 2022 Heinrich Stamerjohanns
  *
  */
 require_once "../include/IncFiles.php";
@@ -12,6 +12,7 @@ use Dmake\UtilStage;
 use Dmake\SharedMem;
 use Server\Config;
 use Server\Page;
+use Dmake\StatEntry;
 use Server\UtilMisc;
 use Server\View;
 
@@ -20,6 +21,7 @@ $page->addScript('/js/deleteDocument.js');
 $page->addScript('/js/sseUpdateColumn.js');
 $page->addScript('/js/pullDocument.js');
 $page->addScript('/js/resetDocument.js');
+$page->addScript('/js/handleComment.js');
 $page->showHeader('retval_abc');
 
 $cfg = Config::getConfig();
@@ -114,6 +116,7 @@ foreach ($stages as $stage) {
         $stat[$row['id']]['all']['filename'] = $row['filename'];
         $stat[$row['id']]['all']['sourcefile'] = $row['sourcefile'];
         $stat[$row['id']]['all']['project_id'] = $row['project_id'];
+        $stat[$row['id']]['all']['comment_status'] = $row['comment_status'];
         $stat[$row['id']][$stage]['wq_priority'] = $row['wq_priority'];
         $stat[$row['id']][$stage]['wq_action'] = $row['wq_action'];
         $stat[$row['id']][$stage]['retval'] = $row['retval'];
@@ -179,6 +182,11 @@ foreach ($stat as $id => $entry) {
     } else {
         $filename = '';
     }
+    if (isset($entry['all']['comment_status'])) {
+        $comment_status = $entry['all']['comment_status'];
+    } else {
+        $comment_status = '';
+    }
 
     echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
     if (!empty($entry['all']['project_id'])) {
@@ -191,7 +199,11 @@ foreach ($stat as $id => $entry) {
     echo '<span></span></button>';
     echo '</td>' . PHP_EOL;
     echo View::renderDateCell($id, $date_modified);
-    echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a></td>' . PHP_EOL;
+    echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a><br />';
+    $color = StatEntry::ENUM_COMMENT_STATUS[$comment_status] ?? 'black';
+    echo '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $comment_status . '</button>';
+    echo '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
+    echo '</td>' . PHP_EOL;
 
     foreach ($stages as $stage) {
         $directory = UtilStage::getSourceDir('files', $entry['all']['filename'], $cfg->stages[$stage]->hostGroup) . '/';

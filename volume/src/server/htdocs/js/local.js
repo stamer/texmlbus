@@ -164,6 +164,61 @@ function modalPassword(title, text, onLogin, onCancel = null)
     $('#myModal').modal('show');
 }
 
+function modalComment(title, text, comment, enum_comment_status, comment_status, comment_date, onSubmit, onCancel = null)
+{
+    var fClose = function(){
+        $('#myModal').modal("hide");
+        $('.modal-footer').html('<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>');
+    };
+
+    var delayedOnSubmit = function(event) {
+        setTimeout(onSubmit, 500);
+    }
+
+    var delayedOnCancel = function() {
+        setTimeout(onCancel, 500);
+    }
+
+    $('.modal-header').attr('class', 'modal-header');
+    $('.modal-title').html(title);
+
+    var select = '<label for="modalcomment_status" class="col-form-label">Status:</label>';
+        select += '<select name="modalcomment_status" id="modalcomment_status" class="form-control">';
+    for (let i = 0; i < enum_comment_status.length; i++) {
+        select += '<option value="' + enum_comment_status[i] + '"';
+        if (enum_comment_status[i] == comment_status) {
+            select += ' selected="selected"';
+        }
+        select += '>' + enum_comment_status[i] + '</option>';
+    }
+    select += '</select>';
+
+    $('.modal-body').html(text
+        + '<form id="commentForm">'
+        + '<div class="form-group"> '
+        + select
+        + '<label for="modalcomment" class="col-form-label">Comment:</label>'
+        + '<textarea name="modalcomment" id="modalcomment" class="form-control">'
+        + comment
+        + '</textarea>'
+        + '</div>'
+        + '<div style="margin-top: 20px; text-align: end">'
+        + '    <button type="button" id="submitComment" class="btn btn-primary">Submit</button>'
+        + '</div>'
+        + '</form>'
+    );
+
+    $('.modal-footer').html('<button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>\n');
+    $('#submitComment').unbind().one('click', fClose).one('click', delayedOnSubmit);
+    $('#confirmCancel').unbind().one("click", fClose).one('click', delayedOnCancel);
+
+    $("#loginForm").submit(function(event) {
+        event.preventDefault();
+    });
+
+    $('#myModal').modal('show');
+}
+
 function hideMessageBox()
 {
     $('#myModal').hide();
