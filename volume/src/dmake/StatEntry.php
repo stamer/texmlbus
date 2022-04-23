@@ -39,7 +39,7 @@ class StatEntry
     protected $project_id = ''; // id of project in cloud
     protected $project_src = ''; // cloud provider
     protected $comment = '';
-    protected $comment_status = '';
+    protected $comment_status = 'none';
     protected $comment_date;
 
     public $wq_id = 0;
