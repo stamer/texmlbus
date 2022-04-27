@@ -563,6 +563,8 @@ class RetvalDao
                 s.id,
                 s.sourcefile,
                 s.filename,
+                s.comment_status,
+                s.comment_keyword,
                 wq.action as wq_action,
                 wq.priority as wq_priority
                 $joinDetailFields

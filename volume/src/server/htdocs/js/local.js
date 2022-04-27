@@ -164,7 +164,8 @@ function modalPassword(title, text, onLogin, onCancel = null)
     $('#myModal').modal('show');
 }
 
-function modalComment(title, text, comment, enum_comment_status, comment_status, comment_date, onSubmit, onCancel = null)
+function modalComment(title, text, comment, enum_comment_status, comment_status,
+                      comment_keyword, comment_date, onSubmit, onCancel = null)
 {
     var fClose = function(){
         $('#myModal').modal("hide");
@@ -197,6 +198,8 @@ function modalComment(title, text, comment, enum_comment_status, comment_status,
         + '<form id="commentForm">'
         + '<div class="form-group"> '
         + select
+        + '<label for="modalcomment_keyword" class="col-form-label">Keyword:</label>'
+        + '<input type="text" name="modalcomment_keyword" id="modalcomment_keyword" class="form-control" value="' + comment_keyword + '" />'
         + '<label for="modalcomment" class="col-form-label">Comment:</label>'
         + '<textarea name="modalcomment" id="modalcomment" class="form-control">'
         + comment

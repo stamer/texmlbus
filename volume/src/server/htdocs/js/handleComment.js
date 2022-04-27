@@ -23,13 +23,16 @@ function handleModalComment(data) {
     var comment = data.result['comment'];
     var enum_comment_status = data.result['enum_comment_status'];
     var comment_status = data.result['comment_status'];
+    var comment_keyword = data.result['comment_keyword'];
     var comment_date = data.result['comment_date'];
 
     var debug = true;
 
-    modalComment('Comment', filename, comment, enum_comment_status, comment_status, comment_date,function () {
+    modalComment('Comment', filename, comment, enum_comment_status,
+        comment_status, comment_keyword, comment_date,function () {
         var comment = $('#modalcomment').val();
         var comment_status = $('#modalcomment_status').val();
+        var comment_keyword = $('#modalcomment_keyword').val();
         showMessage('Saving comment...',
             '<div class="text-center"><div class="spinner-grow text-warning" role="status"><span class="sr-only">Saving comment...</span></div></div>',
             ''
@@ -43,10 +46,11 @@ function handleModalComment(data) {
         $.ajax({
             url: "/ajax/saveComment.php",
             method: "POST",
-            data: {'id': id, 'comment': comment, 'comment_status': comment_status},
+            data: {'id': id, 'comment': comment, 'comment_status': comment_status, 'comment_keyword': comment_keyword},
             dataType: 'json',
             success: function (data) {
                 saveCommentSuccess(data);
+                location.reload(true);
             },
             error: function (data) {
                 showMessage('Comment', 'Error: ' + data.result['message'], 'danger', 10000);

@@ -8,11 +8,11 @@ require_once "../include/IncFiles.php";
 
 use Dmake\Dao;
 use Dmake\RetvalDao;
+use Dmake\StatEntry;
 use Dmake\UtilStage;
 use Dmake\SharedMem;
 use Server\Config;
 use Server\Page;
-use Dmake\StatEntry;
 use Server\UtilMisc;
 use Server\View;
 
@@ -187,6 +187,11 @@ foreach ($stat as $id => $entry) {
     } else {
         $comment_status = '';
     }
+    if (isset($entry['all']['comment_keyword'])) {
+        $comment_keyword = $entry['all']['comment_keyword'];
+    } else {
+        $comment_keyword = '&nbsp;';
+    }
 
     echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
     if (!empty($entry['all']['project_id'])) {
@@ -200,8 +205,10 @@ foreach ($stat as $id => $entry) {
     echo '</td>' . PHP_EOL;
     echo View::renderDateCell($id, $date_modified);
     echo '<td rowspan="1"><a href="'.$directory.'">'.$filename.'</a><br />';
+    echo '<a href="' . $directory . $sourcefile . '">' . $sourcefile . '</a><br />';
     $color = StatEntry::ENUM_COMMENT_STATUS[$comment_status] ?? 'black';
     echo '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $comment_status . '</button>';
+    echo '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . ($comment_keyword ?: '&nbsp;') . '</button>';
     echo '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
     echo '</td>' . PHP_EOL;
 

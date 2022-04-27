@@ -43,6 +43,7 @@ $data['result'] = [
     'comment' => $entry->getComment(),
     'enum_comment_status' => array_keys(StatEntry::ENUM_COMMENT_STATUS),
     'comment_status' => $entry->getCommentStatus(),
+    'comment_keyword' => $entry->getCommentKeyword(),
     'comment_date' => $entry->getCommentDate(),
     'success' => true
 ];

@@ -15,6 +15,7 @@ use Server\View;
 
 $page = new Page('Detailed return values');
 $page->addScript('/js/sseUpdateRow.js');
+$page->addScript('/js/handleComment.js');
 $page->showHeader('index');
 
 $cfg = Config::getConfig();

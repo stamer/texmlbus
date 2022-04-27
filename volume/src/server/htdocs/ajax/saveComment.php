@@ -29,6 +29,7 @@ $data = [];
 $id = $request->getParam('id');
 $comment = $request->getParam('comment');
 $comment_status = $request->getParam('comment_status');
+$comment_keyword = $request->getParam('comment_keyword');
 $comment_date = $request->getParam('comment_date');
 $entry = StatEntry::getById($id);
 
@@ -43,6 +44,7 @@ if (empty($entry)) {
 
 $entry->setComment($comment);
 $entry->setCommentStatus($comment_status);
+$entry->setCommentKeyword($comment_keyword);
 $entry->setCommentDate((new DateTime())->format('Y-m-d H:i:s'));
 $success = $entry->save();
 
