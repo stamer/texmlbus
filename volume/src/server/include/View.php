@@ -244,7 +244,7 @@ class View
         $str .= '<a href="' . $directory . $row['sourcefile'] . '">' . $row['sourcefile'] . '</a><br />';
         $color = StatEntry::ENUM_COMMENT_STATUS[$row['comment_status']] ?? 'black';
         $str .= '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $row['comment_status'] . '</button>';
-        $str .= '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . ($row['comment_keyword'] ?: '&nbsp;') . '</button>';
+        $str .= '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . (htmlspecialchars($row['comment_keyword']) ?: '&nbsp;') . '</button>';
         $str .= '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
         $str .= '</td>' . PHP_EOL;
 

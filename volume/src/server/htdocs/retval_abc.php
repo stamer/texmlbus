@@ -117,6 +117,7 @@ foreach ($stages as $stage) {
         $stat[$row['id']]['all']['sourcefile'] = $row['sourcefile'];
         $stat[$row['id']]['all']['project_id'] = $row['project_id'];
         $stat[$row['id']]['all']['comment_status'] = $row['comment_status'];
+        $stat[$row['id']]['all']['comment_keyword'] = $row['comment_keyword'];
         $stat[$row['id']][$stage]['wq_priority'] = $row['wq_priority'];
         $stat[$row['id']][$stage]['wq_action'] = $row['wq_action'];
         $stat[$row['id']][$stage]['retval'] = $row['retval'];
@@ -190,7 +191,7 @@ foreach ($stat as $id => $entry) {
     if (isset($entry['all']['comment_keyword'])) {
         $comment_keyword = $entry['all']['comment_keyword'];
     } else {
-        $comment_keyword = '&nbsp;';
+        $comment_keyword = '';
     }
 
     echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
@@ -208,7 +209,7 @@ foreach ($stat as $id => $entry) {
     echo '<a href="' . $directory . $sourcefile . '">' . $sourcefile . '</a><br />';
     $color = StatEntry::ENUM_COMMENT_STATUS[$comment_status] ?? 'black';
     echo '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $comment_status . '</button>';
-    echo '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . ($comment_keyword ?: '&nbsp;') . '</button>';
+    echo '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . (htmlspecialchars($comment_keyword) ?: '&nbsp;') . '</button>';
     echo '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
     echo '</td>' . PHP_EOL;
 
