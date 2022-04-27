@@ -184,7 +184,8 @@ class RetvalDao
                 s.filename,
                 s.project_id,
                 s.project_src,
-                s.comment_status,   
+                s.comment_status,
+                s.comment_keyword,
                 wq.priority as wq_priority,
                 wq.action as wq_action
             FROM
@@ -563,6 +564,8 @@ class RetvalDao
                 s.id,
                 s.sourcefile,
                 s.filename,
+                s.comment_status,
+                s.comment_keyword,
                 wq.action as wq_action,
                 wq.priority as wq_priority
                 $joinDetailFields

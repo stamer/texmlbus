@@ -6,6 +6,8 @@
  */
 namespace Server;
 
+use Dmake\StatEntry;
+
 class View
 {
     /**
@@ -238,7 +240,13 @@ class View
 
         $str .= '<td id="td_count_' . $id . '" align="right">'.$no."</td>" . PHP_EOL;
         $str .= '<td class="right">'.$row['date_modified'].'<br /><br /><span class="grey">' . $id . '</span></td>' . PHP_EOL;
-        $str .= '<td><a href="'.$directory.'">'.$row['filename'].'</a></td>' . PHP_EOL;
+        $str .= '<td><a href="' . $directory . '">' . $row['filename'] . '</a><br>';
+        $str .= '<a href="' . $directory . $row['sourcefile'] . '">' . $row['sourcefile'] . '</a><br />';
+        $color = StatEntry::ENUM_COMMENT_STATUS[$row['comment_status']] ?? 'black';
+        $str .= '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $row['comment_status'] . '</button>';
+        $str .= '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . (htmlspecialchars($row['comment_keyword']) ?: '&nbsp;') . '</button>';
+        $str .= '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
+        $str .= '</td>' . PHP_EOL;
 
         $str .= self::renderRetvalCell(
             $retval,

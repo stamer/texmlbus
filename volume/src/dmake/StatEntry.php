@@ -40,6 +40,7 @@ class StatEntry
     protected $project_src = ''; // cloud provider
     protected $comment = '';
     protected $comment_status = 'none';
+    protected $comment_keyword = '';
     protected $comment_date;
 
     public $wq_id = 0;
@@ -281,6 +282,16 @@ class StatEntry
         $this->comment_status = $comment_status;
     }
 
+    public function getCommentKeyword(): ?string
+    {
+        return $this->comment_keyword;
+    }
+
+    public function setCommentKeyword(?string $comment_keyword): void
+    {
+        $this->comment_keyword = $comment_keyword;
+    }
+
     public function getCommentDate()
     {
         return $this->comment_date;
@@ -331,6 +342,7 @@ class StatEntry
                 project_src     = :i_project_src,
                 comment         = :i_comment,
                 comment_status  = :i_comment_status,
+                comment_keyword = :i_comment_keyword,
                 comment_date    = :i_comment_date
             ON DUPLICATE KEY UPDATE
                 date_modified   = :u_date_modified,
@@ -348,6 +360,7 @@ class StatEntry
                 project_src     = :u_project_src,
                 comment         = :u_comment,
                 comment_status  = :u_comment_status,
+                comment_keyword = :u_comment_keyword,
                 comment_date    = :u_comment_date
             ';
         $stmt = $dao->prepare($query);
@@ -381,6 +394,8 @@ class StatEntry
         $stmt->bindValue(':u_comment', $this->comment);
         $stmt->bindValue(':i_comment_status', $this->comment_status);
         $stmt->bindValue(':u_comment_status', $this->comment_status);
+        $stmt->bindValue(':i_comment_keyword', $this->comment_keyword);
+        $stmt->bindValue(':u_comment_keyword', $this->comment_keyword);
         $stmt->bindValue(':i_comment_date', $this->comment_date);
         $stmt->bindValue(':u_comment_date', $this->comment_date);
 
@@ -454,6 +469,9 @@ class StatEntry
         }
         if (isset($row['comment_status'])) {
             $se->setCommentStatus($row['comment_status']);
+        }
+        if (isset($row['comment_keyword'])) {
+            $se->setCommentKeyword($row['comment_keyword']);
         }
         if (isset($row['comment_date'])) {
             $se->setCommentDate($row['comment_date']);
