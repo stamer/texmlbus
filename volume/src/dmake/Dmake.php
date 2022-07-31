@@ -13,6 +13,8 @@
  */
 namespace Dmake;
 
+use JetBrains\PhpStorm\NoReturn;
+
 require_once "IncFiles.php";
 
 class Dmake
@@ -21,7 +23,7 @@ class Dmake
      * holds the currently active hosts
      * @var int[], [hostkey] = pid
      */
-    public $activeHosts;
+    public array $activeHosts;
 
     protected $status;
 
@@ -39,7 +41,8 @@ class Dmake
     }
 
     // install handler for parent being killed
-    public function sigHupParent($signo)
+    #[NoReturn]
+    public function sigHupParent($signo): void
     {
         // reinstall, older OS might need it
         pcntl_signal(SIGHUP, [$this, 'sigHupParent']);
@@ -55,6 +58,7 @@ class Dmake
     }
 
     // Install handler for parent being killed.
+    #[NoReturn]
     public function sigIntParent($signo)
     {
         // reinstall, older OS might need it
@@ -71,6 +75,7 @@ class Dmake
     }
 
     // install handler for child being killed
+    #[NoReturn]
     public function sigHupChild($signo)
     {
         $pid = posix_getpid();
@@ -84,6 +89,7 @@ class Dmake
     }
 
     // Install handler for child being killed.
+    #[NoReturn]
     public function sigIntChild($signo)
     {
         $pid = posix_getpid();

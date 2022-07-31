@@ -7,7 +7,6 @@
  *
  */
 use Server\Config;
-use \PDO;
 
 class Dao
 {
@@ -24,11 +23,11 @@ class Dao
     {
         if (self::$instance === null)
         {
-            $opt  = array(
+            $opt = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => FALSE,
-            );
+            ];
 			$db = Config::getConfig('db');
             $dsn = 'mysql:host='.$db->host.';dbname='.$db->dbname.';charset='.$db->charset;
 			try {
@@ -66,8 +65,9 @@ class Dao
         try {
             self::query("SELECT 1;", null, false, true);
         } catch(\PDOException $e) {
-            if ($e->getCode() != 'HY000'
-                || !stristr($e->getMessage(), 'server has gone away')) {
+            if ($e->getCode() !== 'HY000'
+                || !stristr($e->getMessage(), 'server has gone away')
+            ) {
                 throw $e;
             }
             echo 'Wait timeout exceeded, renewing instance...' . PHP_EOL;
@@ -84,12 +84,13 @@ class Dao
 
     /**
      * provides a static query
-     * @param $sql
-     * @param null $args
-     * @param $silent for silent checkAndGetInstance
-     * @return bool|PDOStatement
      */
-    public static function query($sql, $args = null, $retryQuery = true, $silent = false)
+    public static function query(
+        string $sql,
+        $args = null,
+        bool $retryQuery = true,
+        bool $silent = false
+    ): bool|PDOStatement
     {
         try {
             /* test query might fail, avoid a warning in output */

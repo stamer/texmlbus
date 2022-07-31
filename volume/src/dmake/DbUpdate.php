@@ -9,6 +9,8 @@
 
 namespace Dmake;
 
+use ValueError;
+
 /**
  * Class DbUpdate
  *
@@ -31,10 +33,9 @@ class DbUpdate
 
         foreach ($files as $filename) {
             // filename pattern should be dddd-upgrade.sql
-            $result = explode('-', $filename, 2);
-            if ($result === false
-                || !isset($result[0])
-            ) {
+            try {
+                $result = explode('-', $filename, 2);
+            } catch (ValueError $e) {
                 echo "Skipping filename $filename, unknown pattern." . PHP_EOL;
                 continue;
             }
@@ -119,7 +120,7 @@ class DbUpdate
         // echo $systemstr . PHP_EOL;
         $output = [];
         $result = exec($systemstr, $output, $return_var);
-        if ($return_var != 0) {
+        if ($return_var !== 0) {
             echo __METHOD__ . ': mysql failed...' . PHP_EOL;
             print_r($output);
             return false;

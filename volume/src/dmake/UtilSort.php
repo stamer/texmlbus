@@ -14,7 +14,7 @@ class UtilSort
      */
     public static function sortByKey(array $array, string $key, string $order = ''): array
     {
-        if ($order == "DESC") {
+        if ($order === 'DESC') {
             $cmp = function ($a, $b) use ($key) {
                 return (($a[$key] < $b[$key]) ? 1 : (($a[$key] == $b[$key]) ? 0 : -1));
             };

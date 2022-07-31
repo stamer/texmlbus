@@ -356,8 +356,8 @@ class UtilFile
     public static function linkR(
         string $src,
         string $dest,
-        string $ignorePattern, // pattern of directories/files to ignore
-        string $copyPattern // pattern of files to copy
+        string $ignorePattern = '', // pattern of directories/files to ignore
+        string $copyPattern = ''// pattern of files to copy
     ): bool
     {
         if (is_dir($src)) {

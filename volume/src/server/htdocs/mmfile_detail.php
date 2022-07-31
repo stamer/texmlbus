@@ -27,13 +27,13 @@ $min = $page->getRequest()->getQueryParam('min', 0);
 // make sure no negatives
 $min = max(0, (int) $min);
 
-$column = array();
+$column = [];
 $max_pp = $cfg->db->perPage;
 
 $numrows = MmfileDao::getCount($set, $macro, $sty);
 
 
-$sqllstr = '';
+$sqlstr = '';
 foreach ($column as $field) {
 	$sqlstr .= $field['sql'].",\n";
 }

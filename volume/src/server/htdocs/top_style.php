@@ -24,7 +24,7 @@ $max_pp = $cfg->db->perPage;
 $numrows = MacroDao::getCountTopStylefiles();
 $rows = MacroDao::getTopStylefiles();
 
-$mm = array();
+$mm = [];
 
 
 echo '<h3>Top stylefiles that need some work</h3>';
@@ -42,7 +42,7 @@ $count = 0;
 foreach ($rows as $row) {
 
 	$filename = $row['styfilename'];
-	if ($filename != '') {
+	if ($filename !== '') {
 		$count++;
 		echo '<tr>';
 		echo '<td align="right">'.$count."</td>\n";

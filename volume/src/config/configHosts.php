@@ -69,7 +69,7 @@ if ($dockerized) {
 
 } else {
     $config->hosts =
-        array(
+        [
             'local_0' =>
                 [
                     'hostname' => 'localhost',
@@ -153,5 +153,5 @@ if ($dockerized) {
                     'make_output' => MAKE_OUTPUT,
                     'make_pdf' => MAKE_PDF,
                 ],
-        );
+        ];
 }

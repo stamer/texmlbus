@@ -8,7 +8,6 @@ require_once "../include/IncFiles.php";
 
 use Dmake\Dao;
 use Dmake\UtilManage;
-use Dmake\UtilFile;
 use Dmake\LatexmlTestCases;
 use Server\Config;
 use Server\Page;

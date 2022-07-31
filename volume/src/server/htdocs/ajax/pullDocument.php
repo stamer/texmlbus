@@ -34,7 +34,7 @@ $cache = ($cacheParam === 'true');
 
 $entry = StatEntry::getById($id);
 
-if (empty($entry) ) {
+if ($entry === null) {
     $out['message'] = "No entry could be found for given id.";
     $out['success'] = false;
     $data['result'] = [

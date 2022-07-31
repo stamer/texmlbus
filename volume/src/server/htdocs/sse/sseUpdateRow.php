@@ -112,7 +112,7 @@ while (1) {
         // $directory = 'files/' . $row['filename'] . '/';
         $directory = UtilStage::getSourceDir('files', $row['filename'], $hostGroupName) . '/';
 
-        if ($destFile != '') {
+        if ($destFile !== '') {
             $destFileLink = $directory.$destFile;
         }
         $stdOutFileLink = $directory.$stdOutLog;
@@ -147,7 +147,7 @@ while (1) {
         ];
         // The retval changed from e.g unknown to no_problems,
         // therefore the row should not be listed any more on this page.
-        if ($newRetval != $retval) {
+        if ($newRetval !== $retval) {
             echo 'event: deleterow' . "\n";
         } else {
             echo 'event: updaterow' . "\n";

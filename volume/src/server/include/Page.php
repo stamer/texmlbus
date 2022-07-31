@@ -11,12 +11,12 @@ use Dmake\Set;
 
 class Page
 {
-	private $maintenance = false;
-	private $title = 'TexmlBus';
-	private $addScript = '';
-	private $addCss = '';
+	private bool $maintenance = false;
+	private string $title = 'TexmlBus';
+	private string $addScript = '';
+	private string $addCss = '';
 
-	private $request = null;
+	private ?ServerRequest $request = null;
 
 	private $headerShown = false;
 
@@ -39,7 +39,6 @@ class Page
     }
 
     /**
-     * @return ServerRequest
      */
     public function getRequest(): ServerRequest
     {
@@ -47,20 +46,16 @@ class Page
     }
 
     /**
-     * @param ServerRequest $request
      */
     public function setRequest(ServerRequest $request): void
     {
         $this->request = $request;
     }
 
-
     /**
      * adds a script to current page
-     *
-     * @param string $scriptPath
      */
-    public function addScript($scriptPath)
+    public function addScript(string $scriptPath)
     {
         /* avoid dumb mistakes */
         if ($this->headerShown) {
@@ -72,10 +67,8 @@ class Page
 
     /**
      * adds css to current page
-     *
-     * @param string $css
      */
-    public function addCss($css)
+    public function addCss(string $css)
     {
         /* avoid dumb mistakes */
         if ($this->headerShown) {
@@ -86,14 +79,13 @@ class Page
 
     /**
      * creates an info button with given id
-     *
-     * @param $id
-     * @param string $scale
-     * @param string $translateY
-     * @param string $color
-     * @return string
      */
-    public function info($id, $scale = '0.7', $translateY = '-10px', $color = 'rgba(23, 162, 184, 0.3)')
+    public function info(
+            string $id,
+            string $scale = '0.7',
+            string $translateY = '-10px',
+            string $color = 'rgba(23, 162, 184, 0.3)'
+    ): string
     {
         $str = '<span style = "transform: translateY(' . $translateY . ') scale(' . $scale . ',' . $scale . ');'
             . ' color: ' . $color . '" class="fas fa-info-circle infolink" data="' . $id . '"></span>';
@@ -101,10 +93,10 @@ class Page
     }
 
     /**
-     * @param null $activeLeft
-     * @param null $activeRight
      */
-	public function showHeader($activeLeft = null, $activeRight = null)
+	public function showHeader(
+            ?string $activeLeft = null,
+            ?string $activeRight = null)
     {
         $cfg = Config::getConfig();
         $sets = Set::getSets();

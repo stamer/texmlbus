@@ -14,7 +14,7 @@ class ChartJsDataset implements JsonSerializable
     /**
      * @var array
      */
-    public static $colors =
+    public static array $colors =
         [
             'darkRed' => 'rgba(238,  53,  46, 0.75)', // dark red, 123
             'darkGreen' => 'rgba(  0, 147,  60, 0.75)', // dark green, 456
@@ -29,46 +29,24 @@ class ChartJsDataset implements JsonSerializable
             'lightBlue' => 'rgba(  0, 161, 222, 0.75)', // light blue, West Hempstead Branch
         ];
 
-    /**
-     * @var int
-     */
-    public static $idx = 0;
+    public static int $idx = 0;
 
-    /**
-     * @var array of y-values
-     */
-    protected $data = [];
+    protected array $data = [];
 
-    /**
-     * @var string
-     */
-    protected $label = 'Set';
+    protected string $label = 'Set';
 
-    /**
-     * @var string
-     */
-    protected $backgroundColor = 'rgba(200, 200, 200, 0.75)';
+    protected string $backgroundColor = 'rgba(200, 200, 200, 0.75)';
 
-    /**
-     * @var string
-     */
-    protected $borderColor = 'rgba(200, 200, 200, 0.75)';
+    protected string $borderColor = 'rgba(200, 200, 200, 0.75)';
 
-    /**
-     * @var string
-     */
-    protected $hoverBackgroundColor = 'rgba(200, 200, 200, 1)';
+    protected string $hoverBackgroundColor = 'rgba(200, 200, 200, 1)';
 
-    /**
-     * @var string
-     */
-    protected $hoverBorderColor = 'rgba(200, 200, 200, 1)';
+    protected string $hoverBorderColor = 'rgba(200, 200, 200, 1)';
 
     /**
      * ChartJsDataset constructor.
-     * @param $label
      */
-    public function __construct($label)
+    public function __construct(string $label)
     {
         $colorValues = array_values(self::$colors);
         $this->label = $label;

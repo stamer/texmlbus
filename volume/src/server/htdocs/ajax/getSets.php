@@ -33,7 +33,7 @@ foreach ($sets as $key => $set) {
     $out['results'][] = $item;
 }
 
-$out['pagination'] = new stdClass;
+$out['pagination'] = new stdClass();
 $out['pagination']->more = false;
 
 $response->json($out);

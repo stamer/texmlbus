@@ -62,8 +62,6 @@ and then a
 */
 
 require_once "IncFiles.php";
-use Dmake\InotifyHandler;
-use Dmake\StatEntry;
 
 /**
  * Main program
@@ -73,7 +71,7 @@ $cfg = Config::getConfig();
 
 $inotify = new InotifyHandler();
 
-$possibleCleanActions = array('clean');
+$possibleCleanActions = ['clean'];
 
 foreach ($cfg->stages as $stage => $value) {
     $possibleActions[] = $stage;
@@ -108,20 +106,20 @@ if (!isset($argv[1])) {
 
 	foreach ($argv as $pos => $option) {
 		// -p set priority
-		if ($option == '-p' && isset($argv[$pos+1])) {
+		if ($option === '-p' && isset($argv[$pos+1])) {
 			$priority = $argv[$pos + 1];
 			echo "Setting priority to $priority...\n";
 		}
 		// -d set directory
 		// determine directory, special value 'all' will not set $restrict['dir']
-		if ($option == '-d' && isset($argv[$pos+1])) {
+		if ($option === '-d' && isset($argv[$pos+1])) {
 			$restrict['dir'] = $argv[$pos + 1];
             $restrictDirSet = true;
 			echo "Restricting make to set/path ".$restrict['dir']."...\n";
 		}
 
 		// -v set restrict_retval
-		if ($option == '-v' && isset($argv[$pos+1]) && isset($argv[$pos+2])) {
+		if ($option === '-v' && isset($argv[$pos+1]) && isset($argv[$pos+2])) {
 			$restrict['retval'] = $argv[$pos + 1];
 			$restrict['retval_target'] = $argv[$pos + 2];
 			echo "Restricting retval to ".$restrict['retval']." of target ".$restrict['retval_target']."...\n";
@@ -129,28 +127,28 @@ if (!isset($argv[1])) {
 
 		// -m set restrict_macros
 		// make clean cond_mat missing_macros onlinecite
-		if ($option == '-m' && isset($argv[$pos+1])) {
+		if ($option === '-m' && isset($argv[$pos+1])) {
 			$restrict['macro'] = $argv[$pos + 1];
 			echo "Restricting macros to ".$restrict['macro']."...\n";
 		}
 
 		// -s set restrict_styfile
-		if ($option == '-s' && isset($argv[$pos+1])) {
+		if ($option === '-s' && isset($argv[$pos+1])) {
 			$restrict['stylefile'] = $argv[$pos + 1];
 			echo "Restricting stylefile to ".$restrict['stylefile']."...\n";
 		}
 
 		// -tb set
-		if ($option == '-tb' && isset($argv[$pos+1])) {
+		if ($option === '-tb' && isset($argv[$pos+1])) {
 			$restrict['time_before'] = $argv[$pos + 1];
 			echo "Restricting to entries before ".$restrict['time_before']."...\n";
 		}
 		// -ta set
-		if ($option == '-ta' && isset($argv[$pos+1])) {
+		if ($option === '-ta' && isset($argv[$pos+1])) {
 			$restrict['time_after'] = $argv[$pos + 1];
 			echo "Restricting to entries after ".$restrict['time_after']."...\n";
 		}
-		if ($option == '-id' && isset($argv[$pos+1])) {
+		if ($option === '-id' && isset($argv[$pos+1])) {
 			$restrict['id'] = $argv[$pos + 1];
             if (!preg_match('/^\d{7}$/', $restrict['id'])) {
                 echo "id must be a 7-digit number.".PHP_EOL;
@@ -162,7 +160,7 @@ if (!isset($argv[1])) {
 	}
 }
 
-if ($restrict['macro'] != '' && $restrict['retval'] != 'missing_macros') {
+if ($restrict['macro'] !== '' && $restrict['retval'] !== 'missing_macros') {
 	echo "Incompatible options!\n";
 	echo "Set restrict['retval'] to missing_macros!\n";
 	exit(2);
@@ -183,7 +181,7 @@ if (!$restrictDirSet) {
 $depth = 0;
 $flc = 0;
 
-$dirs = array();
+$dirs = [];
 
 if (in_array($action, $possibleActions))
 {
@@ -208,7 +206,12 @@ if (in_array($action, $possibleActions))
 			$entry_done = FALSE;
 			// only try to make if these conditions are met
 			if (!$entry_done || $action == StatEntry::WQ_ACTION_FORCE) {
-				StatEntry::addToWorkqueue($directory, $action, $priority);
+				StatEntry::addToWorkqueue(
+                    $directory,
+                    'worker',
+                    'xhtml',
+                    $action,
+                    $priority);
                 $inotify->trigger(InotifyHandler::wqTrigger);
 			} elseif (DBG_LEVEL & DBG_DIRECTORIES) {
 			    echo "Skipping $directory, entry exists...\n";
@@ -217,7 +220,7 @@ if (in_array($action, $possibleActions))
 }
 elseif (in_array($action, $possibleCleanActions))
 {
-    if ($action == 'clean' && !empty($restrict['retval'])) {
+    if ($action === 'clean' && !empty($restrict['retval'])) {
         echo "Incompatible options: clean and restriction to retval is not possible.";
         exit(2);
     } else {
@@ -231,7 +234,7 @@ elseif (in_array($action, $possibleCleanActions))
     foreach ($dirs as $directory) {
         if (TRUE) {
             // new
-            StatEntry::addToWorkqueue($directory, $action, $priority);
+            StatEntry::addToWorkqueue($directory, 'worker', 'xhtml', $action, $priority);
             // trigger at end of foreach...
         } else {
             // old
@@ -257,5 +260,5 @@ elseif (in_array($action, $possibleCleanActions))
         }
     }
 
-    $inotify->trigger(InotifyHandler::doneTrigger);
+    $inotify->trigger('worker', InotifyHandler::doneTrigger);
 }

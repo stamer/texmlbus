@@ -10,7 +10,6 @@ use Dmake\Dao;
 use Dmake\RetvalDao;
 use Dmake\StatEntry;
 use Dmake\UtilStage;
-use Dmake\SharedMem;
 use Server\Config;
 use Server\Page;
 use Server\UtilMisc;
@@ -35,7 +34,7 @@ $set = $page->getRequest()->getQueryParam('set', '');
 
 $requestDir = $page->getRequest()->getQueryParam('dir', 'ASC');
 // possible SqlInjection, assign explicitly
-if ($requestDir == 'desc') {
+if ($requestDir === 'desc') {
     $sqlSortBy = 'DESC';
 } else {
     $sqlSortBy = 'ASC';
@@ -43,7 +42,7 @@ if ($requestDir == 'desc') {
 
 // possible SqlInjection, assign explicitly
 $requestSort = $page->getRequest()->getQueryParam('sort', 's.filename');
-if ($requestSort == 'date') {
+if ($requestSort === 'date') {
     $sqlOrderBy = 's.date_modified';
 } else {
     $sqlOrderBy = 's.filename';
@@ -84,7 +83,7 @@ if (!empty($set)) {
 
 $stages = array_keys($cfg->stages);
 
-$stat = array();
+$stat = [];
 
 foreach ($stages as $stage) {
 
@@ -100,7 +99,7 @@ foreach ($stages as $stage) {
 
     $ext_query = '';
 
-    if ($set != '') {
+    if ($set !== '') {
         $ext_query = '
             AND s.`set` = :set';
     }
@@ -173,26 +172,10 @@ foreach ($stat as $id => $entry) {
     echo "<tr $style>\n";
     $count++;
     $no = $count + $min;
-    if (isset($entry['all']['s_date_modified'])) {
-        $date_modified = $entry['all']['s_date_modified'];
-    } else {
-        $date_modified = '';
-    }
-    if (isset($entry['all']['filename'])) {
-        $filename = $entry['all']['filename'];
-    } else {
-        $filename = '';
-    }
-    if (isset($entry['all']['comment_status'])) {
-        $comment_status = $entry['all']['comment_status'];
-    } else {
-        $comment_status = '';
-    }
-    if (isset($entry['all']['comment_keyword'])) {
-        $comment_keyword = $entry['all']['comment_keyword'];
-    } else {
-        $comment_keyword = '';
-    }
+    $date_modified = $entry['all']['s_date_modified'] ?? '';
+    $filename = $entry['all']['filename'] ?? '';
+    $comment_status = $entry['all']['comment_status'] ?? '';
+    $comment_keyword = $entry['all']['comment_keyword'] ?? '';
 
     echo '<td style="position: relative" align="right" rowspan="2"><a name="'.$no.'">'.$no.'</a>';
     if (!empty($entry['all']['project_id'])) {
@@ -210,7 +193,7 @@ foreach ($stat as $id => $entry) {
     $color = StatEntry::ENUM_COMMENT_STATUS[$comment_status] ?? 'black';
     echo '<button class="btn btn-outline-primary btn-xs" style="color:' . $color . '">' . $comment_status . '</button>';
     echo '<button class="btn btn-outline-primary btn-xs" style="min-width: 40px">' . (htmlspecialchars($comment_keyword) ?: '&nbsp;') . '</button>';
-    echo '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false;">comment</button>';
+    echo '<button class="btn btn-outline-primary btn-xs" type="submit" name="submit" onclick="handleComment(' . $id . '); return false">comment</button>';
     echo '</td>' . PHP_EOL;
 
     foreach ($stages as $stage) {

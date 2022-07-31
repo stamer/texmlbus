@@ -17,11 +17,7 @@ $cfg = Config::getConfig();
 
 $dao = Dao::getInstance();
 
-if (isset($argv[1])) {
-	$set = $argv[1];
-} else {
-	$set = '';
-}
+$set = $argv[1] ?? '';
 
 if (!empty($set)) {
     $where = '`set` = :set ';
@@ -47,7 +43,7 @@ if (!empty($set)) {
 
 $stmt->execute();
 
-$mm = array();
+$mm = [];
 
 while ($row = $stmt->fetch()) {
 
@@ -66,17 +62,17 @@ while ($row = $stmt->fetch()) {
 	echo "Stylefiles:".PHP_EOL;
 	print_r($stylefilesArr);
 
-	if ($stylefilesArr[0] == "NOFILE") {
+	if ($stylefilesArr[0] === 'NOFILE') {
 		echo "Could not open $filename!\n";
 		continue;
 	}
 
-	if ($stylefilesArr[0] == "NODOCUMENTCLASS") {
+	if ($stylefilesArr[0] === 'NODOCUMENTCLASS') {
 		echo "No document class!\n";
 		continue;
 	}
 
-	if ($stylefilesArr[0] == "NODOCUMENTSTYLE") {
+	if ($stylefilesArr[0] === 'NODOCUMENTSTYLE') {
 		echo "No document style!\n";
 		continue;
 	}

@@ -7,11 +7,12 @@
 
 namespace Dmake;
 
-use \PharData;
+use PharData;
+use Exception;
 
 class UtilTarfile
 {
-    public static $debug = true;
+    public static bool $debug = true;
 
     public static function extract(string $tarfile, string $destDir): bool
     {
@@ -27,7 +28,7 @@ class UtilTarfile
                 $phar = new PharData($tarfile);
             }
             $phar->extractTo($destDir);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log(__METHOD__ . ": extract failed. " . $e->getMessage());
             return false;
         }

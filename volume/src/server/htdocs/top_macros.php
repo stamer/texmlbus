@@ -49,7 +49,7 @@ $max_pp = $cfg->db->perPage;
 
 $rows = RetvalDao::getMissingMacros($joinTable, $set);
 
-$mm = array();
+$mm = [];
 
 foreach ($rows as $row) {
 	$str = $row['missing_macros'];

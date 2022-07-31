@@ -8,8 +8,6 @@
  */
 namespace Dmake;
 
-use \PDO;
-
 class WorkqueueEntry
 {
     public const WQ_ACTION_NONE = 'none';
@@ -17,16 +15,16 @@ class WorkqueueEntry
     public const WQ_ACTION_FORCE = 'force';
     public const WQ_ENTRY_DISABLED = 0;
 
-    protected $id = 0;
-    protected $statisticId = 0;
-    protected $pid = null;
-    protected $dateCreated = null;
-    protected $dateModified = null;
-    protected $priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
-    protected $prevAction = self::WQ_ACTION_NONE;
-    protected $action = self::WQ_ACTION_NONE;
-    protected $stage = '';
-    protected $hostGroup = '';
+    protected ?int $id = 0;
+    protected ?int $statisticId = 0;
+    protected ?int $pid = null;
+    protected ?string $dateCreated = null;
+    protected ?string $dateModified = null;
+    protected ?int $priority = self::WQ_ENTRY_DISABLED; // if > 0 entry is part of workqueue
+    protected ?string $prevAction = self::WQ_ACTION_NONE;
+    protected ?string $action = self::WQ_ACTION_NONE;
+    protected ?string $stage = '';
+    protected ?string $hostGroup = '';
 
     public function getId(): ?int
     {
@@ -53,7 +51,7 @@ class WorkqueueEntry
         return $this->pid;
     }
 
-    public function setPid(?int $pid)
+    public function setPid(?int $pid): void
     {
         $this->pid = $pid;
     }
@@ -455,8 +453,6 @@ class WorkqueueEntry
     }
 
     /**
-     * @param int $statisticId
-     * @return WorkqueueEntry
      */
     public static function getByStatisticIdAndStage(int $statisticId, string $stage): ?self
     {

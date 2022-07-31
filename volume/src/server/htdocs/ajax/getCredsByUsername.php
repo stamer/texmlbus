@@ -6,11 +6,8 @@
  */
 require_once "../../include/IncFiles.php";
 
-use Dmake\PrepareFiles;
 use Dmake\JwToken;
-use Dmake\UtilFile;
 use Dmake\GitControl;
-use Dmake\StatEntry;
 use Server\Config;
 use Server\RequestFactory;
 use Server\ResponseFactory;

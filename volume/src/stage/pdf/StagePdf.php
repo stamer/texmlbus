@@ -19,19 +19,10 @@ use Dmake\UtilStage;
   */
 class StagePdf extends AbstractStage
 {
-    /**
-     * @var bool
-     */
-    public $debug = true;
+    public bool $debug = true;
 
-    /**
-     * @var array
-     */
-    public $config;
+    public ConfigStage $config;
 
-    /**
-     * StagePdf constructor.
-     */
     public function __construct()
     {
         $this->config = static::register();
@@ -43,7 +34,6 @@ class StagePdf extends AbstractStage
     public const FOUND_MISSING_FILE   = 1 << 0;
 
     /**
-     * @return array|mixed
      */
     public static function register(): ConfigStage
     {
@@ -253,12 +243,6 @@ class StagePdf extends AbstractStage
         return $stmt->execute();
 	}
 
-    /**
-     * @param $hostname
-     * @param $entry
-     * @param $childAlarmed
-     * @return mixed|void
-     */
     public static function parse(
         string $hostGroup,
         StatEntry $entry,
@@ -384,9 +368,6 @@ class StagePdf extends AbstractStage
         return $res->updateRetval();
     }
 
-    /**
-     * @param StatEntry $entry
-     */
     public function parseDetail($hostGroup, StatEntry $entry): void
     {
         $directory = $entry->getFilename();

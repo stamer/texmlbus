@@ -6,8 +6,8 @@ if [[ ! -e /srv/texmlbus/build ]]; then
     ln -s /srv/texmlbus/src /srv/texmlbus/build
 fi
 
-echo "Starting php-fpm7..."
-/usr/sbin/php-fpm7
+echo "Starting php-fpm81..."
+/usr/sbin/php-fpm81
 
 echo "Clearing any old apache processes..."
 rm -f /run/apache2/apache2.pid

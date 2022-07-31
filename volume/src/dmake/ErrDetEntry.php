@@ -13,15 +13,15 @@ use \PDO;
 
 class ErrDetEntry
 {
-	protected $documentId = 0;
-	protected $pos = 0;
-	protected $dateCreated = '';
-	protected $target;
-	protected $errClass = '';
-	protected $errType = '';
-	protected $errMsg = '';
-	protected $errObject = '';
-	protected $md5ErrMsg = '';
+	protected int $documentId = 0;
+	protected int $pos = 0;
+	protected string $dateCreated = '';
+	protected ?string $target;
+	protected string $errClass = '';
+	protected string $errType = '';
+	protected string $errMsg = '';
+	protected string $errObject = '';
+	protected string $md5ErrMsg = '';
 
     public function getDocumentId(): int
     {

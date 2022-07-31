@@ -12,78 +12,34 @@ namespace Dmake;
  */
 abstract class AbstractStage implements StageInterface
 {
-    /**
-     * @var ConfigStage
-     */
-    protected $config;
+    protected ConfigStage $config;
 
-    /**
-     * @var bool
-     */
-    public $debug = false;
-    /**
-     * @var int
-     */
-    public $id = 0;
+    public bool $debug = false;
 
-    /**
-     * @var string
-     */
-	public $date_created = '';
+    public int $id = 0;
 
-    /**
-     * @var string
-     */
-	public $date_modified = '';
+	public string $date_created = '';
 
-    /**
-     * @var string
-     */
-	public $retval = 'unknown';
+	public string $date_modified = '';
 
-    /**
-     * @var string
-     */
-	public $prevRetval = 'unknown';
+	public string $retval = 'unknown';
 
-    /**
-     * @var int
-     */
-	public $timeout = -1;
+	public string $prevRetval = 'unknown';
 
-    /**
-     * @var int
-     */
-	public $num_warning = 0;
+	public int $timeout = -1;
 
-    /**
-     * @var int
-     */
-	public $num_error = 0;
+	public int $num_warning = 0;
 
-    /**
-     * @var int
-     */
-	public $num_macro = 0;
+	public int $num_error = 0;
 
-    /**
-     * @var string
-     */
-	public $missing_macros = '';
+	public int $num_macro = 0;
 
-    /**
-     * @var string
-     */
-	public $warnmsg = '';
+	public string $missing_macros = '';
 
-    /**
-     * @var string
-     */
-	public $errmsg = '';
+	public string $warnmsg = '';
 
-    /**
-     * @param string $message
-     */
+	public string $errmsg = '';
+
 	public function debug(string $message): void
     {
 	    if ($this->debug) {

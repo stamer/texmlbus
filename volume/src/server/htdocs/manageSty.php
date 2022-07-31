@@ -66,7 +66,7 @@ UtilFile::listDirR(ARTICLESTYDIR, $result_dirs, $current_depth, true, false);
         $isDir = false;
         $file = str_replace(ARTICLESTYDIR, '', $fullFilename);
 
-        if (substr($file, -1, 1) === '/') {
+        if (str_ends_with($file, '/')) {
             $isDir = true;
         }
 

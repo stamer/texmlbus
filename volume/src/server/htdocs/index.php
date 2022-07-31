@@ -213,13 +213,13 @@ foreach ($stages as $stage) {
 <?php
 
 // just to get the right order..
-$stat = array();
+$stat = [];
 foreach ($cfg->ret_class as $class=>$stclass) {
 	$stat[$class] = 0;
 }
 
 // just to get the right order..
-$stat_class = array();
+$stat_class = [];
 foreach ($cfg->ret_color as $class=>$color) {
 	$stat_class[$class] = 0;
 }

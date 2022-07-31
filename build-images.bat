@@ -6,5 +6,4 @@ docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_b
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_git
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_dmake
-docker compose up
 

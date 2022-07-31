@@ -19,13 +19,13 @@ namespace Dmake;
  */
 class ApiWorkerRequest implements \JsonSerializable
 {
-    protected $worker = '';
-    protected $command = '';
+    protected string $worker = '';
+    protected string $command = '';
     protected $host;
-    protected $stage = '';
-    protected $makeAction = '';
-    protected $directory = '';
-    protected $parameter = '';
+    protected string $stage = '';
+    protected string $makeAction = '';
+    protected string $directory = '';
+    protected string $parameter = '';
 
     /**
      * @return mixed
@@ -201,18 +201,18 @@ class ApiWorkerRequest implements \JsonSerializable
 
         //curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
                            'Content-Type: application/json',
                            'Accept: application/json',
-                           'Content-Length: ' . strlen($data))
+                           'Content-Length: ' . strlen($data)]
         );
 
         $json = curl_exec($ch);
         // error_log("Result ApiWorkerRequest: " . print_r($json, 1));
 
         if ($json === false) {
-            return new ApiResult(false, 'CURL ERROR', curl_errno($ch));
             error_log('Curl Error: ' . curl_errno($ch));
+            return new ApiResult(false, 'CURL ERROR', curl_errno($ch));
         }
 
         $result = json_decode($json, true);

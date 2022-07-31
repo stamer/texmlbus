@@ -33,13 +33,13 @@ foreach ($subDirs as $key => $subDir) {
     if (in_array($subDir, $cfg->upload->specialDirs)) {
         continue;
     }
-    $item = new StdClass();
+    $item = new stdClass();
     $item->id = $subDir;
     $item->text = $subDir;
     $data['results'][] = $item;
 }
 
-$data['pagination'] = new StdClass;
+$data['pagination'] = new stdClass();
 $data['pagination']->more = false;
 
 $response->json($data);

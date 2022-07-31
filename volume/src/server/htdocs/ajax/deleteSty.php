@@ -5,7 +5,6 @@
  *
  */
 require_once "../../include/IncFiles.php";
-use Dmake\UtilManage;
 use Dmake\JwToken;
 use Dmake\UtilFile;
 use Server\Config;
@@ -32,7 +31,7 @@ if ($item !== 'directory') {
 $item = ucfirst($item);
 
 if (!empty($file)) {
-    if (strpos($file, '..') !== false) {
+    if (str_contains($file, '..')) {
         $out['success'] = false;
         $out['message'] = 'Illegal filename';
     } else {

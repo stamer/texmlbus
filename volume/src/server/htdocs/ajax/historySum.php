@@ -31,7 +31,7 @@ $hsArr = HistorySum::getBySetStage($set, $stage);
 
 // get the current stat
 $dbTable = $cfg->stages[$stage]->dbTable;
-list($stat, $rerun) = StatEntry::getStats($dbTable, $set);
+[$stat, $rerun] = StatEntry::getStats($dbTable, $set);
 
 // add current stat to history
 $hsArr[] = HistorySum::adaptFromStat($stat, $stage);
@@ -69,7 +69,7 @@ foreach ($hsArr as $hs) {
     $retval['no_problems'][]    = round($hs->getRetvalNoProblems() / $totals * 100, 2);
 }
 
-$cs = new ChartJs;
+$cs = new ChartJs();
 $cs->setLabels($labels);
 
 
@@ -117,7 +117,7 @@ if ($detail == 1) {
     $classes = array_unique(array_values($cfg->ret_class));
 
     foreach ($classes as $val) {
-        $retClass[$val] = array();
+        $retClass[$val] = [];
     }
 
     // merge the individual values to return classes

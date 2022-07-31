@@ -38,7 +38,7 @@ $baseDir = dirname(__FILE__, 2);
 $texmlbus = $baseDir . '/dmake/texmlbus.php';
 
 $texmlbusServiceFile = '/etc/systemd/system/texmlbus.service';
-$input = fopen("php://stdin", 'r') or die("Cannot open stdin!" . PHP_EOL);
+$input = fopen("php://stdin", 'rb') or die("Cannot open stdin!" . PHP_EOL);
 
 if (file_exists($texmlbusServiceFile)) {
     echo "$texmlbusServiceFile already exists. Continue [Y/n]? ";

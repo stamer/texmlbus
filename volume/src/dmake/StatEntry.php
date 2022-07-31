@@ -8,9 +8,6 @@
  */
 namespace Dmake;
 
-use \Dmake\WorkqueueEntry;
-use \PDO;
-
 class StatEntry
 {
     public const WQ_ACTION_NONE = 'none';
@@ -27,20 +24,20 @@ class StatEntry
         'ok' => 'green'
     ];
 
-    public $id = 0;
-    public $date_created = '';
-    public $date_modified = '';
-    public $set = '';
-    public $filename = '';
-    public $sourcefile = '';
-    public $hostgroup = '';
-    public $timeout = -1;
-    public $errmsg = '';
-    protected $project_id = ''; // id of project in cloud
-    protected $project_src = ''; // cloud provider
-    protected $comment = '';
-    protected $comment_status = 'none';
-    protected $comment_keyword = '';
+    public int $id = 0;
+    public ?string $date_created = '';
+    public ?string $date_modified = '';
+    public ?string $set = '';
+    public ?string $filename = '';
+    public ?string $sourcefile;
+    public ?string $hostgroup = '';
+    public int $timeout = -1;
+    public ?string $errmsg = '';
+    protected string $project_id = ''; // id of project in cloud
+    protected string $project_src = ''; // cloud provider
+    protected string $comment = '';
+    protected string $comment_status = 'none';
+    protected string $comment_keyword = '';
     protected $comment_date;
 
     public $wq_id = 0;
@@ -191,17 +188,15 @@ class StatEntry
     }
 
     /**
-     * @return mixed
      */
-    public function getErrmsg()
+    public function getErrmsg(): ?string
     {
         return $this->errmsg;
     }
 
     /**
-     * @param mixed $errmsg
      */
-    public function setErrmsg($errmsg): void
+    public function setErrmsg(?string $errmsg): void
     {
         $this->errmsg = $errmsg;
     }
@@ -297,7 +292,7 @@ class StatEntry
         return $this->comment_date;
     }
 
-    public function setCommentDate($comment_date)
+    public function setCommentDate($comment_date): self
     {
         $this->comment_date = $comment_date;
         return $this;
@@ -311,7 +306,7 @@ class StatEntry
         $cfg = Config::getConfig();
         $cfg->now->datestamp = date("Y-m-d H:i:s", time());
 
-        $matches = array();
+        $matches = [];
         preg_match('#^(.*?)/#', $this->filename, $matches);
         if (isset($matches[1])) {
             $this->set = $matches[1];
@@ -593,7 +588,7 @@ class StatEntry
 
         if (empty($row['retval'])
             || (isset($row['retval'])
-                && (($row['retval'] == 'unknown')
+                && (($row['retval'] === 'unknown')
                     || strpos($row['retval'], 'rerun') !== false))) {
             return false;
         }

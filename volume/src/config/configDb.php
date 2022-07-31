@@ -9,7 +9,7 @@
  * Database
  * @var StdClass $config
  */
-$config->db = new StdClass();
+$config->db = new stdClass();
 $config->db->charset = 'utf8';
 $config->db->perPage = 50;
 

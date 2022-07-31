@@ -149,7 +149,6 @@ abstract class AbstractClsLoader
 
     /**
      * installs the cls/sty files
-     * @return bool
      */
     public function download(string $url): string
     {

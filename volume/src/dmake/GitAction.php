@@ -12,13 +12,13 @@ namespace Dmake;
  */
 class GitAction
 {
-    private $baseDirectory;
-    private $workerDirectories;
+    private string $baseDirectory;
+    private array $workerDirectories;
 
-    private $changedFiles;
-    private $deletedFiles;
-    private $createdFiles;
-    private $renamedFiles;
+    private array $changedFiles;
+    private array $deletedFiles;
+    private array $createdFiles;
+    private array $renamedFiles;
 
     public function __construct($baseDirectory)
     {
@@ -40,9 +40,8 @@ class GitAction
     }
 
     /**
-     * @param array|string $output
      */
-    public function parsePullOutput($output): void
+    public function parsePullOutput(array|string $output): void
     {
         if (is_array($output)) {
             $output = implode("\n", $output);
@@ -92,7 +91,7 @@ class GitAction
     /**
      * Updates all changed files in worker directories.
      */
-    public function updateChanged()
+    public function updateChanged(): void
     {
         $currentDir = getcwd();
         chdir($this->baseDirectory);
@@ -112,7 +111,7 @@ class GitAction
     /**
      * Updates all deleted files in worker directories.
      */
-    public function updateDeleted()
+    public function updateDeleted(): void
     {
         $currentDir = getcwd();
         chdir($this->baseDirectory);
@@ -127,7 +126,7 @@ class GitAction
     /**
      * Updates all created files in worker directories.
      */
-    public function updateCreated()
+    public function updateCreated(): void
     {
         $currentDir = getcwd();
         chdir($this->baseDirectory);
@@ -142,7 +141,7 @@ class GitAction
     /**
      * Updates all renamed files in worker directories.
      */
-    public function updateRenamed()
+    public function updateRenamed(): void
     {
         $currentDir = getcwd();
         chdir($this->baseDirectory);

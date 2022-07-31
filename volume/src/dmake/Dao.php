@@ -10,7 +10,7 @@
 namespace Dmake;
 
 use Exception;
-use \PDO;
+use PDO;
 use PDOException;
 use PDOStatement;
 
@@ -18,9 +18,8 @@ class Dao
 {
     /**
      * A dao instance
-     * @var PDO
      */
-    protected static $instance = null;
+    protected static ?PDO $instance = null;
 
     protected function __construct()
     {
@@ -32,7 +31,6 @@ class Dao
 
     /**
      *
-     * @return PDO
      */
     public static function getInstance(bool $failOnExit = true): ?PDO
     {
@@ -69,7 +67,7 @@ class Dao
     }
 
     /**
-     * Renews an instance. This might be needed for long lasting jobs, when the server
+     * Renews an instance. This might be needed for long-lasting jobs, when the server
      * drops the connection.
      */
     public static function renewInstance(): ?PDO
@@ -91,7 +89,7 @@ class Dao
         try {
             self::query("SELECT 1;", null, false, true);
         } catch (PDOException $e) {
-            if ($e->getCode() != 'HY000'
+            if ($e->getCode() !== 'HY000'
                 || stripos($e->getMessage(), 'server has gone away') === false) {
                 throw $e;
             }
@@ -121,7 +119,8 @@ class Dao
         $args = null,
         bool $retryQuery = true,
         bool $silent = false
-    ) {
+    ): PDOStatement
+    {
         try {
             /* test query might fail, avoid a warning in output */
             if ($silent) {
@@ -133,7 +132,7 @@ class Dao
             }
             return $stmt;
         } catch (PDOException $e) {
-            if ($e->getCode() != 'HY000'
+            if ($e->getCode() !== 'HY000'
                 || stripos($e->getMessage(), 'server has gone away') === false
             ) {
                 throw $e;

@@ -10,9 +10,9 @@ use Dmake\UtilStage;
 
 class StagePagelimit extends AbstractStage
 {
-	public $num_err_namespace = 0;
-	public $num_err_parser = 0;
-	public $num_err_validity = 0;
+	public int $num_err_namespace = 0;
+	public int $num_err_parser = 0;
+	public int $num_err_validity = 0;
 
     public function __construct()
     {

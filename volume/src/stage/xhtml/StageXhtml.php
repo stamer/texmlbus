@@ -313,7 +313,7 @@ class StageXhtml extends AbstractStage
                     print_r($matches);
                 }
 
-                if (isset($matches[6]) && $matches[6] == 'warning') {
+                if (isset($matches[6]) && $matches[6] === 'warning') {
                     $res->num_warning = $matches[4];
                     $res->retval = 'warning';
                 }
@@ -324,7 +324,7 @@ class StageXhtml extends AbstractStage
                     print_r($matches);
                 }
 
-                if (isset($matches[6]) && $matches[6] == 'error') {
+                if (isset($matches[6]) && $matches[6] === 'error') {
                     $res->num_error = (int)$matches[4];
                     if ($res->num_error > 0) {
                         $res->retval = 'error';
@@ -339,7 +339,7 @@ class StageXhtml extends AbstractStage
                     print_r($matches);
                 }
 
-                if (isset($matches[6]) && $matches[6] == 'undefined macro') {
+                if (isset($matches[6]) && $matches[6] === 'undefined macro') {
                     $res->num_macro = $matches[4];
                     $res->missing_macros = $matches[8];
                     $res->retval = 'missing_macros';

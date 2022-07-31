@@ -5,9 +5,7 @@
  *
  */
 require_once "../../include/IncFiles.php";
-use Dmake\UtilManage;
 use Dmake\JwToken;
-use Dmake\UtilFile;
 use Server\Config;
 use Server\RequestFactory;
 use Server\ResponseFactory;
@@ -28,7 +26,7 @@ if (!empty($className)) {
         $filename = SRCDIR . '/dmake/clsloader/' . $className . '.php';
         require_once $filename;
         $nsClassName = "Dmake\\ClsLoader\\" . $className;
-        $obj = new $nsClassName;
+        $obj = new $nsClassName();
         try {
             $destDir = $obj->install();
             $success = $obj->checkInstallation($destDir);
@@ -39,11 +37,11 @@ if (!empty($className)) {
             }
             $out['installed'] = count($obj->getInstalledFiles()) > 0;
             $out['installedCls'] = implode(', ', $obj->getInstalledFiles());
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $success = false;
             $out['message'] = $e->getMessage();
         }
-    } catch(\Exception $e) {
+    } catch(Exception $e) {
         $success = false;
         $out['message'] = 'Unable to load class ' . $className;
     }
