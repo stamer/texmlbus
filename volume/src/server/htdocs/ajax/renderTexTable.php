@@ -27,7 +27,7 @@ $detail = (int) $request->getQueryParam('detail', 0);
 
 // get the current stat
 $dbTable = $cfg->stages[$target]->dbTable;
-list($stat, $rerun) = StatEntry::getStats($dbTable, $set);
+[$stat, $rerun] = StatEntry::getStats($dbTable, $set);
 
 $total_retval = 0;
 foreach ($stat as $retval => $num) {

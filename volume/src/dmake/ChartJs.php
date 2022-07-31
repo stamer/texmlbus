@@ -17,15 +17,15 @@ class ChartJs implements JsonSerializable
      *
      * @var string[]
      */
-    protected $labels = [];
+    protected array $labels = [];
 
     /**
      *
      * @var ChartJsDataset[]
      */
-    protected $datasets = [];
+    protected array $datasets = [];
 
-    protected $canvasId = 1;
+    protected int $canvasId = 1;
 
     public function getLabels(): array
     {
@@ -58,7 +58,7 @@ class ChartJs implements JsonSerializable
 
         $dataset->setData($yVals);
         $this->datasets[] = $dataset;
-        if ($color != '') {
+        if ($color !== '') {
             $dataset->setBorderColor($color);
             $dataset->setBackgroundColor($color);
         }

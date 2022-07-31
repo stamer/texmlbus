@@ -19,78 +19,78 @@ class ServerRequest
         $this->serverRequest = $serverRequest;
     }
 
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->serverRequest->getServerParams();
     }
 
-    public function getCookieParams()
+    public function getCookieParams(): array
     {
         return $this->serverRequest->getCookieParams();
     }
 
-    public function withCookieParams(array $cookies)
+    public function withCookieParams(array $cookies): static
     {
         $serverRequest = $this->serverRequest->withCookieParams($cookies);
         return new static($serverRequest);
     }
 
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->serverRequest->getQueryParams();
     }
 
-    public function withQueryParams(array $query)
+    public function withQueryParams(array $query): static
     {
         $serverRequest = $this->serverRequest->withQueryParams($query);
         return new static($serverRequest);
     }
 
-    public function getUploadedFiles()
+    public function getUploadedFiles(): array
     {
         return $this->serverRequest->getUploadedFiles();
     }
 
-    public function withUploadedFiles(array $uploadedFiles)
+    public function withUploadedFiles(array $uploadedFiles): static
     {
         $serverRequest = $this->serverRequest->withUploadedFiles($uploadedFiles);
         return new static($serverRequest);
     }
 
-    public function getParsedBody()
+    public function getParsedBody(): null|array|object
     {
         return $this->serverRequest->getParsedBody();
     }
 
-    public function withParsedBody($data)
+    public function withParsedBody($data): static
     {
         $serverRequest =  $this->serverRequest->withParsedBody($data);
         return new static($serverRequest);
     }
 
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->serverRequest->getAttributes();
     }
 
-    public function getAttribute($name, $default = null)
+    public function getAttribute($name, $default = null): mixed
     {
         return $this->serverRequest->getAttribute($name, $default);
     }
 
-    public function withAttribute($name, $value)
+    public function withAttribute($name, $value): static
     {
         $serverRequest = $this->serverRequest->withAttribute($name, $value);
         return new static($serverRequest);
     }
 
-    public function withoutAttribute($name)
+    public function withoutAttribute($name): static
     {
         $serverRequest = $this->serverRequest->withoutAttribute();
         return new static($serverRequest);
     }
 
-    public function getParam($name, $default = null)
+    public function getParam($name, $default = null): mixed
     {
         $postParams = $this->getParsedBody();
         $queryParams = $this->getQueryParams();
@@ -105,17 +105,17 @@ class ServerRequest
         return $default;
     }
 
-    public function getCookieParam($name, $default = null)
+    public function getCookieParam($name, $default = null): mixed
     {
         return isset($this->getCookieParams()[$name]) ? $this->getCookieParams()[$name] : $default;
     }
 
-    public function getQueryParam($name, $default = null)
+    public function getQueryParam($name, $default = null): mixed
     {
         return isset($this->getQueryParams()[$name]) ? $this->getQueryParams()[$name] : $default;
     }
 
-    public function getServerParam($name, $default = null)
+    public function getServerParam($name, $default = null): mixed
     {
         return isset($this->serverRequest->getServerParams()[$name]) ? $this->getServerParams()[$name] : $default;
     }

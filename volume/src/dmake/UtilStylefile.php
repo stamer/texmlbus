@@ -12,11 +12,11 @@ require_once 'StatEntry.php';
 
 class UtilStylefile
 {
-    public static $fullPathStylefile = [];
+    public static array $fullPathStylefile = [];
 
     public static function getStylefiles(string $checkfile): array
     {
-        $stylefiles = array();
+        $stylefiles = [];
 
         if (!($contents = file_get_contents($checkfile))) {
             $stylefiles[0] = "NOFILE";
@@ -45,7 +45,7 @@ class UtilStylefile
 
         */
 
-        $stylefiles = array();
+        $stylefiles = [];
         $pattern = '/documentclass/i';
 
         if (preg_match($pattern, $contents)) {
@@ -91,7 +91,7 @@ class UtilStylefile
                     $files = explode(',', $entry);
                     foreach ($files as $file) {
                         $realname = trim($file, '[ ]');
-                        if ($realname != '') {
+                        if ($realname !== '') {
                             $stylefiles[] = $realname . ".sty";
                         }
                     }
@@ -102,7 +102,7 @@ class UtilStylefile
         return $stylefiles;
     }
 
-    public function saveStylefiles(
+    public static function saveStylefiles(
         string $set,
         string $filename,
         array $stylefilesArr
@@ -112,7 +112,10 @@ class UtilStylefile
         $styfiles = '';
 
         foreach ($stylefilesArr as $stylefile) {
-            if ($stylefile == 'A4.sty' || $stylefile == '12pt.sty' || $stylefile == '11pt.sty' || $stylefile == 'twoside.sty') {
+            if ($stylefile === 'A4.sty'
+                || $stylefile === '12pt.sty'
+                || $stylefile === '11pt.sty'
+                || $stylefile === 'twoside.sty') {
                 continue;
             }
             $styfiles .= $stylefile . ' ';
@@ -135,7 +138,7 @@ class UtilStylefile
 
         foreach ($stylefilesArr as $styfilename) {
             $styfilename = trim($styfilename);
-            if (!strlen($styfilename)) {
+            if ($styfilename === '') {
                 continue;
             }
             // echo $filename."\n";
@@ -170,10 +173,10 @@ class UtilStylefile
 
         $styfiles = '';
         foreach ($stylefilesArr as $stylefile) {
-            if ($stylefile == 'A4.sty'
-                || $stylefile == '12pt.sty'
-                || $stylefile == '11pt.sty'
-                || $stylefile == 'twoside.sty') {
+            if ($stylefile === 'A4.sty'
+                || $stylefile === '12pt.sty'
+                || $stylefile === '11pt.sty'
+                || $stylefile === 'twoside.sty') {
                 continue;
             }
             if (!isset(self::$fullPathStylefile[$stylefile])) {
@@ -219,7 +222,7 @@ class UtilStylefile
         foreach ($arr as $styfilename) {
             $styfilename = trim($styfilename);
             $styfilename = str_replace('/usr/share/texmf-dist/tex/latex/', '', $styfilename);
-            if (!strlen($styfilename)) {
+            if ($styfilename === '') {
                 continue;
             }
             // echo $filename."\n";

@@ -121,13 +121,13 @@ class PrepareFiles
     /**
      * will be created from array above
      */
-    public $ignoreSuffixesTexDetectionPattern;
+    public string $ignoreSuffixesTexDetectionPattern;
 
     /**
      * array of suffixes of compressed filetypes. The mimeType is
      * determined and an action according to $uncompressMap is called.
      */
-    public static $compressedArchives =
+    public static array $compressedArchives =
         [
             '.gz',
             '.rar',
@@ -138,31 +138,34 @@ class PrepareFiles
     /**
      * will be created in the constructor for pattern matching.
      */
-    public $compressedArchivesPattern;
+    public string $compressedArchivesPattern;
 
-    const ModeInteractive = 'interactive';
-    const ModeOverwriteOn = 'overwriteOn';
-    const ModeOverwriteOff = 'overwriteOff';
+    public const ModeInteractive = 'interactive';
+    public const ModeOverwriteOn = 'overwriteOn';
+    public const ModeOverwriteOff = 'overwriteOff';
 
-    const DefaultUncompressionMode = self::ModeOverwriteOn;
+    public const DefaultUncompressionMode = self::ModeOverwriteOn;
 
     /**
      * maps mimeTypes to uncompress actions
      * It uses config variables, therefore it is created in
      * the constructor and not here.
      */
-    public $uncompressMap = [];
+    public array $uncompressMap = [];
 
     /**
      * an array of actions for default conversion of graphic files
      * that are done when the source files are imported.
      */
-    public $conversionMap = [];
+    public array $conversionMap = [];
 
     /**
      * will be created for pattern matching
      */
-    public $conversionMapPattern;
+    public string $conversionMapPattern;
+
+    public string $uncompressionMode = self::DefaultUncompressionMode;
+
 
     /**
      * PrepareFiles constructor.
@@ -221,9 +224,9 @@ class PrepareFiles
      * Determines the uncompressionMode.
      * Interactive in CLI mode, otherwise DefaultUncompressionMode.
      */
-    public function chooseUncompressionMode(): array
+    public function chooseUncompressionMode(): void
     {
-        if (php_sapi_name() == 'cli') {
+        if (php_sapi_name() === 'cli') {
             stream_set_blocking(STDIN, 1);
             echo "Choose uncompression mode for archives:" . PHP_EOL;
             echo " 1) interactive" . PHP_EOL;
@@ -384,7 +387,7 @@ class PrepareFiles
                 $parameter = str_replace('__FILE__', escapeshellarg($file), $parameter);
                 $parameter = str_replace('__DEST__', escapeshellarg($destfile), $parameter);
 
-                if ($this->conversionMap[$suffix]['host'] == 'localhost') {
+                if ($this->conversionMap[$suffix]['host'] === 'localhost') {
                     // change to dir, so we can run repstopdf, which makes sure that we do not
                     // escape the directory.
                     $saveDir = getcwd();
@@ -474,7 +477,7 @@ class PrepareFiles
         // try to find compressed files. They need to be uncompressed, as they
         // may contain images
         // This also needs go among all directories
-        $result_dirs = array($directory);
+        $result_dirs = [$directory];
         $current_depth = 0;
         UtilFile::listDirR($directory, $result_dirs, $current_depth, true, true, '');
         //print_r($result_dirs);
@@ -862,7 +865,7 @@ class PrepareFiles
      */
     public function getAllSubDirs(string $directory): array
     {
-        $result_dirs = array($directory);
+        $result_dirs = [$directory];
         $current_depth = 0;
         UtilFile::listDirR($directory, $result_dirs, $current_depth, true, true, '');
         return $result_dirs;

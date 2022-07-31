@@ -152,12 +152,12 @@ if ($dockerized || $ostype == 'linux-musl') {
  * Modes for uncompressors
  */
 $config->uncompress = new stdClass();
-$config->uncompress->unrar = new StdClass();
+$config->uncompress->unrar = new stdClass();
 $config->uncompress->unrar->interactive = '';
 $config->uncompress->unrar->overwriteOn = '-o+';
 $config->uncompress->unrar->overwriteOff = '-o-';
 
-$config->uncompress->unzip = new StdClass();
+$config->uncompress->unzip = new stdClass();
 $config->uncompress->unzip->interactive = '';
 $config->uncompress->unzip->overwriteOn = '-o';
 $config->uncompress->unzip->overwriteOff = '-n';

@@ -77,14 +77,14 @@ class RetvalDao
                 1";
 
         $extQuery = '';
-        if ($set != '') {
+        if ($set !== '') {
             $extQuery = '
                 AND s.`set` = :set';
         }
         $query .= $extQuery;
 
         $stmt = $dao->prepare($query);
-        if ($set != '') {
+        if ($set !== '') {
             $stmt->bindValue(':set', $set);
         }
 
@@ -124,7 +124,7 @@ class RetvalDao
         string $joinTable,
         string $errMsg,
         int $min = 0,
-        int $max = 100)
+        int $max = 100): array
     {
         $dao = Dao::getInstance();
 
@@ -168,7 +168,7 @@ class RetvalDao
         $dao = Dao::getInstance();
 
         $extQuery = '';
-        if ($set != '') {
+        if ($set !== '') {
             $extQuery = '
                 AND s.`set` = :set';
         }
@@ -209,7 +209,7 @@ class RetvalDao
         $stmt = $dao->prepare($query);
         $stmt->bindValue(':stage', $stage);
 
-        if ($set != '') {
+        if ($set !== '') {
             $stmt->bindValue(':set', $set);
         }
 
@@ -280,7 +280,7 @@ class RetvalDao
     /**
      * Get count by given macro.
      */
-    public function getCountByMacro(string $macro, string $joinTable): int
+    public static function getCountByMacro(string $macro, string $joinTable): int
     {
         $dao = Dao::getInstance();
 
@@ -402,7 +402,7 @@ class RetvalDao
     {
         $dao = Dao::getInstance();
 
-        if ($retval != 'unknown') {
+        if ($retval !== 'unknown') {
             $join = "
             JOIN
                 $joinTable as j
@@ -439,12 +439,12 @@ class RetvalDao
                 $joinWhere";
 
         $extQuery = '';
-        if ($set != '') {
+        if ($set !== '') {
             $extQuery = '
                 AND s.`set` = :set';
         }
 
-        if ($detail != '') {
+        if ($detail !== '') {
             switch ((string)$detail) {
                 case 'num_complete':
                     $extQuery = '
@@ -474,7 +474,7 @@ class RetvalDao
         $stmt->bindValue(':stage', $stage);
         $stmt->bindValue(':retval', $retval);
 
-        if ($set != '') {
+        if ($set !== '') {
             $stmt->bindValue(':set', $set);
         }
 
@@ -529,7 +529,7 @@ class RetvalDao
             $joinDetailGroupBy = '';
         }
 
-        if ($retval != 'unknown') {
+        if ($retval !== 'unknown') {
             $join = "
             JOIN
                 $joinTable as j
@@ -552,7 +552,7 @@ class RetvalDao
         }
 
         $extQuery = '';
-        if ($set != '') {
+        if ($set !== '') {
             $extQuery = '
                 AND s.`set` = :set';
         }
@@ -592,7 +592,7 @@ class RetvalDao
 
         $stmt->bindValue(':retval', $retval);
 
-        if ($set != '') {
+        if ($set !== '') {
             $stmt->bindValue(':set', $set);
         }
 

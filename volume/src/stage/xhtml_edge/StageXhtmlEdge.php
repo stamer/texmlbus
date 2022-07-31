@@ -7,13 +7,8 @@
  *
  */
 
-use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\ConfigStage;
-use Dmake\Dao;
-use Dmake\StatEntry;
-use Dmake\UtilFile;
-use Dmake\UtilStage;
 
 class StageXhtmlEdge extends StageXhtml
 {

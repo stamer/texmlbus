@@ -7,15 +7,17 @@
 
 namespace Dmake;
 
+use JetBrains\PhpStorm\ArrayShape;
+
 class GitControl
 {
-    const PULL = 'pull -ff';
-    const VALID_COMMANDS = [self::PULL];
+    public const PULL = 'pull -ff';
+    public const VALID_COMMANDS = [self::PULL];
 
-    const OVERLEAF_PROTOCOL = 'https';
-    const OVERLEAF_HOST = 'git.overleaf.com';
+    public const OVERLEAF_PROTOCOL = 'https';
+    public const OVERLEAF_HOST = 'git.overleaf.com';
 
-    public function getKey($protocol, $host, $username)
+    public function getKey(string $protocol, string $host, string $username): string
     {
         // this is just to create different ids for different urls.
         $key = crc32($protocol . $host . $username);
@@ -25,7 +27,7 @@ class GitControl
     /**
      * Determines the username of document by parsing the url in .git/config.
      */
-    public function getUsernameByDir(string $dir) :string
+    public function getUsernameByDir(string $dir): string
     {
         $configFile = $dir . '/.git/config';
         $file = file_get_contents($configFile);
@@ -70,7 +72,7 @@ class GitControl
     /**
      * Writes the credentials in the shared memory cache.
      */
-    public function putCredentials(string $protocol, string $host, string $username, string $password)
+    public function putCredentials(string $protocol, string $host, string $username, string $password): void
     {
         $key = $this->getKey($protocol, $host, $username);
         $shm = new SharedMem($key);
@@ -99,6 +101,7 @@ class GitControl
         return $script;
     }
 
+    #[ArrayShape(['return_var' => "", 'message' => "false|string", 'success' => "bool"])]
     public function clone(
         string $protocol,
         string $host,
@@ -152,6 +155,7 @@ class GitControl
         return $result;
     }
 
+    #[ArrayShape(['return_var' => "", 'message' => "false|string", 'output' => "", 'success' => "bool"])]
     public function execCommand(string $command, string $dir, ?string $password, bool $cache): array
     {
         $cfg = Config::getConfig();
@@ -169,8 +173,8 @@ class GitControl
         // If password has not been provided, try to get cached password.
         if (empty($password)) {
             $password = $this->getCredentials(
-                GitControl::OVERLEAF_PROTOCOL,
-                GitControl::OVERLEAF_HOST,
+                self::OVERLEAF_PROTOCOL,
+                self::OVERLEAF_HOST,
                 $username
             );
             $cachedPassword = true;
@@ -190,8 +194,8 @@ class GitControl
         $lastline = exec($script, $output, $return_var);
         if ($return_var) {
             $this->resetCredentials(
-                GitControl::OVERLEAF_PROTOCOL,
-                GitControl::OVERLEAF_HOST,
+                self::OVERLEAF_PROTOCOL,
+                self::OVERLEAF_HOST,
                 $username
             );
             throw new \Exception('Failed to ' . $command . ': ' . $lastline);
@@ -199,8 +203,8 @@ class GitControl
 
         if ($cache && !$cachedPassword) {
             $this->putCredentials(
-                GitControl::OVERLEAF_PROTOCOL,
-                GitControl::OVERLEAF_HOST,
+                self::OVERLEAF_PROTOCOL,
+                self::OVERLEAF_HOST,
                 $username,
                 $password
             );
@@ -219,6 +223,7 @@ class GitControl
      * @return null
      * @throws \Exception
      */
+    #[ArrayShape(['return_var' => "", 'message' => "false|string", 'success' => "bool"])]
     public function cloneOverleaf(
         string $projectId,
         string $destDir,

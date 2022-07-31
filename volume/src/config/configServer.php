@@ -13,7 +13,7 @@ $MAINTENANCE = false;
 if ($MAINTENANCE) {
     // only allow EXCEPTION_HOST to access site
     $EXCEPTION_HOST = "127.0.0.1";
-    if ($_SERVER['REMOTE_ADDR'] != $EXCEPTION_HOST) {
+    if ($_SERVER['REMOTE_ADDR'] !== $EXCEPTION_HOST) {
         echo "<h1>Maintenance, please come back later!</h1>";
         echo "(22.00 h UTC)";
         exit;
@@ -99,7 +99,7 @@ $config->tt_cat = [
 ];
 
 // controls what to show in menu or page
-$config->show = new StdClass();
+$config->show = new stdClass();
 
 // show incomplete features
 $config->show->experimental = true;

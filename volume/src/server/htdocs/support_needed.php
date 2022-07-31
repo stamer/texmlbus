@@ -7,8 +7,6 @@
 require_once "../include/IncFiles.php";
 use Dmake\Dao;
 use Dmake\MmfileDao;
-use Dmake\UtilStylefile;
-use Dmake\UtilBindingFile;
 
 use Server\Config;
 use Server\Page;
@@ -49,9 +47,7 @@ $choice = $page->getRequest()->getQueryParam('choice', 'A');
 switch ($choice) {
 
 case 'A':
-
-    $numrows = MMfileDao::getCountA($set);
-
+    $numrows = MmfileDao::getCountA($set);
     $rows = MmfileDao::getA($set, $min, $max_pp);
 
 	echo '<h3>Macros and Stylefiles that need most support</h3>';
@@ -103,6 +99,7 @@ case 'S':
 	break;
 
 case 'M':
+default:
     $numrows = MmfileDao::getCountM($set);
     $rows = MmfileDao::getM($set, $min, $max_pp);
 

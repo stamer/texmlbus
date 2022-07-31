@@ -14,7 +14,7 @@ class MmfileDao
     /**
      * Gets the number of entries for given parameters.
      */
-    public function getCount(string $set, string $macro, string $styfilename): int
+    public static function getCount(string $set, string $macro, string $styfilename): int
     {
         $dao = Dao::getInstance();
 
@@ -65,7 +65,7 @@ class MmfileDao
     /**
      * Get filenames for given set, macro and styfilename.
      */
-    public function getFilenames(string $set, string $macro, string $styfilename, int $min, int $max_pp): array
+    public static function getFilenames(string $set, string $macro, string $styfilename, int $min, int $max_pp): array
     {
         $dao = Dao::getInstance();
 

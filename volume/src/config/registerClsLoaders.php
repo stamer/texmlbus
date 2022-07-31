@@ -36,7 +36,7 @@ foreach ($files as $filename) {
     require_once CLSLOADERDIR . '/' . $filename;
     $className = UtilFile::getPrefix($filename);
     $nsClassName =  "Dmake\\ClsLoader\\" . $className;
-    $obj = new $nsClassName;
+    $obj = new $nsClassName();
     $installed = true;
 
     $styFilenames = $obj->getFiles();

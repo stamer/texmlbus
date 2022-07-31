@@ -15,7 +15,7 @@ class LatexmlTestCases
      * Files that are to be ignored. They are either not working on purpose,
      * or are not part of tests, bt rather included in other tests.
      */
-    public static $ignoreFiles = [
+    public static array $ignoreFiles = [
         'daemon/broken.tex',
         'expansion/endinputinner.tex',
         'expansion/endinputinner2.tex',
@@ -32,11 +32,11 @@ class LatexmlTestCases
     ];
 
     /**
-     * @var \string[][]
+     * @var string[][]
      * These files need to be copied from src to dest. They are typically included in
      * several tests, and therefore need to be in multiple directories.
      */
-    public static $addFiles = [
+    public static array $addFiles = [
         ['src' => '../doc/graphics/mascot.png', 'dest' => 'moderncv_cs_cv/mascot.png'],
         ['src' => 'alignment/any.sty.ltxml', 'dest' => 'alignment_listing/any.sty.ltxml'],
         ['src' => 'alignment/listing.tex', 'dest' => 'alignment_listing/listing.tex'],
@@ -103,7 +103,7 @@ class LatexmlTestCases
      * Some files might need to be rewritten.
      * Use 'search' for string replace or 'pattern' for regular expressions.
      */
-    public static $rewriteFiles = [
+    public static array $rewriteFiles = [
         'moderncv_cs_cv/moderncv_cs_cv.tex' => [
         'search' => '../../doc/graphics/mascot.png',
         'replace' => 'mascot.png'
@@ -114,7 +114,7 @@ class LatexmlTestCases
         ],
     ];
 
-    public function create()
+    public function create(): void
     {
         $cfg = Config::getConfig();
 
@@ -128,7 +128,7 @@ class LatexmlTestCases
             }
         }
 
-        $result_dirs = array();
+        $result_dirs = [];
         $current_depth = 0;
         UtilFile::listDirR($testDir, $result_dirs, $current_depth, true, false, '/\.tex$/');
 

@@ -29,7 +29,7 @@ $collapse = $page->getRequest()->getQueryParam('collapse', '');
 
 $requestDir = $page->getRequest()->getQueryParam('dir', 'DESC');
 // possible SqlInjection, explicitly set variable
-if ($requestDir == 'asc') {
+if ($requestDir === 'asc') {
     $sqlSortBy = 'ASC';
 } else {
     $sqlSortBy = 'DESC';
@@ -37,7 +37,7 @@ if ($requestDir == 'asc') {
 
 // possible SqlInjection, explicitly set variable directly
 $requestSort = $page->getRequest()->getQueryParam('sort', 's.date_modified');
-if ($requestSort == 'name') {
+if ($requestSort === 'name') {
     $sqlOrderBy1 = 's.filename';
     $sqlOrderBy2 = 's.filename';
 } else {
@@ -96,14 +96,16 @@ $numrows = StatEntry::getCountLastStat($stage, $joinTable);
 
 $rows = StatEntry::getLastStat($sqlOrderBy1, $sqlSortBy, $min, $max_pp);
 
-$types = array();
+$types = [];
 foreach ($rows as $row) {
-    if ($row['wq_prev_action'] != '' && $row['wq_prev_action'] != 'none') {
+    if ($row['wq_prev_action'] !== ''
+        && $row['wq_prev_action'] !== 'none'
+    ) {
         $types[$row['wq_prev_action']][] = $row['id'];
     }
 }
 
-$stat = array();
+$stat = [];
 
 foreach ($types as $stage => $ids) {
     if (!is_array($ids)) {
@@ -127,7 +129,7 @@ foreach ($types as $stage => $ids) {
 }
 
 // We need to sort the merged array by filename or date_modified again
-if ($requestSort == 'name') {
+if ($requestSort === 'name') {
     $key = 'filename';
 } else {
     $key = 'date_modified';
@@ -167,16 +169,8 @@ foreach ($stat as $key => $entry) {
 	echo "<tr>\n";
 	$count++;
 	$no = $count + $min;
-	if (isset($entry['s_date_modified'])) {
-		$date_modified = $entry['s_date_modified'];
-	} else {
-		$date_modified = '';
-	}
-	if (isset($entry['filename'])) {
-		$filename = $entry['filename'];
-	} else {
-		$filename = '';
-	}
+    $date_modified = $entry['s_date_modified'] ?? '';
+    $filename = $entry['filename'] ?? '';
 
     if ($row['wq_action'] === $target) {
         if ($row['wq_priority']) {
@@ -199,7 +193,7 @@ foreach ($stat as $key => $entry) {
     $stdOutLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdOutLog[$stage]);
     $stdErrLog = str_replace('%MAINFILEPREFIX%', $prefix, $cfgStdErrLog[$stage]);
 
-    if ($destFile != '') {
+    if ($destFile !== '') {
         $destFileLink = $directory.$destFile;
     }
     $stdOutFileLink = $directory.$stdOutLog;

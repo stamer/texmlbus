@@ -110,7 +110,7 @@ foreach ($stat as $wq_id => $entry) {
 		$filename = '';
 	}
 
-	$running = ($entry->getWqPriority() == 0 && $entry->getWqAction() != 'none');
+	$running = ($entry->getWqPriority() == 0 && $entry->getWqAction() !== 'none');
 
 	echo '<td align="right" rowspan="1">'.$no;
     if ($running) {

@@ -6,11 +6,7 @@
  */
 require_once "../../include/IncFiles.php";
 
-use DateTime;
-use Dmake\PrepareFiles;
 use Dmake\JwToken;
-use Dmake\UtilFile;
-use Dmake\GitControl;
 use Dmake\StatEntry;
 use Server\Config;
 use Server\RequestFactory;
@@ -33,7 +29,7 @@ $comment_keyword = $request->getParam('comment_keyword');
 $comment_date = $request->getParam('comment_date');
 $entry = StatEntry::getById($id);
 
-if (empty($entry)) {
+if ($entry === null) {
     $data['result'] = [
         'success' => false,
         'message' => 'Document for id ' . $id . 'not found.'

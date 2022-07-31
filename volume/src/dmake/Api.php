@@ -10,6 +10,7 @@ namespace Dmake;
 require_once "IncFiles.php";
 
 use Server\RequestFactory;
+use Server\ServerRequest;
 
 /**
  * For Api calls within Buildsystem.
@@ -21,19 +22,19 @@ class Api
 {
     public const NO_ACTION = 128;
 
-    protected $path = '';
-    protected $action = '';
-    protected $priority = 1;
-    protected $resultAsJson = false;
-    protected $inotify;
-    protected $request;
+    protected string $path = '';
+    protected string $action = '';
+    protected int $priority = 1;
+    protected bool $resultAsJson = false;
+    protected InotifyHandler $inotify;
+    protected ServerRequest $request;
 
     public function __construct(string $uri, bool $resultAsJson = false)
     {
         $this->resultAsJson = $resultAsJson;
         $this->path = parse_url($uri, PHP_URL_PATH);
 
-        $matches = array();
+        $matches = [];
         preg_match('/.*?api\/(.*)$/', $this->path, $matches);
 
         if (empty($matches[1])) {
@@ -244,7 +245,7 @@ class Api
         // if queue is short, this will happen right away, wait short period of time
         sleep(1);
         $statEntry = StatEntry::getById($statEntry->id);
-        if ($statEntry->getWqAction() == StatEntry::WQ_ACTION_NONE) {
+        if ($statEntry->getWqAction() === StatEntry::WQ_ACTION_NONE) {
             $output = "Done.";
         } else {
             $output = "Cleanup queued.";
@@ -255,9 +256,8 @@ class Api
     /**
      * Queue entry by id, by dir or by set.
      * Job is queued, if this job has already run before, it will not be recreated.
-     * @return ApiResult|ApiResultArray
      */
-    public function queue(string $stage, string $target)
+    public function queue(string $stage, string $target): ApiResult|ApiResultArray
     {
         $possibleTargets = UtilStage::getPossibleTargets();
         if (!in_array($target, $possibleTargets)) {
@@ -307,9 +307,8 @@ class Api
 
     /**
      * Rerun Job is clean + queue
-     * @return ApiResult|ApiResultArray
      */
-    public function rerun(string $stage, string $target)
+    public function rerun(string $stage, string $target): ApiResult|ApiResultArray
     {
         $apiResult = $this->clean($stage, $target . 'clean');
         if (!$apiResult->getSuccess()) {

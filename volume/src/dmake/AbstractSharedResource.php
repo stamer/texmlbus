@@ -23,17 +23,17 @@ abstract class AbstractSharedResource
 {
     private $resource;
 
-    public abstract function __construct(int $key = null, int $size = 10000);
+    abstract public function __construct(int $key = null, int $size = 10000);
 
-    public abstract function put(?string $data) :bool;
+    abstract public function put(?string $data) :bool;
 
-    public abstract function has() :bool;
+    abstract public function has() :bool;
 
-    public abstract function get() :?string;
+    abstract public function get() :?string;
 
-    public abstract function detach() :bool;
+    abstract public function detach() :bool;
 
-    public abstract function remove() :bool;
+    abstract public function remove() :bool;
 
-    public abstract function exists() :bool;
+    abstract public function exists() :bool;
 }

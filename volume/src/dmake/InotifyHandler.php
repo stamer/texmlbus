@@ -32,17 +32,17 @@ class InotifyHandler
     // write done trigger to inform about finished jobs
     public const doneTriggerFilePrefix = '/opt/run/done_trigger';
 
-    private $debug = false;
+    private bool $debug = false;
 
-    private $active = false;
+    private bool $active = false;
 
-    private $trigger = [self::wqTrigger, self::doneTrigger];
+    private array $trigger = [self::wqTrigger, self::doneTrigger];
 
-    private $triggerFile = [];
+    private array $triggerFile = [];
 
-    private $fd = [];
+    private array $fd = [];
 
-    private $watchDescriptor = [];
+    private array $watchDescriptor = [];
 
     /**
      * InotifyHandler constructor.
@@ -64,7 +64,7 @@ class InotifyHandler
                 touch($this->triggerFile[$hostGroupName][self::wqTrigger]);
             }
             $perms = substr(sprintf('%o', fileperms($this->triggerFile[$hostGroupName][self::wqTrigger])), -3);
-            if ($perms != '666') {
+            if ($perms !== '666') {
                 chmod($this->triggerFile[$hostGroupName][self::wqTrigger], 0666);
             }
             $filename = self::doneTriggerFilePrefix . '_' . $hostGroupName;
@@ -272,9 +272,8 @@ class InotifyHandler
 
     /**
      * Triggers the given trigger by its name.
-     * @return bool|string
      */
-	public function trigger(string $hostGroupName, string $triggerName)
+	public function trigger(string $hostGroupName, string $triggerName): bool|string
 	{
         if (!in_array($triggerName, $this->trigger)) {
             error_log("Cannot trigger unknown trigger $triggerName");

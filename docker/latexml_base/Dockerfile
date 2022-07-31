@@ -1,7 +1,7 @@
 # This image is used as base image for LaTeXML.
 # It installs ghostscript, imagemagick and
 # the webserver and php to be run as worker.
-FROM alpine:3.12 as latexml_base
+FROM alpine:3.16 as latexml_base
 
 ARG TIMEOUT_SECONDS="1200"
 
@@ -58,15 +58,17 @@ RUN apk add \
     apache2-proxy \
     make \
     openrc \
-    php-cli \
-    php-fpm \
-    php-json \
-    php-mysqli \
-    php-pcntl \
-    php-pdo \
-    php-pdo_mysql \
-    php-posix \
-    php-sysvshm
+    php81-cli \
+    php81-fpm \
+    php81-json \
+    php81-mysqli \
+    php81-pcntl \
+    php81-pdo \
+    php81-pdo_mysql \
+    php81-posix \
+    php81-sysvshm
+
+RUN ln -sf /usr/bin/php81 /usr/bin/php
 
 # configure apache
 RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/worker/htdocs#" /etc/apache2/httpd.conf \
@@ -85,17 +87,17 @@ RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/worker/htdocs#" /etc/a
     && printf "</LocationMatch>\n" >> /etc/apache2/conf.d/default.conf \
     && printf "# Enable *real-time* 'status' page\n"  >> /etc/apache2/conf.d/default.conf \
     && printf "#<IfModule alias_module>\n"  >> /etc/apache2/conf.d/default.conf \
-    && printf "#Alias /realtime-status \"/var/lib/php7/fpm/status.html\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "#Alias /realtime-status \"/var/lib/php81/fpm/status.html\"\n" >> /etc/apache2/conf.d/default.conf \
     && printf "#</IfModule>\n" >> /etc/apache2/conf.d/default.conf
 
 
 # configure php-fpm
-RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#group\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^listen\s*=.*#listen = /run/php-fpm.sock#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.owner\s*=.*#listen.owner = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.group\s*=.*#listen.group = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.mode\s*=.*#listen.mode = 0666#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^pm.max_children\s*=.*#pm.max_children = 15#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i 's#;pm.status_path#pm.status_path#' /etc/php7/php-fpm.d/www.conf
+RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#group\s*=\s*nobody#user = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^listen\s*=.*#listen = /run/php-fpm.sock#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.owner\s*=.*#listen.owner = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.group\s*=.*#listen.group = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.mode\s*=.*#listen.mode = 0666#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^pm.max_children\s*=.*#pm.max_children = 15#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i 's#;pm.status_path#pm.status_path#' /etc/php81/php-fpm.d/www.conf

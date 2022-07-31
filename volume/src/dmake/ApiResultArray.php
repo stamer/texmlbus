@@ -16,7 +16,7 @@ namespace Dmake;
  */
 class ApiResultArray extends ApiResult
 {
-    protected $successArray;
+    protected array $successArray;
 
     public function addSuccess(int $id, bool $success): void
     {
@@ -24,7 +24,6 @@ class ApiResultArray extends ApiResult
     }
 
     /**
-     * @return array|mixed
      */
     public function jsonSerialize(): array
     {

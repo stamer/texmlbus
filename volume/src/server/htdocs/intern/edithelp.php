@@ -27,7 +27,7 @@ if (isset($_POST['delete'])) {
     HelpDao::deleteById($id);
 }
 
-$ids = helpDao::getAllIds();
+$ids = HelpDao::getAllIds();
 
 if (isset($_POST['load'])) {
     $id = $_POST['helpid'];
@@ -37,7 +37,7 @@ if (isset($_POST['load'])) {
     $title = $_POST['title'];
     $html = $_POST['html'];
     HelpDao::save($id, $title, $html);
-    $ids = helpDao::getAllIds();
+    $ids = HelpDao::getAllIds();
     $row = ['id' => $id, 'title' => $title, 'html' => $html];
 } elseif (isset($_POST['save'])) {
     $id = $_POST['helpid'];

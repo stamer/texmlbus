@@ -6,9 +6,7 @@
  */
 require_once "../../include/IncFiles.php";
 
-use Dmake\PrepareFiles;
 use Dmake\JwToken;
-use Dmake\UtilFile;
 use Dmake\GitControl;
 use Dmake\StatEntry;
 use Server\Config;
@@ -28,7 +26,7 @@ $data = [];
 $id = $request->getParam('id');
 $entry = StatEntry::getById($id);
 
-if (empty($entry)) {
+if ($entry === null) {
     $data['result'] = [
         'success' => false,
         'message' => 'Document for id ' . $id . 'not found.'

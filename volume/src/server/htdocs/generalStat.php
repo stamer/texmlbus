@@ -56,22 +56,22 @@ $wq_num = WorkqueueEntry::getNumQueuedEntries();
         <td width="300">State</td><td><?=$state ?></td>
     </tr>
     <tr>
-        <td width="200">Current job started at (UTC)</td><td><?=$dmakeStatus['started']; ?></td>
+        <td width="200">Current job started at (UTC)</td><td><?=$dmakeStatus['started'] ?></td>
     </tr>
     <tr>
         <td width="200">LaTeXML versions</td><td><b><?=implode('<br />', UtilMisc::getLatexmlVersion()) ?></b></td>
     </tr>
     <tr>
-        <td>Number of documents in queue</td><td><?=$wq_num; ?></td>
+        <td>Number of documents in queue</td><td><?=$wq_num ?></td>
     </tr>
     <tr>
-        <td>Number of concurrent conversion jobs</td><td><?=$dmakeStatus['num_hosts']; ?></td>
+        <td>Number of concurrent conversion jobs</td><td><?=$dmakeStatus['num_hosts'] ?></td>
     </tr>
     <tr>
-        <td>Hosts</td><td><?=htmlspecialchars($dmakeStatus['hostnames']); ?></td>
+        <td>Hosts</td><td><?=htmlspecialchars($dmakeStatus['hostnames']) ?></td>
     </tr>
     <tr>
-        <td>Timeout</td><td><?=$dmakeStatus['timeout']; ?> s</td>
+        <td>Timeout</td><td><?=$dmakeStatus['timeout'] ?> s</td>
     </tr>
     <tr>
         <td>Worker Memory Factor</td><td><?=($cfg->memory->factor ?? 'unset') ?></td>

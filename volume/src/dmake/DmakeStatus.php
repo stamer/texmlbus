@@ -11,14 +11,14 @@ namespace Dmake;
 
 class DmakeStatus
 {
-    public $id = 0;
-	public $started = '';
-	public $directory = '';
-	public $num_files = '';
-	public $num_hosts = '';
-	public $hostnames = '';
-	public $timeout = -1;
-	public $errmsg = '';
+    public int $id = 0;
+	public string $started = '';
+	public string $directory = '';
+	public string $num_files = '';
+	public string $num_hosts = '';
+	public string $hostnames = '';
+	public int $timeout = -1;
+	public string $errmsg = '';
 
     /**
      * saves the current status

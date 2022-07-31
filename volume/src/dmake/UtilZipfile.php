@@ -7,15 +7,15 @@
 
 namespace Dmake;
 
-use \ZipArchive;
+use ZipArchive;
 
 class UtilZipfile
 {
-    public static $debug = true;
+    public static bool $debug = true;
 
     public static function extract(string $zipfile, string $destDir): bool
     {
-        $zip = new ZipArchive;
+        $zip = new ZipArchive();
         if (self::$debug) {
             error_log(__METHOD__ . ': ' . $zipfile);
             error_log(__METHOD__ . ': ' . $destDir);

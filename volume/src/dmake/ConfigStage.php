@@ -12,107 +12,91 @@ class ConfigStage
 {
     /**
      * the name of the stage
-     * @var string
      */
-    protected $stage;
+    protected string $stage;
     //'stage' => 'pdf',
 
     /**
      * the name of the class
-     * @var string
      */
-    protected $classname;
+    protected string $classname;
     //'classname' => __CLASS__,
 
     /**
      * the target of makefile, most times same as stage, but
      * pdf and pdf_edge have the same target pdf
-     * @var string
      */
-    protected $target;
+    protected string $target;
     //'target' => 'pdf',
 
     /**
      * the hostGroup
      * pdf has worker as hostGroup, pdf_edge has worker_edge
      * therefore two different pdf environments can be used
-     * @var string
      */
-    protected $hostGroup;
+    protected string $hostGroup;
     //'hostGroup' => 'worker',
     // the name of the table where target specific results are stored
 
     /**
-     * @var string
      */
-    protected $command;
+    protected string $command;
     /**
      * dbTable
-     * @var string
      */
-    protected $dbTable;
+    protected string $dbTable;
     //'dbTable' => 'retval_pdf',
 
     /**
      * titles on statistic page
-     * @var string
      */
-    protected $tableTitle;
+    protected string $tableTitle;
     // 'tableTitle' => 'pdf',
 
     /**
-     * @var string
      */
-    protected $toolTip;
+    protected string $toolTip;
     //'toolTip' => 'PDF creation.',
 
     /**
      * whether xml needs to be parsed
-     * @var string
      */
-    protected $parseXml;
+    protected string $parseXml;
     //'parseXml' => false,
 
     /**
      * the timeout in seconds
-     * @var int
      */
-    protected $timeout;
+    protected int $timeout;
     //'timeout' => 240,
 
     /**
      * use %MAINFILEPREFIX%, if the logfile use same prefix as the main tex file
-     * @var string
      */
-    protected $destFile;
+    protected string $destFile;
     //'destFile' => '%MAINFILEPREFIX%.pdf',
 
     /**
-     * @var string
      */
-    protected $stdOutLog;
+    protected string $stdOutLog;
     //'stdoutLog' => '%MAINFILEPREFIX%.log', // this needs to match entry in Makefile
 
     /**
-     * @var string
      */
-    protected $stdErrLog;
+    protected string $stdErrLog;
     //'stdErrLog' => '%MAINFILEPREFIX%.log', // needs to match entry in Makefile
 
     /**
-     * @var string
      */
-    protected $makeLog;
+    protected string $makeLog;
 
     /**
-     * @var array
      */
-    protected $dependentStages = []; // which log files need to be parsed?
+    protected array $dependentStages = []; // which log files need to be parsed?
 
     /**
-     * @var array
      */
-    protected $showRetval;
+    protected array $showRetval;
     /*
     'showRetval' => [
     'unknown' => true,
@@ -131,9 +115,8 @@ class ConfigStage
     */
 
     /**
-     * @var array
      */
-    protected $retvalDetail;
+    protected array $retvalDetail;
     /*
     'retvalDetail' => [
         'missing_figures' => [
@@ -155,9 +138,8 @@ class ConfigStage
     */
 
     /**
-     * @var array
      */
-    protected $showTopErrors;
+    protected array $showTopErrors;
     /**
      'showTopErrors' => [
         'error' => true,
@@ -167,9 +149,8 @@ class ConfigStage
     */
 
     /**
-     * @var array
      */
-    protected $showDetailErrors;
+    protected array $showDetailErrors;
 
     /**
      * @return string
@@ -517,7 +498,8 @@ class ConfigStage
         'error' => false,
     ],
     */
-    public function toArray(){
-        return call_user_func('get_object_vars', $this);
+    public function toArray(): array
+    {
+        return get_object_vars($this);
     }
 }

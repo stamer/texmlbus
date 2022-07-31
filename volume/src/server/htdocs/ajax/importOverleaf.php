@@ -62,7 +62,7 @@ if (in_array($set, $cfg->upload->specialDirs)) {
 }
 
 foreach ($cfg->upload->forbiddenSubstrings as $item) {
-    if (strpos($set, $item['substring']) !== false) {
+    if (str_contains($set, $item['substring'])) {
         $data['result'] = [
             'message' => $item['message'],
             'set' => $set,

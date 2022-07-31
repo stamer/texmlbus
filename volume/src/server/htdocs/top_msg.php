@@ -40,9 +40,9 @@ if (in_array($stage, $stages)) {
 $max_pp = $cfg->db->perPage;
 
 $numrows = RetvalDao::getCountErrMsgByRetval($retval, $joinTable, $set);
-$rows = RetValDao::getErrMsgByRetval($retval, $joinTable, $set);
+$rows = RetvalDao::getErrMsgByRetval($retval, $joinTable, $set);
 
-$arr = array();
+$arr = [];
 
 foreach ($rows as $row) {
 	$str = preg_replace('/\S+papers.*/', '', $row['errmsg']);

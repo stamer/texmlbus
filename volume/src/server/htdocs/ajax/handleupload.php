@@ -42,12 +42,12 @@ if (!empty($_FILES)) {
         echo "Uploading file failed.!";
     }
 } else {
-    $result  = array();
+    $result = [];
 
     $files = scandir($target_dir);                 //1
-    if ( false!==$files ) {
-        foreach ( $files as $file ) {
-            if ( '.'!=$file && '..'!=$file) {       //2
+    if (false !== $files) {
+        foreach ($files as $file) {
+            if ('.' !== $file &&  '..' !== $file) {       //2
                 $obj['name'] = $file;
                 $obj['size'] = filesize($target_dir.$ds.$file);
                 $result[] = $obj;

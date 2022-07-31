@@ -15,12 +15,10 @@ namespace Dmake;
 
 class SourceToDir
 {
-	protected $sourcefile = '';
-	protected $directory = '';
+	protected string $sourcefile = '';
+	protected string $directory = '';
 
     /**
-     *
-     * @return string
      */
     public function setSourcefile(?string $sourcefile): self
     {
@@ -34,8 +32,6 @@ class SourceToDir
     }
 
     /**
-     *
-     * @return this
      */
     public function setDirectory(?string $directory): self
     {
@@ -58,8 +54,6 @@ class SourceToDir
      */
 	public function save(): bool
 	{
-        $cfg = Config::getConfig();
-
         $dao = Dao::getInstance();
 
 		$query = '

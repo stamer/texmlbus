@@ -9,7 +9,7 @@
 
 namespace Dmake;
 
-use \PDO;
+use PDO;
 
 /**
  * Documents are orgnanized in sets.
@@ -19,19 +19,16 @@ use \PDO;
 class Set
 {
     /**
-     * @var ?string
      */
-	protected $sourcefile;
+	protected ?string $sourcefile = '';
 
     /**
-     * @var ?string
      */
-	protected $name;
+	protected ?string $name = '';
 
     /**
-     * @var ?int
      */
-    protected $numDocuments;
+    protected ?int $numDocuments;
 
     public function getSourcefile(): ?string
     {
@@ -54,7 +51,6 @@ class Set
     }
 
     /**
-     * @return int
      */
     public function getNumDocuments(): ?int
     {
@@ -62,7 +58,6 @@ class Set
     }
 
     /**
-     * @param int $numDocuments
      */
     public function setNumDocuments(?int $numDocuments): void
     {
@@ -93,7 +88,7 @@ class Set
     {
         $dao = Dao::getInstance();
 
-        if ($pattern != '') {
+        if ($pattern !== '') {
             $where = ' WHERE s.`set` LIKE :pattern ';
         } else {
             $where = '';
@@ -128,7 +123,7 @@ class Set
     }
 
     /**
-     * @return Sets[]
+     * @return Set[]
      */
     public static function getSetsCount(): array
     {

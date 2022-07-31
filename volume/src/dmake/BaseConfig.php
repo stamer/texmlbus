@@ -13,8 +13,7 @@ use stdClass;
 
 class BaseConfig
 {
-    private static $config = null;
-
+    private static ?stdClass $config = null;
     private function __construct()
     {
     }

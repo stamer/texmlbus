@@ -64,12 +64,14 @@ RUN apk add \
     apache2-proxy \
     make \
     openrc \
-    php-cli \
-    php-fpm \
-    php-json \
-    php-pcntl \
-    php-posix \
-    php-sysvshm
+    php81-cli \
+    php81-fpm \
+    php81-json \
+    php81-pcntl \
+    php81-posix \
+    php81-sysvshm
+
+RUN ln -sf /usr/bin/php81 /usr/bin/php
 
 # configure apache
 RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/worker/htdocs#" /etc/apache2/httpd.conf \
@@ -88,17 +90,17 @@ RUN sed -i "s#/var/www/localhost/htdocs#/srv/texmlbus/src/worker/htdocs#" /etc/a
     && printf "</LocationMatch>\n" >> /etc/apache2/conf.d/default.conf \
     && printf "# Enable *real-time* 'status' page\n"  >> /etc/apache2/conf.d/default.conf \
     && printf "#<IfModule alias_module>\n"  >> /etc/apache2/conf.d/default.conf \
-    && printf "#Alias /realtime-status \"/var/lib/php7/fpm/status.html\"\n" >> /etc/apache2/conf.d/default.conf \
+    && printf "#Alias /realtime-status \"/var/lib/php81/fpm/status.html\"\n" >> /etc/apache2/conf.d/default.conf \
     && printf "#</IfModule>\n" >> /etc/apache2/conf.d/default.conf
 
 
 # configure php-fpm
-RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#group\s*=\s*nobody#user = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^listen\s*=.*#listen = /run/php-fpm.sock#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.owner\s*=.*#listen.owner = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.group\s*=.*#listen.group = dmake#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^;listen.mode\s*=.*#listen.mode = 0666#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#^pm.max_children\s*=.*#pm.max_children = 15#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php7/php-fpm.d/www.conf \
-    && sed -i 's#;pm.status_path#pm.status_path#' /etc/php7/php-fpm.d/www.conf
+RUN sed -i "s#^user\s*=\s*nobody#user = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#group\s*=\s*nobody#user = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^listen\s*=.*#listen = /run/php-fpm.sock#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.owner\s*=.*#listen.owner = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.group\s*=.*#listen.group = dmake#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^;listen.mode\s*=.*#listen.mode = 0666#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#^pm.max_children\s*=.*#pm.max_children = 15#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i "s#;catch_workers_output.*#catch_workers_output = yes#" /etc/php81/php-fpm.d/www.conf \
+    && sed -i 's#;pm.status_path#pm.status_path#' /etc/php81/php-fpm.d/www.conf

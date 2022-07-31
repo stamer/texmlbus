@@ -39,7 +39,7 @@ $stages = [
     'pagelimit' => ['class' => 'StagePagelimit', 'enabled' => true],
 ];
 
-$config->stages = array();
+$config->stages = [];
 
 // Setup the stages, this list might be reduced later on
 // when hosts are tested for availability.
@@ -62,7 +62,7 @@ foreach ($stages as $stagename => $stage) {
         die("$stagename: No showRetval given!");
     }
 
-    $config->stages[$tc->getStage()] = new stdClass;
+    $config->stages[$tc->getStage()] = new stdClass();
     $tcArray = $tc->toArray();
     foreach ($tcArray as $key => $value) {
         if ($key === 'stage') {

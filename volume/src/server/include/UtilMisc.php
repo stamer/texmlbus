@@ -14,22 +14,27 @@ use Dmake\UtilBindingFile;
 class UtilMisc
 {
     /**
-     * @param $current
-     * @param $min
-     * @param $max_pp
-     * @param int $count
      */
-    public static function navigator($current, $min, $max_pp, $count = -1)
+    public static function navigator(
+        int $current,
+        int $min,
+        int $max_pp,
+        int $count = -1
+    ): void
     {
         global $IS_CRAWLER;
 
-        if ($IS_CRAWLER) return;
+        if ($IS_CRAWLER) {
+            return;
+        }
         echo '<div style="text-align:center">' . PHP_EOL;
         $prev = max(0, $min - $max_pp);
         $next = $min + $max_pp;
         $param = '';
         foreach ($_GET as $key => $val) {
-            if ($key == 'min') continue;
+            if ($key === 'min') {
+                continue;
+            }
             $param .= '&amp;'.$key.'='.urlencode($val);
         }
         $prevparam = preg_replace('/^&amp;/', '?', $param.'&amp;min='.$prev);
@@ -51,18 +56,18 @@ class UtilMisc
             $newMin = $i * $max_pp;
             $thisparam = preg_replace('/^&amp;/', '?', $param . '&amp;min=' . $newMin);
             $thisurl = $_SERVER['PHP_SELF'] . $thisparam;
-            if ($min == $newMin) {
+            if ($min === $newMin) {
                 echo '<b>';
             }
             echo '<a href="'.$thisurl.'">[' . (($newMin) + 1) . ']</a> ';
-            if ($min == $newMin) {
+            if ($min === $newMin) {
                 echo '</b>';
             }
         }
         echo '</div>' . PHP_EOL;
     }
 
-    public static function getActiveHostGroups()
+    public static function getActiveHostGroups(): array
     {
         // the server does not know the current hosts
         $activeStages = UtilStage::loadActiveStages();
@@ -77,13 +82,9 @@ class UtilMisc
 
     /**
      * get current version of latexml for each HostGroup
-     *
-     * @return mixed|string
      */
-    public static function getLatexmlVersion()
+    public static function getLatexmlVersion(): array
     {
-        $cfg = Config::getConfig();
-
         $hostGroups = self::getActiveHostGroups();
 
         $retArr = [];
@@ -113,11 +114,8 @@ class UtilMisc
 
     /**
      * expects just filename
-     *
-     * @param $ltxfile
-     * @return string
      */
-    public static function getLtxmlLink($stylefile)
+    public static function getLtxmlLink(string $stylefile): string
     {
         static $ltxmlFiles = [];
         if (empty($ltxmlFiles['cls'])) {
@@ -138,7 +136,6 @@ class UtilMisc
                 $ltxlink = '<span class="ok">o </span><a href="sty/' . $ltxfile . '">sty/' . $ltxfile . '</a>';
             }
         } else {
-            $info['user'] = '';
             $ltxlink = '<span class="warn">x </span>';
         }
         return $ltxlink;
@@ -150,10 +147,10 @@ class UtilMisc
      * determined to be a crawler or robot.
      * This should only be called on slow paths
      */
-    public static function isCrawler()
+    public static function isCrawler(): bool
     {
         if (stristr($_SERVER['HTTP_USER_AGENT'], 'googlebot')) {
-            return TRUE;
+            return true;
         }
 
         $cfg = Config::getConfig();
@@ -161,12 +158,16 @@ class UtilMisc
             && !empty($cfg->browscap->file))
         {
             require_once($cfg->file);
+            /*
             $br = new Browscap($cfg->browscap->dir);
             if ($br->getBrowser()->Crawler) {
-                return TRUE;
+                return true;
             } else {
-                return FALSE;
+                return false;
             }
+            */
+            return false;
         }
+        return false;
     }
 }

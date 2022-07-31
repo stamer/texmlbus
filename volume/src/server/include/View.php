@@ -30,7 +30,7 @@ class View
             $retval = 'unknown';
         }
         // the current retval for given stage
-        if ($retval != 'unknown') {
+        if ($retval !== 'unknown') {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$retval]];
             $str .= '<td id="td_' . $id . '_' . $stage . '" class="'.$color.'">'.PHP_EOL;
             $str .= $retval.'<br />'.PHP_EOL;
@@ -60,7 +60,7 @@ class View
     ): string
     {
         $cfg = Config::getConfig();
-        if ($prevRetval != 'unknown') {
+        if ($prevRetval !== 'unknown') {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$prevRetval]];
             $str = '<td id="td_' . $id . '_prev' . $stage . '" class="'.$color.' tdbottomline">'.$prevRetval.'</td>'.PHP_EOL;
         } else {
@@ -86,7 +86,6 @@ class View
 
     /**
      * Create columns depending on $stage and $retval.
-     * @return array
      */
     public static function getColumnsByRetval(string $stage, string $retval): array
     {
@@ -96,7 +95,7 @@ class View
             $columns = $cfg->stages[$stage]->retvalDetail[$retval];
         } else {
             // Default values
-            $columns = array();
+            $columns = [];
 
             switch ((string)$retval) {
 

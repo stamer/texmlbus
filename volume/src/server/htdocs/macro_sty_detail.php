@@ -49,8 +49,8 @@ $styfilename = $page->getRequest()->getQueryParam('styfilename', '');
 
 if (!empty($macro)) {
 	$macro_mode = TRUE;
-	$col = array(1 => 'Macro', 'Filename', 'ltx');
-	$field = array(1 => 'macro', 'styfilename');
+	$col = [1 => 'Macro', 'Filename', 'ltx'];
+	$field = [1 => 'macro', 'styfilename'];
 	$headline = '<h3>Files that define macro <em>'.htmlspecialchars($macro).'</em></h3>';
 } elseif (!empty($styfilename)) {
 	// if filename does not contain suffix, try to find one
@@ -68,8 +68,8 @@ if (!empty($macro)) {
 		}
 	}
 	$macro_mode = FALSE;
-	$col = array(1 => 'Macro', 'Filename', 'ltx');
-	$field = array(1 => 'styfilename', 'macro');
+	$col = [1 => 'Macro', 'Filename', 'ltx'];
+	$field = [1 => 'styfilename', 'macro'];
 	$headline = '<h3>Macros that are defined in file <em><a href="sty/'.htmlspecialchars($styfilename).'">'.htmlspecialchars($styfilename).'</em></h3>';
 } else {
 	echo "Unknown parameter!";

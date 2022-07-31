@@ -15,7 +15,7 @@ class PackageUsageDao
      * Get count by set.
      * @return int
      */
-    public function getCount(string $set): int
+    public static function getCount(string $set): int
     {
         $dao = Dao::getInstance();
 
@@ -81,7 +81,7 @@ class PackageUsageDao
     /**
      * Get Correlation
      */
-    public function getStyCorrelation(
+    public static function getStyCorrelation(
         string $set,
         string $order,
         int $min,

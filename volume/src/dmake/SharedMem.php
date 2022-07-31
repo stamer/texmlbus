@@ -14,12 +14,13 @@
  */
 
 namespace Dmake;
+use SysvSharedMemory;
 
 class SharedMem extends AbstractSharedResource
 {
-    private $resource;
+    private SysvSharedMemory|null|false $resource;
 
-    public function __construct(int $key = null, int $size = 100000)
+    public function __construct(int|false $key = null, int $size = 100000)
     {
         if ($key === null) {
             $key = getmypid();

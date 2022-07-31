@@ -14,7 +14,7 @@
  * 'filename' => bool for each filename.
  */
 
-// the string is also base64_encodeid to avoid " encoding problems.
+// the string is also base64_encoded to avoid " encoding problems.
 if (isset($argv[1])) {
     $param = json_decode(base64_decode($argv[1]), true);
 } else {
@@ -26,7 +26,7 @@ $supported = [];
 foreach ($param['filenames'] as $file) {
     $systemstr = 'TEXINPUTS="' . $param['TEXINPUTS'] . '"';
     $systemstr .= ' /usr/bin/kpsewhich ' . $file . '>/dev/null 2>&1';
-    system($systemstr, $returnVar);`
+    system($systemstr, $returnVar);
     // 1: error => false
     // 0: found => true
     $supported[$file] = ($returnVar ? false : true);

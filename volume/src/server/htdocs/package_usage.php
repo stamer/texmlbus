@@ -38,9 +38,9 @@ $max_pp = $cfg->db->perPage;
 
 $sort = $page->getRequest()->getQueryParam('sort', '');
 
-if ($sort == 'filename') {
+if ($sort === 'filename') {
     $order = 'pu.styfilename';
-} elseif ($sort == 'total') {
+} elseif ($sort === 'total') {
     $order = 'total DESC';
 } else {
     $order = 'success_rate DESC, pu.styfilename ASC';

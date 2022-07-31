@@ -5,21 +5,15 @@
  *
  */
 
-use Dmake\AbstractStage;
 use Dmake\Config;
 use Dmake\ConfigStage;
-use Dmake\Dao;
-use Dmake\ErrDetEntry;
-use Dmake\StatEntry;
-use Dmake\UtilFile;
-use Dmake\UtilStage;
 
 class StageXmlEdge extends StageXml
 {
-	public $num_xmarg = 0;
-	public $ok_xmarg = 0;
-	public $num_xmath = 0;
-	public $ok_xmath = 0;
+	public int $num_xmarg = 0;
+	public int $ok_xmarg = 0;
+	public int $num_xmath = 0;
+	public int $ok_xmath = 0;
 
     public function __construct()
     {

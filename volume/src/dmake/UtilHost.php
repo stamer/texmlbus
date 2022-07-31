@@ -7,8 +7,6 @@
 
 namespace Dmake;
 
-use Dmake\ApiResult;
-
 class UtilHost
 {
     public const STAT_DEACTIVATED = 0;
@@ -33,6 +31,8 @@ class UtilHost
                 // some hosts may not yet be available, try several times and wait.
                 $count = 1;
                 $maxTries = 12;
+                $shellReturnVar = 1;
+                $output = '';
                 while ($count < $maxTries) {
                     $apr = new ApiWorkerRequest();
                     $apr->setWorker($val['hostname'])
@@ -46,7 +46,7 @@ class UtilHost
                         break;
                     } else {
                         $count++;
-                        if ($count == $maxTries) {
+                        if ($count === $maxTries) {
                             // no need to wait any more
                             break;
                         }
@@ -100,9 +100,8 @@ class UtilHost
     /**
      * compares hosts and active hosts to find next available
      * machine
-     * @return mixed|string
      */
-    public static function getFreeHost(array &$hosts, array &$active_hosts)
+    public static function getFreeHost(array &$hosts, array &$active_hosts): ?string
     {
         if (!count($hosts)) {
             die ("No more hosts available!");
@@ -113,7 +112,7 @@ class UtilHost
             // slow down if there are too many free hosts
             // at startup
             if (count($free_hosts) > 8) {
-                $random = mt_rand(200, 500);
+                $random = random_int(200, 500);
                 echo "Slowing down, sleeping $random microseconds...".PHP_EOL;
                 usleep($random);
             }
@@ -208,15 +207,13 @@ class UtilHost
      * the total amount (MemTotal + SwapTotal) and multiplies this with factor.
      * /proc/meminfo output is in kB and ulimit also uses kB
      *
-     * @param array|string $meminfo
-     * @return false|float
      */
-    public static function determineMemLimit($meminfo, $factor = 1.0)
+    public static function determineMemLimit(array|string $meminfo, float $factor = 1.0): array
     {
         $cfg = Config::getConfig();
 
         if (is_array($meminfo)) {
-            $meminfo = join("\n", $meminfo);
+            $meminfo = implode("\n", $meminfo);
         }
         preg_match('/(MemTotal:\s*)(\d+)(.*)/', $meminfo, $matches);
         if ($matches && isset($matches[2])) {
@@ -254,7 +251,7 @@ class UtilHost
     /**
      * Returns amount of bytes for given string like "4 G";
      */
-    function parseMemoryValue(string $value, string $destUnit = 'Kb'): int
+    public static function parseMemoryValue(string $value, string $destUnit = 'Kb'): int
     {
         $value = trim($value);
         preg_match('/(\d+)\s*(\w*)/', $value, $matches);

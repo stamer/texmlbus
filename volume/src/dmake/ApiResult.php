@@ -19,26 +19,24 @@ use JsonSerializable;
  */
 class ApiResult implements JsonSerializable
 {
-    const RESULT_OK = 0;
-    const TIMEOUT = 99;
+    public const RESULT_OK = 0;
+    public const TIMEOUT = 99;
 
     /**
      * Success of action
      * @var bool
      */
-    protected $success = false;
+    protected bool $success = false;
 
     /**
      * Output of external program
-     * @var array
      */
-	protected $output = [];
+	protected array $output = [];
 
     /**
      * Return value of shell process
-     * @var int
      */
-	protected $shellReturnVar = 0;
+	protected int $shellReturnVar = 0;
 
     /**
      *
@@ -46,7 +44,10 @@ class ApiResult implements JsonSerializable
      * @param mixed $output
      * @param int $shellReturnVar
      */
-	public function __construct($success = true, $output = '', $shellReturnVar = 0)
+	public function __construct(
+        bool $success = true,
+        string $output = '',
+        int $shellReturnVar = 0)
     {
         $this->success = $success;
 		$this->shellReturnVar = $shellReturnVar;
@@ -91,7 +92,6 @@ class ApiResult implements JsonSerializable
     }
 
     /**
-     * @return array|mixed
      */
     public function jsonSerialize(): array
     {

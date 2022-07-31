@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.16
 #MAINTAINER Paul Smith <pa.ulsmith.net>
 #See https://hub.docker.com/r/ulsmith/alpine-apache-php7
 
@@ -23,12 +23,12 @@ RUN apk update \
     openssh-keygen \
     openssl \
     openntpd \
-    php7 \
-    php7-apache2 \
-    php7-iconv \
-    php7-json \
-    php7-openssl \
-    php7-phar \
+    php81 \
+    php81-apache2 \
+    php81-iconv \
+    php81-json \
+    php81-openssl \
+    php81-phar \
     tzdata
 
 # dmake specific stuff
@@ -38,50 +38,49 @@ RUN apk add \
     mysql-client \
     perl \
     sudo \
-    unrar \
+    #unrar \
     zip
 
 # Add Composer
-RUN curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer
+RUN curl -sS https://getcomposer.org/installer | php81 && mv composer.phar /usr/local/bin/composer
 
 # Setup apache and php
 RUN apk add \
-    php7-apcu \
-    php7-bcmath \
-    php7-bz2 \
-    php7-ctype \
-    php7-curl \
-    php7-dom \
-    php7-exif \
-    php7-ftp \
-    php7-gd \
-    php7-gettext \
-    php7-mbstring \
-    php7-mysqli \
-    php7-pcntl \
-    php7-pdo \
-    php7-pdo_mysql \
-    php7-posix \
-    php7-redis \
-    php7-session \
-    php7-sysvshm \
-    php7-soap \
-    php7-tokenizer \
-    php7-xdebug \
-    php7-xml \
-    php7-xmlreader \
-    php7-xmlrpc \
-    php7-xmlwriter \
-    php7-zip
+    php81-pecl-apcu \
+    php81-bcmath \
+    php81-bz2 \
+    php81-ctype \
+    php81-curl \
+    php81-dom \
+    php81-exif \
+    php81-ftp \
+    php81-gd \
+    php81-gettext \
+    php81-mbstring \
+    php81-mysqli \
+    php81-pcntl \
+    php81-pdo \
+    php81-pdo_mysql \
+    php81-posix \
+    php81-pecl-redis \
+    php81-session \
+    php81-sysvshm \
+    php81-soap \
+    php81-tokenizer \
+    php81-pecl-xdebug \
+    php81-xml \
+    php81-xmlreader \
+    php81-xmlwriter \
+    php81-zip
 
 # only available in testing, but unstable
-# php7-pecl-inotify
+# php81-pecl-inotify
 # therefore manually install via pecl
 
 # needed for pecl
 RUN apk add \
-    php7-dev \
-    php7-pear
+    php81-dev \
+    php81-pear
 
 RUN set -xe; \
     apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
@@ -91,18 +90,18 @@ RUN set -xe; \
       #bzip2-dev freetype-dev gettext-dev icu-dev imagemagick-dev libintl libjpeg-turbo-dev \
       #libpng-dev libxslt-dev libzip-dev \
       ; \
-    pecl channel-update pecl.php.net \
-    && pecl install -o -f \
+    pecl81 channel-update pecl.php.net \
+    && pecl81 install -o -f \
       inotify \
       ; \
     apk del .build-deps
 
-RUN echo "extension=inotify.so" > /etc/php7/conf.d/inotify.ini
+RUN echo "extension=inotify.so" > /etc/php81/conf.d/inotify.ini
 
 # Problems installing in above stack
-RUN apk add php7-simplexml
+RUN apk add php81-simplexml
 
-RUN cp /usr/bin/php7 /usr/bin/php
+RUN ln -sf /usr/bin/php81 /usr/bin/php
 
 RUN curl -L -s "http://mirrors.ctan.org/support/latexmk/latexmk.pl" -o /usr/bin/latexmk \
     && chmod ugo+rx /usr/bin/latexmk

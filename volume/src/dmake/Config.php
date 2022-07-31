@@ -9,10 +9,11 @@
 namespace Dmake;
 
 use stdClass;
+use RangeException;
 
 class Config extends BaseConfig
 {
-    private static $config = null;
+    private static ?stdClass $config = null;
 
     private function __construct()
     {
@@ -38,7 +39,7 @@ class Config extends BaseConfig
 
         if (!is_null($subobj)) {
             if (!isset(self::$config->{$subobj})) {
-                throw new \RangeException("Unknown Config part: $subobj");
+                throw new RangeException("Unknown Config part: $subobj");
             }
             return self::$config->{$subobj};
         }

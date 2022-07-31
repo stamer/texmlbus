@@ -39,7 +39,7 @@ $set = $page->getRequest()->getQueryParam('set', '');
 
 // possible SqlInjection, assign $sqlSortBy explicitly
 $requestDir = $page->getRequest()->getQueryParam('dir', 'DESC');
-if ($requestDir == 'asc') {
+if ($requestDir === 'asc') {
     $sqlSortBy = 'ASC';
 } else {
     $sqlSortBy = 'DESC';
@@ -47,7 +47,7 @@ if ($requestDir == 'asc') {
 
 // possible SqlInjection, assign $sqlOrderBy explicitly
 $requestSort = $page->getRequest()->getQueryParam('sort', '');
-if ($requestSort == 'name') {
+if ($requestSort === 'name') {
     $sqlOrderBy = 's.filename';
 } else {
     $sqlOrderBy = 'j.date_modified';
@@ -129,7 +129,7 @@ if (!$numRows) {
     <th><?= htmlspecialchars($stage) ?><br />
     <?php
     $ids = array_keys($rows);
-    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . join(',', $ids) . '],\'' . $stage . '\',\'' . $target . '\'); return false">queue</a>'.PHP_EOL;
+    echo '<a style="font-size: 60%" href="/#" onclick="javascript:rerunByIds([' . implode(',', $ids) . '],\'' . $stage . '\',\'' . $target . '\'); return false">queue</a>'.PHP_EOL;
     ?>
     </th>
 <?php

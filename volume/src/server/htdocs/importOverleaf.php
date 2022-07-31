@@ -43,7 +43,7 @@ $page->showHeader('import');
 $set = $page->getRequest()->getQueryParam('set', '');
 $statsTab = $page->getRequest()->getCookieParam('statsTab', 'tab-1');
 
-if ($set != '') {
+if ($set !== '') {
     echo '<h4>Import from Overleaf to <em>'.htmlspecialchars($set).'</em> <span class="fas fa-info-circle"></span></h4>'.PHP_EOL;
 } else {
     echo '<h4>Import articles from Overleaf' . $page->info('import-overleaf') . '</h4>';

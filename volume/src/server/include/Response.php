@@ -12,8 +12,8 @@ use Psr\Http\Message\StreamInterface;
 
 class Response
 {
-    private $response;
-    private $stream;
+    private ResponseInterface $response;
+    private StreamInterface $stream;
 
     public function __construct(ResponseInterface $response, StreamInterface $stream)
     {
@@ -21,97 +21,98 @@ class Response
         $this->stream = $stream;
     }
 
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         return $this->response->getProtocolVersion();
     }
 
-    public function withProtocolVersion($version)
+    public function withProtocolVersion($version): static
     {
         $response = $this->response->withProtocolVersion($version);
+        return $this;
     }
 
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->response->getHeaders();
     }
 
-    public function hasHeader($name)
+    public function hasHeader($name): bool
     {
         return $this->response->hasHeader($name);
     }
 
-    public function getHeader($name)
+    public function getHeader($name): string|array
     {
-        return $this->getHeader($name);
+        return $this->response->getHeader($name);
     }
 
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
-        return $this->getHeaderLine($name);
+        return $this->response->getHeaderLine($name);
     }
 
-    public function withHeader($name, $value)
+    public function withHeader($name, $value): static
     {
         $response = $this->response->withHeader($name, $value);
         return new static($response, $this->stream);
     }
 
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader($name, $value): static
     {
         $response = $this->response->withAddedHeader($name, $value);
         return new static($response, $this->stream);
     }
 
-    public function withoutHeader($name)
+    public function withoutHeader($name): static
     {
         $response = $this->response->withoutHeader($name);
         return new static($response, $this->stream);
     }
 
-    public function getBody()
+    public function getBody(): StreamInterface
     {
         return $this->response->getBody();
     }
 
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): static
     {
         $response = $this->response->withBody($body);
         return new static($response, $this->stream);
     }
 
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->response->getStatusCode();
     }
 
-    public function withStatus($code, $reasonPhrase = '')
+    public function withStatus($code, $reasonPhrase = ''): static
     {
         $response = $this->response->withStatus($code, $reasonPhrase);
         return new static($response, $this->stream);
     }
 
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
         return $this->response->getReasonPhrase();
     }
 
-    public function write($string)
+    public function write($string): int
     {
-        $this->response->getBody()->write($string);
+        return $this->response->getBody()->write($string);
     }
 
-    public function json($data, $status = 200)
+    public function json($data, $status = 200): bool
     {
         $this->response = $this->response
             ->withStatus($status)
             ->withHeader('Content-Type', 'application/json');
         $this->write(json_encode($data));
-        $this->emit();
+        return $this->emit();
     }
 
-    public function emit()
+    public function emit(): bool
     {
-        (new SapiEmitter())->emit($this->response);
+        return (new SapiEmitter())->emit($this->response);
     }
 }
