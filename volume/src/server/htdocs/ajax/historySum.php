@@ -50,7 +50,8 @@ foreach ($hsArr as $hs) {
               + $hs->getRetvalMissingFile()
               + $hs->getRetvalError()
               + $hs->getRetvalWarning()
-              + $hs->getRetvalNoProblems());
+              + $hs->getRetvalNoProblems()
+              + $hs->getRetvalOkExitCrash());
 
 	//echo "Totals: $totals\n";
 
@@ -67,6 +68,7 @@ foreach ($hsArr as $hs) {
     $retval['error'][]          = round($hs->getRetvalError() / $totals * 100, 2);
     $retval['warning'][]        = round($hs->getRetvalWarning() / $totals * 100, 2);
     $retval['no_problems'][]    = round($hs->getRetvalNoProblems() / $totals * 100, 2);
+    $retval['ok_exitcrash'][]   = round($hs->getRetvalOkExitCrash() / $totals * 100, 2);
 }
 
 $cs = new ChartJs();
@@ -110,9 +112,12 @@ if ($detail == 1) {
 	if ($showRetval['warning']) {
 	    $cs->addDataset('Warning', $retval['warning'], $cfg->chartColors['warning']);
 	}
-	if ($showRetval['no_problems']) {
-	    $cs->addDataset('No Problems', $retval['no_problems'], $cfg->chartColors['no_problems']);
-	}
+    if ($showRetval['no_problems']) {
+        $cs->addDataset('No Problems', $retval['no_problems'], $cfg->chartColors['no_problems']);
+    }
+    if ($showRetval['ok_exitcrash']) {
+        $cs->addDataset('Ok ExitCrash', $retval['ok_exitcrash'], $cfg->chartColors['ok_exitcrash']);
+    }
 } else {
     $classes = array_unique(array_values($cfg->ret_class));
 

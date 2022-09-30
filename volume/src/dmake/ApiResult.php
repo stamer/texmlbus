@@ -46,7 +46,7 @@ class ApiResult implements JsonSerializable
      */
 	public function __construct(
         bool $success = true,
-        string $output = '',
+        mixed $output = '',
         int $shellReturnVar = 0)
     {
         $this->success = $success;

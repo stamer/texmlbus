@@ -61,7 +61,8 @@ class StageXhtml extends AbstractStage
                     'missing_bib' => true,
                     'missing_file' => true,
                     'warning' => true,
-                    'no_problems' => true
+                    'no_problems' => true,
+                    'ok_exitcrash' => true
                 ]
             )
             ->setShowTopErrors(
@@ -214,9 +215,14 @@ class StageXhtml extends AbstractStage
 
         $sourceDir = UtilStage::getSourceDir(ARTICLEDIR, $directory, $hostGroup);
         $texSourcefile = $sourceDir . '/' . $entry->getSourcefile();
+
+        $prefix = $entry->getSourcefilePrefix();
+        //  %MAINFILEPREFIX%, will be replaced by basename of maintexfile
+        $destFile = $sourceDir . '/'
+                . str_replace('%MAINFILEPREFIX%', $prefix, $res->config->getDestFile());
+
         $stdErrLog = $sourceDir . '/' . $res->config->getStdErrLog();
         $makeLog = $sourceDir . '/' . $res->config->getMakeLog();
-
         if ($childAlarmed) {
             $res->retval = 'timeout';
             $res->timeout = $res->config->getTimeout();
@@ -242,6 +248,15 @@ class StageXhtml extends AbstractStage
                 && ($content === ''
                     || strpos($content, 'processing finished') === false)
             ) {
+                // On alpine linux some conversions fail with segmentation
+                // fault while cleaning up. The xhtml file has been fully created though.
+                $destContent = file_get_contents($destFile);
+                // Is the created file complete?
+                if (strpos($destContent,'</html>') !== false) {
+                    $res->retval = 'ok_exitcrash';
+                    $res->errmsg = 'Conversion complete. Process crashed on exit.';
+                    return $res->updateRetval();
+                }
                 $res->retval = 'fatal_error';
                 $res->errmsg = static::parseMakelog($makeLog);
             } else {
@@ -272,7 +287,6 @@ class StageXhtml extends AbstractStage
                 if (isset($matches[4])) {
                     $res->ok_xmath = $matches[4];
                 }
-
 
                 $fatal_pattern = '@(.*?)(^Fatal:)(\S*)\s+(.*)@m';
                 preg_match($fatal_pattern, $content, $matches);

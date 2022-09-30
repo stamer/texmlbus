@@ -1,5 +1,6 @@
 # Makefile.rule
 # defines the rule, which consists of target, prerequisite and recipe.
+.PRECIOUS: $(TARGET.xhtml)
 $(TARGET.xhtml): %.xhtml: %.tex.xml
 	$(LATEXMLPOST) $(LATEXMLPOSTOPTS) --format=xhtml --css=/css/latexml-local.css --pmml --cmml --javascript=LaTeXML-maybeMathjax.js --novalid --destination='$@' '$(firstword $<)' 2> xhtml.stderr.log > xhtml.stdout.log
 

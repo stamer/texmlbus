@@ -51,7 +51,7 @@ RUN apk add --no-cache -U perl-app-cpanminus
 RUN echo 'y' | /usr/bin/updmap-sys --syncwithtrees \
     && /usr/bin/updmap-sys
 
-# Install further dependencies
+# Install the dependencies
 RUN apk add --no-cache \
     ghostscript \
     git \
@@ -67,7 +67,10 @@ RUN apk add \
     php81-cli \
     php81-fpm \
     php81-json \
+    php81-mysqli \
     php81-pcntl \
+    php81-pdo \
+    php81-pdo_mysql \
     php81-posix \
     php81-sysvshm
 

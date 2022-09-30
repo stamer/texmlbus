@@ -283,7 +283,7 @@ class Page
                             Macros and style files that need most support
                             </a>
                         </li>
-<?php if ($cfg->show->evenMoreExperimental) { ?>
+    <?php if ($cfg->show->evenMoreExperimental) { ?>
                         <li class="">
                             <a href="/sty_sim.php">
                             Style files similarities (ordered by filename)
@@ -299,9 +299,9 @@ class Page
                             Most prominent style files that are used in the articles
                             </a>
                         </li>
+    <?php } ?>
                     </ul>
                 </div>
-    <?php } ?>
 <?php } ?>
 <?php if ($cfg->show->experimental) { ?>
                 <div class="bd-toc-item <?=($activeLeft == 'package_usage' ? 'active' : '') ?>">
