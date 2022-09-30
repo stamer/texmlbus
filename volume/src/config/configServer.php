@@ -41,7 +41,8 @@ $config->ret_class = [
     'missing_bib' => 'error',
     'missing_file' => 'error',
     'warning' => 'success',
-    'no_problems' => 'success'
+    'no_problems' => 'success',
+    'ok_exitcrash' => 'success'
 ];
 
 $config->chartColors = [
@@ -56,7 +57,8 @@ $config->chartColors = [
     'missing_bib' => 'orange',
     'missing_file' => 'darkOrange',
     'warning' => 'lightGreen',
-    'no_problems' => 'darkGreen'
+    'no_problems' => 'darkGreen',
+    'ok_exitcrash' => 'darkGreen'
 ];
 
 $config->ret_color = [
@@ -87,7 +89,8 @@ $config->tt_class = [
     'missing_bib' => 'The conversion completed, but bibliography files are missing.',
     'missing_file' => 'The conversion completed, but referenced files are missing.',
     'warning' => 'The conversion successfully completed, however minor issues have been detected, which might affect the display quality.',
-    'no_problems' => 'The conversion has successfully completed, without any problems at all.'
+    'no_problems' => 'The conversion has successfully completed, without any problems at all.',
+    'ok_exitcrash' => 'The conversion has successfully completed, but crashed on exit.'
 ];
 
 $config->tt_cat = [

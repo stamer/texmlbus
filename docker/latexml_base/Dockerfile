@@ -43,6 +43,7 @@ RUN [ "$WITH_TEXLIVE" == "no" ] || (\
 # Install cpanminus
 RUN apk add --no-cache -U perl-app-cpanminus
 
+## base latexml end
 
 
 # Install the dependencies

@@ -26,6 +26,7 @@ class HistorySum
     public $retvalError = 0;
     public $retvalWarning = 0;
     public $retvalNoProblems = 0;
+    public $retvalOkExitCrash = 0;
     public $sumWarning = 0;
     public $sumError = 0;
     public $sumMacro = 0;
@@ -115,6 +116,11 @@ class HistorySum
     public function getRetvalNoProblems(): ?int
     {
         return $this->retvalNoProblems;
+    }
+
+    public function getRetvalOkExitCrash(): ?int
+    {
+        return $this->retvalOkExitCrash;
     }
 
     public function getSumWarning(): ?int
@@ -227,6 +233,11 @@ class HistorySum
         $this->retvalNoProblems = $retvalNoProblems;
     }
 
+    public function setRetvalOkExitCrash($retvalOkExitCrash): void
+    {
+        $this->retvalOkExitCrash = $retvalOkExitCrash;
+    }
+
     public function setSumWarning($sumWarning): void
     {
         $this->sumWarning = $sumWarning;
@@ -258,49 +269,51 @@ class HistorySum
         $dao = Dao::getInstance();
 
         $query = '
-			INSERT INTO
-				history_sum
-			SET
-				id                      = 0,
-				`set`                   = :i_set,
-				date_snapshot           = :i_date_snapshot,
-				show_entry              = :i_show_entry,
-				target                  = :i_target,
-				retval_unknown          = :i_retval_unknown,
-				retval_not_qualified    = :i_retval_not_qualified,
-				retval_missing_errlog   = :i_retval_missing_errlog,
-				retval_timeout          = :i_retval_timeout,
-				retval_fatal_error      = :i_retval_fatal_error,
-				retval_missing_macros   = :i_retval_missing_macros,
-				retval_missing_figure   = :i_retval_missing_figure,
-				retval_missing_bib      = :i_retval_missing_bib,
-				retval_missing_file     = :i_retval_missing_file,
-				retval_error            = :i_retval_error,
-				retval_warning          = :i_retval_warning,
-				retval_no_problems      = :i_retval_no_problems,
+            INSERT INTO
+                history_sum
+            SET
+                id                      = 0,
+                `set`                   = :i_set,
+                date_snapshot           = :i_date_snapshot,
+                show_entry              = :i_show_entry,
+                target                  = :i_target,
+                retval_unknown          = :i_retval_unknown,
+                retval_not_qualified    = :i_retval_not_qualified,
+                retval_missing_errlog   = :i_retval_missing_errlog,
+                retval_timeout          = :i_retval_timeout,
+                retval_fatal_error      = :i_retval_fatal_error,
+                retval_missing_macros   = :i_retval_missing_macros,
+                retval_missing_figure   = :i_retval_missing_figure,
+                retval_missing_bib      = :i_retval_missing_bib,
+                retval_missing_file     = :i_retval_missing_file,
+                retval_error            = :i_retval_error,
+                retval_warning          = :i_retval_warning,
+                retval_no_problems      = :i_retval_no_problems,
+                retval_ok_exitcrash     = :i_retval_ok_exitcrash,
                 sum_warning             = :i_sum_warning,
-				sum_error               = :i_sum_error,
+                sum_error               = :i_sum_error,
                 sum_macro               = :i_sum_macro,
                 comment                 = :i_comment
             ON DUPLICATE KEY UPDATE
-				`set`                   = :u_set,
-				date_snapshot           = :u_date_snapshot,
-				show_entry              = :u_show_entry,
-				target                  = :u_target,
-				retval_unknown          = :u_retval_unknown,
-				retval_not_qualified    = :u_retval_not_qualified,
-				retval_missing_errlog   = :u_retval_missing_errlog,
-				retval_timeout          = :u_retval_timeout,
-				retval_fatal_error      = :u_retval_fatal_error,
-				retval_missing_macros   = :u_retval_missing_macros,
-				retval_missing_figure   = :u_retval_missing_figure,
-				retval_missing_bib      = :u_retval_missing_bib,
-				retval_missing_file     = :u_retval_missing_file,
-				retval_error            = :u_retval_error,
-				retval_warning          = :u_retval_warning,
-				retval_no_problems      = :u_retval_no_problems,
+                `set`                   = :u_set,
+                date_snapshot           = :u_date_snapshot,
+                show_entry              = :u_show_entry,
+                target                  = :u_target,
+                retval_unknown          = :u_retval_unknown,
+                retval_not_qualified    = :u_retval_not_qualified,
+                retval_missing_errlog   = :u_retval_missing_errlog,
+                retval_timeout          = :u_retval_timeout,
+                retval_fatal_error      = :u_retval_fatal_error,
+                retval_missing_macros   = :u_retval_missing_macros,
+                retval_missing_figure   = :u_retval_missing_figure,
+                retval_missing_bib      = :u_retval_missing_bib,
+                retval_missing_file     = :u_retval_missing_file,
+                retval_error            = :u_retval_error,
+                retval_warning          = :u_retval_warning,
+                retval_no_problems      = :u_retval_no_problems,
+                retval_ok_exitcrash     = :u_retval_ok_exitcrash,
                 sum_warning             = :u_sum_warning,
-				sum_error               = :u_sum_error,
+                sum_error               = :u_sum_error,
                 sum_macro               = :u_sum_macro,
                 comment                 = :u_comment';
 
@@ -322,6 +335,7 @@ class HistorySum
         $stmt->bindValue(':i_retval_error', $this->getRetvalError());
         $stmt->bindValue(':i_retval_warning', $this->getRetvalWarning());
         $stmt->bindValue(':i_retval_no_problems', $this->getRetvalNoProblems());
+        $stmt->bindValue(':i_retval_ok_exitcrash', $this->getRetvalOkExitCrash());
         $stmt->bindValue(':i_sum_warning', $this->getSumWarning());
         $stmt->bindValue(':i_sum_error', $this->getSumError());
         $stmt->bindValue(':i_sum_macro', $this->getSumMacro());
@@ -342,6 +356,7 @@ class HistorySum
         $stmt->bindValue(':u_retval_error', $this->getRetvalError());
         $stmt->bindValue(':u_retval_warning', $this->getRetvalWarning());
         $stmt->bindValue(':u_retval_no_problems', $this->getRetvalNoProblems());
+        $stmt->bindValue(':u_retval_ok_exitcrash', $this->getRetvalOkExitCrash());
         $stmt->bindValue(':u_sum_warning', $this->getSumWarning());
         $stmt->bindValue(':u_sum_error', $this->getSumError());
         $stmt->bindValue(':u_sum_macro', $this->getSumMacro());
@@ -400,6 +415,9 @@ class HistorySum
         }
         if (isset($row['retval_no_problems'])) {
             $hs->setRetvalNoProblems($row['retval_no_problems']);
+        }
+        if (isset($row['retval_ok_exitcrash'])) {
+            $hs->setRetvalOkExitCrash($row['retval_ok_exitcrash']);
         }
         if (isset($row['sum_warning'])) {
             $hs->setSumError($row['sum_warning']);
@@ -463,6 +481,9 @@ class HistorySum
         if (isset($stat['no_problems'])) {
             $hs->setRetvalNoProblems($stat['no_problems']);
         }
+        if (isset($stat['ok_exitcrash'])) {
+            $hs->setRetvalOkExitCrash($stat['ok_exitcrash']);
+        }
         $hs->setSumError(0);
         $hs->setSumMacro(0);
         $hs->setSumMacro(0);
@@ -515,6 +536,7 @@ class HistorySum
                     sum(retval_error) as retval_error,
                     sum(retval_warning) as retval_warning,
                     sum(retval_no_problems) as retval_no_problems,
+                    sum(retval_ok_exitcrash) as retval_ok_exitcrash,
                     sum(sum_warning) as sum_warning,
                     sum(sum_error) as sum_error,
                     sum(sum_macro) as sum_macro,
