@@ -12,7 +12,12 @@ RUN echo -e \
 "############################################################\n"
 COPY LaTeXML/bin/latexml /dev/null
 
-RUN apk add --no-cache \
+# Enable community, if not enabled
+RUN sed -e 's;^#http\(.*\)community;http\1community;g' \
+      -i /etc/apk/repositories
+
+RUN apk update \
+    && apk add --no-cache \
     db-dev \
     gcc \
     libc-dev \
@@ -54,7 +59,7 @@ RUN apk add --no-cache \
     imagemagick-perlmagick
 
 # Install packages fotr worker: apache2, php, make
-RUN apk add \
+RUN apk add --no-cache \
     apache2 \
     apache2-proxy \
     make \

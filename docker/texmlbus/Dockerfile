@@ -9,10 +9,13 @@ FROM alpine:3.16
 # Add repos
 #RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 
+# Enable community, if not enabled
+RUN sed -e 's;^#http\(.*\)community;http\1community;g' \
+      -i /etc/apk/repositories
+
 # Add basics first
 RUN apk update \
-    && apk upgrade \
-    && apk add \
+    && apk add --no-cache \
     apache2 \
     apache2-ssl \
     bash \
@@ -32,7 +35,7 @@ RUN apk update \
     tzdata
 
 # dmake specific stuff
-RUN apk add \
+RUN apk add --no-cache \
     file \
     make \
     mysql-client \
@@ -45,7 +48,7 @@ RUN apk add \
 RUN curl -sS https://getcomposer.org/installer | php81 && mv composer.phar /usr/local/bin/composer
 
 # Setup apache and php
-RUN apk add \
+RUN apk add --no-cache \
     php81-pecl-apcu \
     php81-bcmath \
     php81-bz2 \
@@ -78,7 +81,7 @@ RUN apk add \
 # therefore manually install via pecl
 
 # needed for pecl
-RUN apk add \
+RUN apk add --no-cache \
     php81-dev \
     php81-pear
 
