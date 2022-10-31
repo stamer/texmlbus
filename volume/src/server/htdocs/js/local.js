@@ -35,6 +35,10 @@ function openHelp(id) {
     showUrlInModal('/ajax/getHelp.php?id=' + id);
 }
 
+function openLogMsg(id) {
+    showUrlInModal('/ajax/getLogMsg.php?id=' + id);
+}
+
 function showUrlInModal(url, options){
     options = options || {};
     var tag = $("#myModal");

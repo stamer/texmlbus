@@ -492,11 +492,12 @@ class RetvalDao
         string $stage,
         string $joinTable,
         string $set,
+        ?string $id,
         array $columns,
-        string $orderBy,
-        string $sortBy,
-        int $min,
-        int $max_pp): array
+        string $orderBy = '',
+        string $sortBy = '',
+        int $min = 0,
+        int $max_pp = 10): array
     {
         $dao = Dao::getInstance();
 
@@ -521,8 +522,8 @@ class RetvalDao
             ;
             $joinDetail = ' LEFT join errlog_detail as ederr on s.id = ederr.document_id AND ederr.errclass = "Error" ';
             $joinDetail .= ' LEFT join errlog_detail as edwarn on s.id = edwarn.document_id AND edwarn.errclass = "Warning" ';
-            $joinDetailGroupBy = " GROUP BY ederr.document_id";
-            $joinDetailGroupBy .= ", edwarn.document_id ";
+            $joinDetailGroupBy = " GROUP BY ederr.document_id  ";
+            $joinDetailGroupBy .= ", edwarn.document_id";
         } else {
             $joinDetailFields = '';
             $joinDetail = '';
@@ -557,6 +558,20 @@ class RetvalDao
                 AND s.`set` = :set';
         }
 
+        if ($id !== null) {
+            $extQuery = '
+                AND s.`id` = :id';
+        }
+
+        if ($orderBy != '') {
+            $sqlOrder = "
+            ORDER BY
+                $orderBy $sortBy
+            ";
+        } else {
+            $sqlOrder = '';
+        }
+
         $query = "
             SELECT
                 $sqlstr
@@ -582,8 +597,7 @@ class RetvalDao
                 $joinWhere .
                 $extQuery . "
             $joinDetailGroupBy
-            ORDER BY
-                $orderBy $sortBy
+            $sqlOrder
             LIMIT
                 $min, $max_pp";
 
@@ -594,6 +608,10 @@ class RetvalDao
 
         if ($set !== '') {
             $stmt->bindValue(':set', $set);
+        }
+
+        if ($id !== null) {
+            $stmt->bindValue(':id', $id);
         }
 
         $stmt->execute();
@@ -614,7 +632,6 @@ class RetvalDao
             }
             $rows[$row['id']] = $row;
         }
-
 
         return $rows;
     }
@@ -739,7 +756,7 @@ class RetvalDao
     }
 
     /**
-     * Ger error messages by retval.
+     * Get error messages by retval.
      */
     public static function getErrMsgByRetval(
         string $retval,
