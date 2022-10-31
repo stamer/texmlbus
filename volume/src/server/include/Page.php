@@ -467,6 +467,13 @@ $(document).ready(function() {
             alert('Cannot load help page, data attribute is missing.');
         }
     });
+    $('.loglink').bind('click', function (e) {
+        if ($(this).attr('data')) {
+            openLogMsg(($(this)).attr('data'));
+        } else {
+            alert('Cannot load log message, data attribute is missing.');
+        }
+    });
 <?php
     if (is_array($deferJs)) {
         foreach ($deferJs as $line) {

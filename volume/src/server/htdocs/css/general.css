@@ -352,3 +352,11 @@ dt {
     padding: 20px 20px 20px 20px;
     background-color: #f00;
 }
+
+.infolink {
+    cursor: pointer
+}
+
+.loglink {
+    cursor: pointer
+}

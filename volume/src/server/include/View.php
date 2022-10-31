@@ -33,7 +33,7 @@ class View
         if ($retval !== 'unknown') {
             $color = $cfg->ret_color_sm[$cfg->ret_class[$retval]];
             $str .= '<td id="td_' . $id . '_' . $stage . '" class="'.$color.'">'.PHP_EOL;
-            $str .= $retval.'<br />'.PHP_EOL;
+            $str .= $retval . ' ' . self::logLink($retval, $id, $stage) . '<br />'.PHP_EOL;
             $str .= '<a href="'.htmlspecialchars($stdErrFileLink).'">ErrFile</a><br />'.PHP_EOL;
             $str .= '<a href="'.htmlspecialchars($destFileLink).'">DestFile</a><br />'.PHP_EOL;
             $str .= $date_modified.'<br />'.PHP_EOL;
@@ -269,4 +269,23 @@ class View
 
         return $str;
     }
+
+    /**
+     * creates an info button with given id
+     */
+    public static function logLink(
+        string $retval,
+        string $id,
+        string $stage,
+        string $scale = '0.7',
+        string $color = 'rgba(0, 0, 0, 0.6)'
+    ): string
+    {
+        $data = $retval . '__' . $stage. '__' . $id;
+        $str = '<span style = "transform: scale(' . $scale . ',' . $scale . ');'
+            . ' color: ' . $color . '" class="fas fa-list loglink" data="' . $data . '"></span>';
+        return $str;
+    }
+
+
 }
