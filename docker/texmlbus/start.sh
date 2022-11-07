@@ -130,10 +130,10 @@ if [[ ! -e /srv/texmlbus/src/server/htdocs/sty ]]; then
     ln -s /srv/texmlbus/src/sty /srv/texmlbus/src/server/htdocs/sty
 fi
 
-
+chmod ugo+rwx /srv/texmlbus/src/run
 
 cd /srv/texmlbus/src/
-sudo -u dmake /usr/local/bin/composer install
+/usr/local/bin/composer install
 
 # Start (ensure apache2 PID not left behind first) to stop auto start crashes if didn't shut down properly
 
