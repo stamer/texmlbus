@@ -16,7 +16,7 @@ if [[ "$?" != "0" ]]; then
 	echo 
     exit 1
 fi
-docker pull alpine:3.16
+docker pull alpine:3.17
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_base
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml_git
 docker compose -f docker-compose.yml -f docker-compose-build.yml build latexml

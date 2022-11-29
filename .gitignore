@@ -9,6 +9,7 @@ volume/src/run/activestages.json
 volume/src/server/htdocs/info.php
 volume/src/vendor
 volume/db/mysql/
+_Deparsed_XSubs.pm
 *.swp
 *.kate-swp
 .idea/

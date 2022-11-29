@@ -1,7 +1,7 @@
 # This image is used as base image for LaTeXML.
 # It installs ghostscript, imagemagick and
 # the webserver and php to be run as worker.
-FROM alpine:3.16 as latexml_base
+FROM alpine:3.17 as latexml_base
 
 ARG TIMEOUT_SECONDS="1200"
 
