@@ -10,15 +10,9 @@ then
 else
     WINPTY=""
 fi
-. ${SCRIPTDIR}/is-dc-v2.sh
 
-is_dc_v2
-if [[ "$?" == "1" ]]; then
-    CONTAINER="texmlbus-texmlbus-1"
-else
-    CONTAINER="texmlbus_texmlbus_1"
-fi
+CONTAINER="texmlbus"
 #
 # use double slashes so winpty does not convert paths
 #
-$WINPTY docker exec -it ${CONTAINER} //usr/bin/tail -f //var/log/apache2/error.log
+$WINPTY docker-compose exec ${CONTAINER} //usr/bin/tail -f //var/log/apache2/error.log

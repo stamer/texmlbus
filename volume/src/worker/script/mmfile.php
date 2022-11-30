@@ -98,11 +98,12 @@ while ($row = $stmt->fetch()) {
 		continue;
 	}
 
+    $us = new UtilStylefile();
     foreach ($macros as $macro) {
         echo "MMacro: $macro\n";
         if (!isset($mm[$filename][$macro])) {
             echo "Updating $filename: $macro".PHP_EOL;
-            $sty_filename = UtilStylefile::mmFindMacroInStylefiles($set, $filename, $macro, $stylefilesArr);
+            $sty_filename = $us->mmFindMacroInStylefiles($set, $filename, $macro, $stylefilesArr);
             $mm[$filename][$macro] = $sty_filename;
         }
     }

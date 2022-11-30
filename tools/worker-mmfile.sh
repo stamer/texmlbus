@@ -1,1 +1,1 @@
-docker exec -it texmlbus_latexml_dmake_1 /usr/bin/php /srv/texmlbus/src/worker/script/mmfile.php
+docker-compose exec latexml_dmake /usr/bin/php /srv/texmlbus/src/worker/script/mmfile.php
