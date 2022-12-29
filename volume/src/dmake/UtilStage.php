@@ -125,7 +125,7 @@ class UtilStage
         $destDir = $articleDir . '/' . rtrim($directory, '/') . '/' . $cfg->server->workerPrefix . $hostGroupName;
 
         /*
-         * It is not necessary to recreate worker directories any more.
+         * It is not necessary to recreate worker directories anymore.
          * Any file changes via remote updates are automatically synchronized to worker dirs.
          * Local updates are also handled in linkR(), only missing piece is currently
          * local deletes.

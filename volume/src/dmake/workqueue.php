@@ -212,7 +212,7 @@ if (in_array($action, $possibleActions))
                     'xhtml',
                     $action,
                     $priority);
-                $inotify->trigger(InotifyHandler::wqTrigger);
+                $inotify->trigger('worker', InotifyHandler::wqTrigger);
 			} elseif (DBG_LEVEL & DBG_DIRECTORIES) {
 			    echo "Skipping $directory, entry exists...\n";
 			}

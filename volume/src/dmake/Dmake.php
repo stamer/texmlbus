@@ -21,7 +21,7 @@ class Dmake
 {
     /**
      * holds the currently active hosts
-     * @var int[], [hostkey] = pid
+     * @var array[], [hostkey] = pid
      */
     public array $activeHosts;
 
@@ -123,7 +123,7 @@ class Dmake
     /*
      * The code the child runs.
      */
-    public function childMain($hostGroup, $host, StatEntry $entry, $stage, $action, $timeout)
+    public function childMain($hostGroup, $host, StatEntry $entry, $stage, $action, $timeout): int
     {
         $cfg = Config::getConfig();
 
@@ -194,5 +194,6 @@ class Dmake
         if (DBG_LEVEL & DBG_CHILD) {
             echo "$cpid child_main: Finishing" . PHP_EOL;
         }
+        return 0;
     }
 }

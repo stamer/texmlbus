@@ -47,7 +47,7 @@ class UtilHost
                     } else {
                         $count++;
                         if ($count === $maxTries) {
-                            // no need to wait any more
+                            // no need to wait anymore
                             break;
                         }
                         $sleepSeconds = 2;
@@ -217,14 +217,14 @@ class UtilHost
         }
         preg_match('/(MemTotal:\s*)(\d+)(.*)/', $meminfo, $matches);
         if ($matches && isset($matches[2])) {
-            $memTotal = intval($matches[2]);
+            $memTotal = (int) $matches[2];
         } else {
             error_log('Failed to determine MemTotal!');
         }
 
         preg_match('/(SwapTotal:\s*)(\d+)(.*)/', $meminfo, $matches);
         if ($matches && isset($matches[2])) {
-            $swapTotal = intval($matches[2]);
+            $swapTotal = (int) $matches[2];
         }
         echo "MemTotal: $memTotal, SwapTotal: $swapTotal" . PHP_EOL;
 
@@ -272,15 +272,15 @@ class UtilHost
             case 't':
             case 'tb':
                 $scalar *= 1024;
-            /* fall through */
+                /* fall through */
             case 'g':
             case 'gb':
                 $scalar *= 1024;
-            /* fall through */
+                /* fall through */
             case 'm':
             case 'mb':
                 $scalar *= 1024;
-            /* fall through */
+                /* fall through */
             case 'k':
             case 'kb':
                 $scalar *= 1024;
@@ -292,15 +292,15 @@ class UtilHost
             case 't':
             case 'tb':
                 $scalar /= 1024;
-            /* fall through */
+                /* fall through */
             case 'g':
             case 'gb':
                 $scalar /= 1024;
-            /* fall through */
+                /* fall through */
             case 'm':
             case 'mb':
                 $scalar /= 1024;
-            /* fall through */
+                /* fall through */
             case 'k':
             case 'kb':
                 $scalar /= 1024;

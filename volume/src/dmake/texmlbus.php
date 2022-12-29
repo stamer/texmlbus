@@ -34,7 +34,7 @@ use Dmake\UtilHost;
 use Dmake\UtilStage;
 use Dmake\WorkqueueEntry;
 
-function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
+function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds): void
 {
     $cfg = Config::getConfig();
 
@@ -45,7 +45,7 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
         $inotify->setupWatcher($hostGroupName, InotifyHandler::wqTrigger);
     }
 
-    $possibleCleanActions = array('clean');
+    $possibleCleanActions = ['clean'];
 
     foreach ($cfg->stages as $stage => $value) {
         $possibleActions[] = $stage;
@@ -131,7 +131,7 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
                     $wqEntry->setStatisticId($entry->getId());
                     $wqEntry->setPriority(0);
                     $wqEntry->setAction(StatEntry::WQ_ACTION_NONE);
-                    $wqEntry->setHostgroup($hostGroupName);
+                    $wqEntry->setHostGroup($hostGroupName);
                     $wqEntry->updateAndStat();
 
                     continue;
@@ -162,7 +162,6 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
                                 case -1:
                                     echo "Fork failed!" . PHP_EOL;
                                     exit;
-                                    break;
                                 case 0:
                                     // child
                                     // it is important that the child has its own connection to the database, so on close
@@ -170,8 +169,8 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
                                     // https://stackoverflow.com/questions/3668615/pcntl-fork-and-the-mysql-connection-is-gone
                                     // https://www.electrictoolbox.com/mysql-connection-php-fork/
 
-                                    pcntl_signal(SIGHUP, array($dmake, 'sigHupChild'), true);
-                                    pcntl_signal(SIGINT, array($dmake, 'sigIntChild'), true);
+                                    pcntl_signal(SIGHUP, [$dmake, 'sigHupChild'], true);
+                                    pcntl_signal(SIGINT, [$dmake, 'sigIntChild'], true);
                                     $result = $dmake->childMain(
                                         $hostGroupName,
                                         $cfg->hosts[$hostGroupName][$hostkey],
@@ -187,7 +186,6 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
                                     // could be send directly to sse.
                                     $inotify->trigger($hostGroupName, InotifyHandler::doneTrigger);
                                     exit($result);
-                                    break;
                                 default:
                                     // parent
                                     if (DBG_LEVEL & DBG_CHILD) {
@@ -206,7 +204,7 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
 
                             $pid = pcntl_wait($status, WUNTRACED);
                             // remove returned pid from active hosts.
-                            $dmake->activeHosts[$hostGroupName] = array_diff($dmake->activeHosts[$hostGroupName], array($pid));
+                            $dmake->activeHosts[$hostGroupName] = array_diff($dmake->activeHosts[$hostGroupName], [$pid]);
                         }
                     }
                 } elseif (DBG_LEVEL & DBG_DIRECTORIES) {
@@ -215,7 +213,7 @@ function mainLoop(string $hostGroupName, Dmake $dmake, DmakeStatus $ds)
             }
         }
 
-        // Just make sure not to finish to early
+        // Just make sure not to finish to early,
         // so we do not get tcsetattr() errors.
         /*while (($pid = pcntl_wait($status, WUNTRACED)) != -1) {
             echo "Waiting for children to finish...".PHP_EOL;
@@ -246,8 +244,8 @@ pcntl_async_signals(true);
 /** @var Dmake $dmake */
 $dmake = new Dmake();
 // install signal handler
-pcntl_signal(SIGCHLD, array($dmake, 'sigChild'));
-pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
+pcntl_signal(SIGCHLD, [$dmake, 'sigChild']);
+pcntl_signal(SIGINT, [$dmake, 'sigIntParent']);
 
 // check whether hosts are available and possibly
 // disable stages when no corresponding hosts are found.
@@ -277,7 +275,7 @@ while (!$dao = Dao::getInstance(false)) {
 $du = new DbUpdate();
 $du->execute();
 
-$ds = new DmakeStatus;
+$ds = new DmakeStatus();
 $ds->directory = '';
 $ds->num_files = WorkqueueEntry::getNumQueuedEntries();
 $ds->num_hosts = count($cfg->hosts);
@@ -308,18 +306,16 @@ foreach ($cfg->hosts as $hostGroupName => $hostGroup) {
         case -1:
             echo "Fork failed!" . PHP_EOL;
             exit;
-            break;
         case 0:
             // child
-            $result = mainLoop($hostGroupName, $dmake, $ds);
-            exit($result);
-            break;
+            mainLoop($hostGroupName, $dmake, $ds);
+            exit;
         default:
             // parent
             // install signal handler in parent
             // does not seem to work as it is supposed to
-            pcntl_signal(SIGHUP, array($dmake, 'sigHupParent'));
-            pcntl_signal(SIGINT, array($dmake, 'sigIntParent'));
+            pcntl_signal(SIGHUP, [$dmake, 'sigHupParent']);
+            pcntl_signal(SIGINT, [$dmake, 'sigIntParent']);
             if (DBG_LEVEL & DBG_CHILD) {
                 echo "Created child $pid" . PHP_EOL;
             }

@@ -26,7 +26,7 @@ class UtilBindingFile
      * @param $str
      * @return string|string[]|null
      */
-    public static function removeLtxmlSuffix($str)
+    public static function removeLtxmlSuffix($str): array|string|null
     {
         return preg_replace('/\.ltxml$/', '', $str);
     }
@@ -93,20 +93,20 @@ class UtilBindingFile
         return $bindingFiles;
     }
 
-    public static function getClsFiles($useCache = true)
+    public static function getClsFiles($useCache = true): array
     {
-        $bindingDir = UtilBindingFile::getBindingFilesDir();
+        $bindingDir = self::getBindingFilesDir();
         $clsPattern = "/\.cls\.ltxml$/";
 
         $latexmlClsFiles =
             array_fill_keys(
-                UtilBindingFile::getBindingFiles($bindingDir, $useCache, 'latexmlClsFiles.tmp', $clsPattern),
+                self::getBindingFiles($bindingDir, $useCache, 'latexmlClsFiles.tmp', $clsPattern),
                 'latexml'
             );
 
         $buildClsFiles =
             array_fill_keys(
-                UtilBindingFile::getBindingFiles(STYDIR, $useCache, 'buildClsFiles.tmp', $clsPattern),
+                self::getBindingFiles(STYDIR, $useCache, 'buildClsFiles.tmp', $clsPattern),
                 'build'
             );
 
@@ -124,19 +124,19 @@ class UtilBindingFile
         return $clsFiles;
     }
 
-    public static function getStyFiles($useCache = true)
+    public static function getStyFiles($useCache = true): array
     {
-        $bindingDir = UtilBindingFile::getBindingFilesDir();
+        $bindingDir = self::getBindingFilesDir();
         $styPattern = "/\.sty\.ltxml$/";
 
         $latexmlStyFiles =
             array_fill_keys(
-                UtilBindingFile::getBindingFiles($bindingDir, $useCache, 'latexmlStyFiles.tmp', $styPattern),
+                self::getBindingFiles($bindingDir, $useCache, 'latexmlStyFiles.tmp', $styPattern),
                 'latexml'
             );
         $buildStyFiles =
             array_fill_keys(
-                UtilBindingFile::getBindingFiles(STYDIR, $useCache, 'buildStyFiles.tmp', $styPattern),
+                self::getBindingFiles(STYDIR, $useCache, 'buildStyFiles.tmp', $styPattern),
                 'build'
             );
         // find files that exist in both arrays
@@ -153,13 +153,9 @@ class UtilBindingFile
     /**
      * get current version of latexml for each HostGroup
      *
-     * @return mixed|string
-     *
      */
-    public static function testStyClsSupport($filenames)
+    public static function testStyClsSupport($filenames): array
     {
-        $cfg = Config::getConfig();
-
         //$hostGroups = self::getActiveHostGroups();
         $hostGroups = ['worker'];
 
