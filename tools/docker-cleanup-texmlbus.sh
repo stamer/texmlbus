@@ -9,13 +9,15 @@ if [[ "$?" == "1" ]]; then
     CONTAINER_TEXMLBUS="texmlbus_texmlbus"
     CONTAINER_MARIADB="texmlbus_mariadb"
     CONTAINER_DMAKE="texmlbus_latexml_dmake"
-    CONTAINER_LATEXML="texmlbus_latexml"
 else
     CONTAINER_TEXMLBUS="texmlbus-texmlbus"
     CONTAINER_MARIADB="texmlbus-mariadb"
     CONTAINER_DMAKE="texmlbus-latexml_dmake"
-    CONTAINER_LATEXML="texmlbus-latexml"
 fi
+
+IMAGE_TEXMLBUS="stamer/texmlbus"
+IMAGE_MARIADB="mariadb"
+IMAGE_DMAKE="stamer/latexml_dmake"
 
 echo "This will delete texmlbus docker containers, volumes!"
 echo -n "Continue [Y/N] [n]: "
@@ -41,10 +43,9 @@ docker rm $(docker ps -a | grep ${CONTAINER_MARIADB} | cut -f 1 -d " ")
 docker rm $(docker ps -a | grep ${CONTAINER_DMAKE} | cut -f 1 -d " ")
 
 echo "Deleting all images..."
-docker rmi $(docker images | grep ${CONTAINER_TEXMLBUS} | cut -f 1 -d " ")
-docker rmi $(docker images | grep ${CONTAINER_MARIADB} | cut -f 1 -d " ")
-docker rmi $(docker images | grep ${CONTAINER_DMAKE} | cut -f 1 -d " ")
-docker rmi $(docker images | grep ${CONTAINER_LATEXML} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${IMAGE_TEXMLBUS} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${IMAGE_MARIADB} | cut -f 1 -d " ")
+docker rmi $(docker images | grep ${IMAGE_DMAKE} | cut -f 1 -d " ")
 
 echo "Removing unused data..."
 docker system prune
