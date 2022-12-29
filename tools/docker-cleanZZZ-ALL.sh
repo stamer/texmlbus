@@ -31,8 +31,9 @@ echo "And some more..."
 docker system prune -af
 
 # empty input buffer
-read -d '' -t 0.1 -n 10000echo "And some more..."
+read -d '' -t 0.1 -n 10000
 
+echo "And some more..."
 echo -n "Remove dangling volumes [Y/N] [n]: "
 read n
 if [[ ${n} != 'Y' && $n != 'y' ]]
