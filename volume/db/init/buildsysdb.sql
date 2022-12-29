@@ -1,8 +1,8 @@
--- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
+-- Server version	10.5.13-MariaDB-1:10.5.13+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -199,6 +199,7 @@ CREATE TABLE `history_sum` (
   `retval_error` int(11) NOT NULL DEFAULT 0,
   `retval_warning` int(11) NOT NULL DEFAULT 0,
   `retval_no_problems` int(11) NOT NULL DEFAULT 0,
+  `retval_ok_exitcrash` int(11) NOT NULL DEFAULT 0,
   `sum_warning` smallint(6) DEFAULT NULL,
   `sum_error` smallint(6) DEFAULT NULL,
   `sum_macro` smallint(6) DEFAULT NULL,
@@ -206,7 +207,7 @@ CREATE TABLE `history_sum` (
   PRIMARY KEY (`id`),
   KEY `s` (`set`),
   KEY `ds` (`date_snapshot`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -224,7 +225,7 @@ CREATE TABLE `macro` (
   `styfilename` varchar(768) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `sm` (`set`,`macro`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -244,7 +245,7 @@ CREATE TABLE `mmfile` (
   PRIMARY KEY (`id`),
   KEY `styfilename` (`styfilename`),
   KEY `fm` (`filename`(384),`macro`(384))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -263,7 +264,7 @@ CREATE TABLE `package_usage` (
   PRIMARY KEY (`id`),
   KEY `fn` (`filename`),
   KEY `sfn` (`styfilename`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -277,8 +278,8 @@ CREATE TABLE `retval_jats` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_warning` smallint(6) DEFAULT NULL,
   `num_error` smallint(6) DEFAULT NULL,
@@ -303,8 +304,8 @@ CREATE TABLE `retval_pagelimit` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_warning` smallint(6) DEFAULT NULL,
   `num_error` smallint(6) DEFAULT NULL,
@@ -329,8 +330,8 @@ CREATE TABLE `retval_pdf` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_warning` smallint(6) DEFAULT NULL,
   `num_error` smallint(6) DEFAULT NULL,
@@ -355,8 +356,8 @@ CREATE TABLE `retval_pdf_edge` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_warning` smallint(6) DEFAULT NULL,
   `num_error` smallint(6) DEFAULT NULL,
@@ -381,8 +382,8 @@ CREATE TABLE `retval_xhtml` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_xmarg` smallint(6) DEFAULT NULL,
   `ok_xmarg` smallint(6) DEFAULT NULL,
@@ -411,8 +412,8 @@ CREATE TABLE `retval_xhtml_edge` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_xmarg` smallint(6) DEFAULT NULL,
   `ok_xmarg` smallint(6) DEFAULT NULL,
@@ -441,8 +442,8 @@ CREATE TABLE `retval_xml` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_xmarg` smallint(6) DEFAULT NULL,
   `ok_xmarg` smallint(6) DEFAULT NULL,
@@ -471,8 +472,8 @@ CREATE TABLE `retval_xml_edge` (
   `id` int(11) NOT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
-  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
-  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems') DEFAULT NULL,
+  `retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
+  `prev_retval` enum('unknown','not_qualified','missing_errlog','timeout','fatal_error','missing_macros','missing_figure','missing_bib','missing_file','error','warning','no_problems','ok_exitcrash','rerun_unknown','rerun_not_qualified','rerun_missing_errlog','rerun_timeout','rerun_fatal_error','rerun_missing_macros','rerun_missing_figure','rerun_missing_bib','retun_missing_file','rerun_error','rerun_warning','rerun_no_problems','rerun_ok_exitcrash') DEFAULT NULL,
   `timeout` smallint(6) DEFAULT NULL,
   `num_xmarg` smallint(6) DEFAULT NULL,
   `ok_xmarg` smallint(6) DEFAULT NULL,
@@ -527,6 +528,10 @@ CREATE TABLE `statistic` (
   `errmsg` text DEFAULT NULL,
   `project_id` varchar(32) DEFAULT NULL,
   `project_src` varchar(32) DEFAULT NULL,
+  `comment` text DEFAULT NULL,
+  `comment_status` enum('none','todo','working','revisit','cannot fix','ok') DEFAULT 'none',
+  `comment_keyword` varchar(80) DEFAULT NULL,
+  `comment_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `filename` (`filename`),
   KEY `dc` (`date_created`),
@@ -572,6 +577,25 @@ CREATE TABLE `stycross` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `styusage`
+--
+
+DROP TABLE IF EXISTS `styusage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `styusage` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `set` varchar(128) DEFAULT NULL,
+  `filename` varchar(768) DEFAULT NULL,
+  `macro` varchar(768) DEFAULT NULL,
+  `styfilename` varchar(768) DEFAULT NULL,
+  `num` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `styfilename` (`styfilename`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `workqueue`
 --
 
@@ -581,6 +605,7 @@ DROP TABLE IF EXISTS `workqueue`;
 CREATE TABLE `workqueue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `statistic_id` int(11) DEFAULT NULL,
+  `pid` int(6) DEFAULT NULL,
   `date_created` datetime DEFAULT NULL,
   `date_modified` datetime DEFAULT NULL,
   `priority` tinyint(4) DEFAULT NULL,
@@ -607,12 +632,12 @@ CREATE TABLE `workqueue` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-28 20:49:45
--- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
+-- Dump completed on 2022-11-30 20:21:49
+-- MariaDB dump 10.19  Distrib 10.5.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
+-- Server version	10.5.13-MariaDB-1:10.5.13+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -650,7 +675,7 @@ INSERT INTO `help` VALUES ('detailedHist','Detailed History','This page shows th
 INSERT INTO `help` VALUES ('generalStat','General statistics','This page gives an overview of the current system. \r\n<dl>\r\n<dt>Total number\r\n<dd>total number of articles processed</dd>\r\n</dt>\r\n<dt>Last 24 hours\r\n<dd>number of articles converted in last 24 hours</dd>\r\n</dt>\r\n<dt>Last Hour\r\n<dd>number of articles processed in last hour</dd>\r\n</dt>\r\n<dt>State\r\n<dd>current state of system, are jobs currently running?</dd>\r\n</dt>\r\n<dt>Current job ...\r\n<dd>time of current or last job</dd>\r\n</dt>\r\n<dt>LaTeXML Version\r\n<dd>version of LaTeXML being used.</dd>\r\n</dt>\r\n<dt>Number of files in queue\r\n<dd>number of files that are waiting to be processed.</dd>\r\n</dt>\r\n<dt>Number of concurrent job\r\n<dd>the number of hosts that are configured. If you are running via <tt>docker-compose</tt>, the command to run 4 workers is \r\n<code>\r\ndocker-compose up --scale latexml_dmake=4\r\n</code></dd>\r\n</dt>\r\n<dt>Hosts\r\n<dd>the names of the hosts that are being used. </dd>\r\n<dt>Timeout\r\n<dd>number of seconds when latexml times out and gives up. This value can be adjusted by setting <tt>TIMEOUT_SECONDS</tt> in <tt>docker-compose.yml</tt>\r\n</dd>\r\n<dt>Worker Memory Factor</dt>\r\n<dd>The amount of memory a worker will use. This is a factor with regards to the host of the worker. This value can be adjusted by setting <tt>MEMLIMIT_PERCENT</tt> in <tt>docker-compose.yml</tt>. If you run several workers you might want to decrease the default value.\r\n</dd>\r\n<dt>Worker Memory Absolute Limit</dt>\r\n<dd>If you set this value, a worker will not consume more memory than given value. This value can be adjusted by setting <tt>MEMLIMIT_ABSOLUTE</tt> in <tt>docker-compose.yml</tt>.\r\n<dt>\r\n</dt>\r\n');
 INSERT INTO `help` VALUES ('import-overleaf','Import project from Overleaf','Here you can import your projects directly from Overleaf.\r\n<p>\r\nFor details, please read <a href=\"https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub\" target=\"_blank\">Using Git and GitHub with Overleaf</a>.\r\n</p>\r\n<p>\r\nLater you can also update (<em>git pull</em>) your projects on the <a href=\"retval_abc.php\">Documents alphabetically</a> page. Just click on the green Overleaf icon <img src=\"/css/img/overleaf16.svg\"> and your project will be updated. \r\n</p>\r\n<p>\r\nThe access is only readonly. Texmlbus will not change any data on your Overleaf project.\r\n');
 INSERT INTO `help` VALUES ('import-overleaf-name','Specify the name of the project','Please enter the name of your project.\r\n<p>\r\nYour project has probably a name on Overleaf. Just use that name or any other name. Within texmlbus, your project will be given the name that you enter here.\r\n\r\n');
-INSERT INTO `help` VALUES ('import-overleaf-projectid','Specify projectid','Please specify the project id of your project.\r\nYou can find the Git url from the project url (the url in the browser address bar when you are in a project). If your Overleaf project url looks like:\r\n<p>\r\n<tt>https://www.overleaf.com/project/1234567</tt>\r\n</p>\r\nyou will need to enter <tt>1234567</tt> here.\r\n<p>\n\r\nFor details, please check the <a href=\"https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub\" target=\"_new\">Git help page on Overleaf</a>.\r\n</p>');
+INSERT INTO `help` VALUES ('import-overleaf-projectid','Specify projectid','Please specify the project id of your project.\r\nYou can find the Git url from the project url (the url in the browser address bar when you are in a project). If your Overleaf project url looks like:\r\n<p>\r\n<tt>https://www.overleaf.com/project/1234567</tt>\r\n</p>\r\nyou will need to enter <tt>1234567</tt> here.\r\n<p>\r\n\r\nFor details, please check the <a href=\"https://www.overleaf.com/learn/how-to/Using_Git_and_GitHub\" target=\"_new\">Git help page on Overleaf</a>.\r\n</p>');
 INSERT INTO `help` VALUES ('import-overleaf-select','Select set for import','Please select a set where your project should be imported to. You can also just create a new set by just typing the new name, followed by the enter / return key.\r\n<br />\r\nIf you do not specify a set, the set <em>main</em> is automatically chosen. \r\n<p>\r\nA set is basically just a subdirectory in the <em>article</em> folder. ');
 INSERT INTO `help` VALUES ('import-overleaf-username','Your username','Please specify your username on Overleaf.\r\n<p>\r\nYou will be then asked for a password. The password will only be used to access Overleaf and <b>never</b> be sent anywhere else.\r\n</p>\r\n<p> \r\nThe password will be cached in shared memory of the container until the docker container is stopped. It will <b>never</b> be saved to disk or stored persistently in any other way.\r\n</p>\r\n');
 INSERT INTO `help` VALUES ('index','texmlbus','<ul>\r\n<li>see <a href=\"/doc\">documentation</a> for texmlbus.</li>\r\n<li>an <a href=\"#\" class=\"infolink\" data=\"overallStat\">overview</a> of the values given on this page.\r\n</ul>');
@@ -682,12 +707,12 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-28 20:49:45
--- MariaDB dump 10.18  Distrib 10.5.8-MariaDB, for debian-linux-gnu (x86_64)
+-- Dump completed on 2022-11-30 20:21:50
+-- MariaDB dump 10.19  Distrib 10.5.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: buildsysdb
 -- ------------------------------------------------------
--- Server version	10.5.8-MariaDB-1:10.5.8+maria~focal
+-- Server version	10.5.13-MariaDB-1:10.5.13+maria~focal
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -718,7 +743,7 @@ CREATE TABLE `dbversion` (
 
 LOCK TABLES `dbversion` WRITE;
 /*!40000 ALTER TABLE `dbversion` DISABLE KEYS */;
-INSERT INTO `dbversion` VALUES (8);
+INSERT INTO `dbversion` VALUES (15);
 /*!40000 ALTER TABLE `dbversion` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -731,4 +756,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-10-28 20:49:45
+-- Dump completed on 2022-11-30 20:21:50
