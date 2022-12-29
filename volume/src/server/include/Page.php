@@ -445,7 +445,7 @@ class Page
      *
      * @param array $deferJs
      */
-	public function showFooter($deferJs = array()) {
+	public function showFooter($deferJs = []) {
 ?>
        <!-- Footer -->
         </main>

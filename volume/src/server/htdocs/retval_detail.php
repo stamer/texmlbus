@@ -107,7 +107,6 @@ $columns = View::getColumnsByRetval($stage, $retval);
 $numRows = RetvalDao::getCountByRetval($retval, $stage, $joinTable, $set, $detail);
 
 $max_pp = $cfg->db->perPage;
-$max_pp = 10;
 
 $rows = RetvalDao::getDetailsByRetval(
         $retval,

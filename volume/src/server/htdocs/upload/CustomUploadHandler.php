@@ -125,7 +125,7 @@ class CustomUploadHandler extends UploadHandler
         $cfg = Config::getConfig();
 
         $destSet = $this->get_query_param('_destset');
-        $response = array();
+        $response = [];
         $response['isImport'] = true;
         $response['destSet'] = $destSet;
         $response['files'] = [];
