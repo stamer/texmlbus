@@ -7,7 +7,7 @@
  */
 
 require __DIR__ . '/../../vendor/autoload.php';
-$currentDir = dirname(__FILE__);
+$currentDir = __DIR__;
 $srcDir = dirname(__FILE__, 3);
 
 use Server\Config;

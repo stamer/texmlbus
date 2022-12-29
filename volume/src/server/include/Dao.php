@@ -10,8 +10,7 @@ use Server\Config;
 
 class Dao
 {
-    /** @var PDO $instance */
-    protected static $instance = null;
+    protected static ?PDO $instance = null;
 
     protected function __construct() {}
     protected function __clone() {}
@@ -55,7 +54,7 @@ class Dao
     }
 
     /**
-     * For long running jobs, the wait_timeout (default 28800 s) might be
+     * For long-running jobs, the wait_timeout (default 28800 s) might be
      * exceeded and therefore the query fails with 'mysql server has gone away'.
      * For specific methods, that might be called after long period of time, one can use
      * this method, which will automatically reconnect, if the simple query fails.
@@ -64,7 +63,7 @@ class Dao
     {
         try {
             self::query("SELECT 1;", null, false, true);
-        } catch(\PDOException $e) {
+        } catch(PDOException $e) {
             if ($e->getCode() !== 'HY000'
                 || !stristr($e->getMessage(), 'server has gone away')
             ) {
@@ -79,7 +78,7 @@ class Dao
 
     public static function __callStatic($method, $args)
     {
-        return call_user_func_array(array(self::getInstance(), $method), $args);
+        return call_user_func_array([self::getInstance(), $method], $args);
     }
 
     /**
@@ -102,8 +101,8 @@ class Dao
                 $stmt->execute($args);
             }
             return $stmt;
-        } catch(\PDOException $e) {
-            if ($e->getCode() != 'HY000'
+        } catch(PDOException $e) {
+            if ($e->getCode() !== 'HY000'
                 || !stristr($e->getMessage(), 'server has gone away')) {
                 throw $e;
             }
@@ -111,6 +110,7 @@ class Dao
             self::renewInstance();
             self::query($sql, $args, false);
         }
+        return false;
     }
 }
 
