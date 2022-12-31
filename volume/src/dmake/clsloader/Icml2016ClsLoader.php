@@ -8,9 +8,6 @@
 namespace Dmake\Clsloader;
 
 use Dmake\AbstractClsLoader;
-use Dmake\UtilFile;
-use Dmake\UtilStylefile;
-use Dmake\UtilZipfile;
 
 class Icml2016ClsLoader extends AbstractClsLoader
 {

@@ -23,9 +23,8 @@ class DmakeStatus
     /**
      * saves the current status
      *
-     * @param bool $updateStarted
      */
-	public function save($updateStarted = TRUE): bool
+	public function save(bool $updateStarted = true): bool
 	{
 		$dao = Dao::getInstance();
 

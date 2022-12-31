@@ -12,7 +12,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ServerRequest
 {
-    private $serverRequest;
+    private ServerRequestInterface $serverRequest;
 
     public function __construct(ServerRequestInterface $serverRequest)
     {
@@ -86,7 +86,7 @@ class ServerRequest
 
     public function withoutAttribute($name): static
     {
-        $serverRequest = $this->serverRequest->withoutAttribute();
+        $serverRequest = $this->serverRequest->withoutAttribute($name);
         return new static($serverRequest);
     }
 

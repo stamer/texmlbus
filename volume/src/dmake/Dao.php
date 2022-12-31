@@ -77,7 +77,7 @@ class Dao
     }
 
     /**
-     * For long running jobs, the wait_timeout (default 28800 s) might be
+     * For long-running jobs, the wait_timeout (default 28800 s) might be
      * exceeded and therefore the query fails with 'mysql server has gone away'.
      * For specific methods, that might be called after long period of time, one can use
      * this method, which will automatically reconnect, if the simple query fails.
@@ -112,7 +112,6 @@ class Dao
 
     /**
      * provides a static query
-     * @return bool|PDOStatement
      */
     public static function query(
         string $sql,

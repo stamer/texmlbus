@@ -6,9 +6,11 @@
  */
 namespace Dmake;
 
+use ErrorException;
+
 class UtilFile
 {
-    public static $flc = 0;
+    public static int $flc = 0;
 
     public static function getFileOwner(string $filename, bool $clearCache = false): string
     {
@@ -37,11 +39,9 @@ class UtilFile
     }
 
     /**
-     * get the the directories where we want to run make in
-     * @param &$dirs
-     * @param $restrict_dir
+     * get the directories where we want to run make in
      */
-    public static function getDirectoriesR(&$dirs, string $restrict_dir)
+    public static function getDirectoriesR(&$dirs, string $restrict_dir): void
     {
         //$output = `cd $makedir; ls -d /papers/*`;
         if ($restrict_dir != '') {
@@ -70,7 +70,7 @@ class UtilFile
      * @param &$dirs
      * @param $restrict_dir
      */
-    public static function getDirectories(&$dirs, $restrict_dir)
+    public static function getDirectories(&$dirs, $restrict_dir): void
     {
         if ($restrict_dir != '') {
             $pattern = ARTICLEDIR . '/' . $restrict_dir . '/*';
@@ -100,13 +100,13 @@ class UtilFile
      * @return array
      */
     public static function listDir(
-        $dir = './',
-        $ignore_dot = true,
-        $sort_asc = true,
-        $pattern = null,
-        $only_files = false,
-        $only_dirs = false
-    )
+        string $dir = './',
+        bool $ignore_dot = true,
+        bool $sort_asc = true,
+        ?string $pattern = null,
+        bool $only_files = false,
+        bool $only_dirs = false
+    ): array
     {
         $files = [];
         $cdir = @opendir($dir);
@@ -121,7 +121,7 @@ class UtilFile
             ) {
                 if (
                     !$ignore_dot
-                    || $file[0] != '.'
+                    || $file[0] !== '.'
                 ) {
                     if ($only_files && is_dir($dir . '/' . $file)) {
                         continue;
@@ -287,8 +287,8 @@ class UtilFile
             }
             $files = scandir($src);
             foreach ($files as $file)
-                if ($file != "."
-                    && $file != ".."
+                if ($file !== '.'
+                    && $file !== '..'
                 ) {
                     self::copyR("$src/$file", "$dest/$file");
                 }
@@ -462,7 +462,7 @@ class UtilFile
             return '';
         }
 
-        $matches = array();
+        $matches = [];
         preg_match('/TARGET.base = (\S+)/m', $contents, $matches);
         // matches[1] is the base file.
         if (!isset($matches[1])) {
@@ -531,7 +531,7 @@ class UtilFile
 
     /**
      * Return prefix of filename.
-     * basename() is not used, as it is locale dependent and you need to
+     * basename() is not used, as it is locale dependent, and you need to
      * specify the suffix to be removed as well.
      */
     public static function getPrefix(string $filename): string
@@ -562,7 +562,7 @@ class UtilFile
             error_log(__METHOD__ . ": Executing $command");
         }
 
-        $retstr = `$command`;
+        $retstr = shell_exec($command);
 
         if (
             strpos($retstr, 'text/') !== false
@@ -592,7 +592,7 @@ class UtilFile
             error_log(__METHOD__ . ": Executing $command");
         }
 
-        $retstr = `$command`;
+        $retstr = shell_exec($command);
 
         if (strpos($retstr, 'application/zip') !== false) {
             return true;
@@ -696,7 +696,7 @@ class UtilFile
         }
         chdir(ARTICLEDIR . '/' . $directory);
 
-        $possibleCleanActions = array('clean');
+        $possibleCleanActions = ['clean'];
 
         foreach ($cfg->stages as $stage => $value) {
             $possibleActions[] = $stage;
@@ -736,7 +736,7 @@ class UtilFile
         return $safeName;
     }
 
-    public static function makeDirWritable(string $directory)
+    public static function makeDirWritable(string $directory): void
     {
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
         foreach ($iterator as $item) {
@@ -761,23 +761,23 @@ class UtilFile
     {
         $fp = fopen($destFile, 'w');
         if (!$fp) {
-            throw new \ErrorException("Unable to create $destFile!");
+            throw new ErrorException("Unable to create $destFile!");
         }
-        $options = array(
+        $options = [
             CURLOPT_FILE => $fp,
             CURLOPT_TIMEOUT => 600,
             CURLOPT_URL => $url,
             CURLOPT_FOLLOWLOCATION => true
-        );
+        ];
 
         $ch = curl_init();
         if (!$ch) {
-            throw new \ErrorException("Failed to init curl.");
+            throw new ErrorException("Failed to init curl.");
         }
         curl_setopt_array($ch, $options);
         $success = curl_exec($ch);
         if (!$success) {
-            throw new \ErrorException("Download of $url failed.");
+            throw new ErrorException("Download of $url failed.");
         }
         curl_close($ch);
     }
@@ -802,7 +802,7 @@ class UtilFile
         return $workerDirectories;
     }
 
-    public static function isFileNewerThan($file, $thanfile) 
+    public static function isFileNewerThan($file, $thanfile): bool
     {
         return filemtime($file) > filemtime($thanfile);
     }

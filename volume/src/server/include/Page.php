@@ -28,12 +28,12 @@ class Page
         $this->request = RequestFactory::create();
     }
 
-    public function setTitle(string $title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -55,7 +55,7 @@ class Page
     /**
      * adds a script to current page
      */
-    public function addScript(string $scriptPath)
+    public function addScript(string $scriptPath): void
     {
         /* avoid dumb mistakes */
         if ($this->headerShown) {
@@ -68,7 +68,7 @@ class Page
     /**
      * adds css to current page
      */
-    public function addCss(string $css)
+    public function addCss(string $css): void
     {
         /* avoid dumb mistakes */
         if ($this->headerShown) {
@@ -96,7 +96,8 @@ class Page
      */
 	public function showHeader(
             ?string $activeLeft = null,
-            ?string $activeRight = null)
+            ?string $activeRight = null
+    ): void
     {
         $cfg = Config::getConfig();
         $sets = Set::getSets();
@@ -186,7 +187,7 @@ class Page
                     <a class="nav-link <?=($activeLeft == 'documentation' ? 'active' : '') ?>" href="/doc/">Documentation</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="http://dlmf.nist.gov/LaTeXML/" target="latexml">LaTeXML</a>
+                    <a class="nav-link" href="https://dlmf.nist.gov/LaTeXML/" target="latexml">LaTeXML</a>
                 </li>
             </ul>
         </div>
@@ -445,7 +446,8 @@ class Page
      *
      * @param array $deferJs
      */
-	public function showFooter($deferJs = array()) {
+	public function showFooter($deferJs = []): void
+    {
 ?>
        <!-- Footer -->
         </main>

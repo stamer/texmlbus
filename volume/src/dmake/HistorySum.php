@@ -9,29 +9,51 @@ namespace Dmake;
 
 class HistorySum
 {
-    public $id = 0;
-    public $set = [];
-    public $dateSnapshot = '';
-    public $showEntry = 1;
-    public $stage = '';
-    public $retvalUnknown = 0;
-    public $retvalNotQualified = 0;
-    public $retvalMissingErrlog = 0;
-    public $retvalTimeout = 0;
-    public $retvalFatalError = 0;
-    public $retvalMissingMacros = 0;
-    public $retvalMissingFigure = 0;
-    public $retvalMissingBib = 0;
-    public $retvalMissingFile = 0;
-    public $retvalError = 0;
-    public $retvalWarning = 0;
-    public $retvalNoProblems = 0;
-    public $retvalOkExitCrash = 0;
-    public $sumWarning = 0;
-    public $sumError = 0;
-    public $sumMacro = 0;
-    public $timeout = 0;
-    public $comment = '';
+    public ?int $id = 0;
+
+    public ?array $set = [];
+
+    public ?string $dateSnapshot = '';
+
+    public ?int $showEntry = 1;
+
+    public ?string $stage = '';
+
+    public ?int $retvalUnknown = 0;
+
+    public ?int $retvalNotQualified = 0;
+
+    public ?int $retvalMissingErrlog = 0;
+
+    public ?int $retvalTimeout = 0;
+
+    public ?int $retvalFatalError = 0;
+
+    public ?int $retvalMissingMacros = 0;
+
+    public ?int $retvalMissingFigure = 0;
+
+    public ?int $retvalMissingBib = 0;
+
+    public ?int $retvalMissingFile = 0;
+
+    public ?int $retvalError = 0;
+
+    public ?int $retvalWarning = 0;
+
+    public ?int $retvalNoProblems = 0;
+
+    public ?int $retvalOkExitCrash = 0;
+
+    public ?int $sumWarning = 0;
+
+    public ?int $sumError = 0;
+
+    public ?int $sumMacro = 0;
+
+    public ?int $timeout = 0;
+
+    public ?string $comment = '';
 
     public function getId(): ?int
     {

@@ -111,7 +111,7 @@ class HelpDao
     /**
      * Deletes the entry by given id.
      */
-    public static function deleteById(string $id): array
+    public static function deleteById(string $id): bool
     {
         $dao = Dao::getInstance();
 

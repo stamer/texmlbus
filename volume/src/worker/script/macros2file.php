@@ -32,7 +32,7 @@ if (isset($argv[1])) {
 	$set = 'samples-working';
 }
 
-echo "prefix is $prefix".PHP_EOL;
+echo "prefix is $set" . PHP_EOL;
 
 $query = '
 	SELECT
@@ -44,7 +44,7 @@ $query = '
     ON
         s.id = r.id
 	WHERE
-        s.`set` like "'.$prefix.'%"
+        s.`set` like "' . $set . '%"
         AND r.missing_macros != ""
 	ORDER BY
 		s.filename';

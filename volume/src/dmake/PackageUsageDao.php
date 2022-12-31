@@ -55,9 +55,8 @@ class PackageUsageDao
 
     /**
      * @param $filename
-     * @return array|false
      */
-    public function getStyfilesByFilename($filename)
+    public function getStyfilesByFilename($filename): array
     {
         $dao = Dao::getInstance();
 
